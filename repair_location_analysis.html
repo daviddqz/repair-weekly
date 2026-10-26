@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>维修点位分析 · 按 Office × 箱型</title>
+<style>
+:root{
+  --navy-900:#0a1c33; --navy-800:#0f2a49; --navy-700:#173d68; --navy-600:#22558c;
+  --accent:#e0b352; --accent-soft:#f6e7c4;
+  --bg:#eef2f8; --card:#ffffff; --line:#e2e8f2;
+  --text:#132a44; --muted:#6b7f96; --muted-2:#93a4b8;
+  --ur:#e39a1c; --rj:#e0564f; --rc:#1f9e6e;
+  --shadow:0 1px 2px rgba(16,42,73,.06),0 8px 24px rgba(16,42,73,.07);
+  --radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei","PingFang SC","Hiragino Sans GB",sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.5;
+  font-feature-settings:"tnum" 1,"cv05" 1;
+}
+.wrap{max-width:1440px;margin:0 auto;padding:0 24px 56px}
+.hero{
+  background:
+    radial-gradient(1100px 420px at 88% -10%, rgba(224,179,82,.20), transparent 60%),
+    radial-gradient(760px 380px at 4% 120%, rgba(34,85,140,.55), transparent 62%),
+    linear-gradient(135deg,var(--navy-900) 0%,var(--navy-800) 46%,var(--navy-700) 100%);
+  color:#fff;position:relative;overflow:hidden;border-bottom:3px solid var(--accent);
+}
+.hero::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);
+  background-size:46px 46px;mask-image:linear-gradient(180deg,rgba(0,0,0,.9),transparent 82%);
+}
+.hero-in{position:relative;z-index:2;max-width:1440px;margin:0 auto;padding:34px 24px 30px}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:9px;font-size:12px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--accent);font-weight:700;
+  border:1px solid rgba(224,179,82,.42);border-radius:999px;padding:5px 14px;margin-bottom:16px;
+  background:rgba(224,179,82,.08);
+}
+.eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px rgba(224,179,82,.18)}
+.hero h1{font-size:clamp(23px,3vw,36px);font-weight:800;letter-spacing:-.015em;line-height:1.18}
+.hero h1 span{color:var(--accent)}
+.hero p.sub{margin-top:10px;color:#c3d3e6;font-size:14.5px;max-width:880px}
+.hero-meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.chip{
+  display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:#dce7f4;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);
+  border-radius:10px;padding:7px 13px;
+}
+.chip b{color:#fff;font-weight:700}
+.chip .ic{color:var(--accent);font-size:13px}
+.chip-warn{background:rgba(217,43,43,.22);border-color:rgba(248,113,113,.5)}
+.chip-warn .ic{color:#fca5a5}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:-26px;position:relative;z-index:5}
+.kpi{
+  background:var(--card);border-radius:var(--radius);padding:17px 17px 15px;
+  box-shadow:var(--shadow);border:1px solid var(--line);position:relative;overflow:hidden;
+}
+.kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--c,var(--navy-600))}
+.kpi .k-label{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.03em}
+.kpi .k-val{font-size:29px;font-weight:800;letter-spacing:-.02em;margin-top:7px;line-height:1.05;color:var(--navy-800)}
+.kpi .k-foot{margin-top:7px;font-size:11.5px;color:var(--muted-2)}
+.sec{margin-top:32px}
+.sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:15px;flex-wrap:wrap}
+.sec-head h2{font-size:19px;font-weight:800;letter-spacing:-.01em;display:flex;align-items:center;gap:10px}
+.sec-head h2::before{content:"";width:4px;height:19px;border-radius:2px;background:var(--accent)}
+.sec-head .note{font-size:12.5px;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}
+.card h3{font-size:14.5px;font-weight:800;color:var(--navy-800);display:flex;align-items:center;gap:9px;margin-bottom:4px}
+.card h3 .tag{font-size:10.5px;font-weight:700;color:var(--muted);background:#eef2f8;border-radius:6px;padding:2px 7px;letter-spacing:.03em}
+.card .desc{font-size:12px;color:var(--muted);margin-bottom:14px}
+.grid2{display:grid;grid-template-columns:1.5fr 1fr;gap:16px}
+.grid2b{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.warn-banner{
+  background:
+    radial-gradient(620px 260px at 92% -30%, rgba(255,255,255,.16), transparent 62%),
+    linear-gradient(118deg,#6d1414 0%,#a81c1c 46%,#d92b2b 100%);
+  color:#fff;border-radius:var(--radius);padding:19px 22px;
+  display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;
+  box-shadow:0 10px 30px rgba(168,28,28,.26);
+}
+.wb-left{display:flex;align-items:center;gap:14px}
+.wb-ic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;flex:none;
+  background:rgba(255,255,255,.17);border:1px solid rgba(255,255,255,.32);font-size:23px;font-weight:900}
+.wb-t{font-size:18px;font-weight:800}
+.wb-s{font-size:12.5px;color:rgba(255,255,255,.84);margin-top:3px;max-width:640px}
+.wb-nums{display:flex;gap:11px;flex-wrap:wrap}
+.wb-n{background:rgba(0,0,0,.17);border:1px solid rgba(255,255,255,.2);border-radius:11px;padding:8px 15px;min-width:108px;text-align:center}
+.wb-n b{display:block;font-size:23px;font-weight:800;line-height:1.16}
+.wb-n span{font-size:11px;color:rgba(255,255,255,.82)}
+.warn-tiers{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:16px}
+.tw{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:15px 17px;position:relative;overflow:hidden}
+.tw::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--c)}
+.tw-l{font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.05em}
+.tw-v{font-size:27px;font-weight:800;margin-top:5px;color:var(--c);line-height:1.1}
+.tw-f{font-size:11.5px;color:var(--muted-2);margin-top:3px}
+.tw-bar{height:6px;border-radius:999px;background:#eef2f8;margin-top:11px;overflow:hidden}
+.tw-bar i{display:block;height:100%;border-radius:999px;background:var(--c);width:0;transition:width .9s cubic-bezier(.22,1,.36,1)}
+/* Office rank rows */
+.rank-list{display:grid}
+.rk{display:flex;align-items:center;gap:12px;padding:9px 2px;border-bottom:1px dashed #eef2f8}
+.rk:last-child{border-bottom:none}
+.rk-no{width:22px;flex:none;text-align:center;font-size:11.5px;font-weight:800;color:var(--muted-2)}
+.rk-ofc{width:70px;flex:none;font-size:12.5px;font-weight:800;color:#2c3f57}
+.rk-bar{flex:1;height:17px;border-radius:5px;background:#f1f5fb;display:flex;overflow:hidden;min-width:80px}
+.rk-bar span{display:block;height:100%}
+.rk-num{width:56px;flex:none;text-align:right;font-size:13px;font-weight:800;color:var(--navy-700);font-variant-numeric:tabular-nums}
+.rk-warn{width:74px;flex:none;text-align:right}
+.rk-ratio{width:62px;flex:none;text-align:right;font-size:12px;font-weight:700;color:var(--muted)}
+.rk{cursor:default}
+.rk:hover{background:#f2f7fd;border-radius:8px}
+.rk-bar span{transition:filter .12s}
+.rk-bar span:hover{filter:brightness(1.13)}
+.rk-tip{
+  position:fixed;left:0;top:0;z-index:999;pointer-events:none;opacity:0;transform:translateY(-4px);
+  transition:opacity .12s,transform .12s;background:#0f2a49;color:#fff;border-radius:10px;
+  padding:10px 13px;box-shadow:0 14px 34px rgba(10,28,51,.34);border:1px solid rgba(255,255,255,.14);
+  font-size:12px;line-height:1.55;min-width:186px;
+}
+.rk-tip.on{opacity:1;transform:translateY(0)}
+.rk-tip .tt-h{font-weight:800;font-size:12.5px;margin-bottom:7px;color:var(--accent);letter-spacing:.02em}
+.rk-tip .tt-r{display:flex;align-items:center;justify-content:space-between;gap:18px}
+.rk-tip .tt-r span{color:#c3d3e6}
+.rk-tip .tt-r b{font-variant-numeric:tabular-nums;font-weight:800}
+.rk-tip .tt-d{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.rk-tip .tt-sep{height:1px;background:rgba(255,255,255,.16);margin:7px 0}
+.rk-tip .tt-tot b{color:#fff}
+.rk-tip .tt-warn b{color:#ffb4b4}
+.lg{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:12px;color:var(--muted)}
+.lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+/* aging columns */
+.age-cols{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;align-items:end;height:150px;margin-bottom:6px}
+.ac{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%}
+.ac-v{font-size:15px;font-weight:800;color:var(--navy-800);margin-bottom:5px;font-variant-numeric:tabular-nums}
+.ac-b{width:100%;border-radius:7px 7px 3px 3px;background:var(--c);min-height:4px}
+.ac-l{font-size:11.5px;color:var(--muted);margin-top:7px;text-align:center;font-weight:600}
+.ac-l em{display:block;font-style:normal;font-size:10.5px;color:var(--muted-2)}
+/* aging: 两排口径（上=全部状态 / 下=其中未闭环预警） */
+.age-rowlbl{font-size:11.5px;font-weight:800;color:var(--navy-700);letter-spacing:.02em;margin:0 0 6px}
+.age-rowlbl.warn{color:#b3261e;margin:16px 0 6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.age-rowlbl.warn b{font-variant-numeric:tabular-nums}
+.age-rowlbl .pl{font-weight:700;color:var(--muted);font-size:11px}
+.age-cols.warn{height:138px}
+.ac-w{font-size:13px;font-weight:800;color:#b3261e;margin-bottom:5px;font-variant-numeric:tabular-nums}
+.ac-w.off{color:var(--muted-2);font-weight:700}
+.ac-b.off{background:repeating-linear-gradient(45deg,#eef2f7,#eef2f7 5px,#e5ebf3 5px,#e5ebf3 10px)}
+/* table */
+.table-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.table-tools{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.table-tools .tt-title{font-size:13px;color:var(--muted)}
+.table-tools .tt-title b{color:var(--navy-700)}
+.search{position:relative}
+.search input{font-family:inherit;font-size:13px;padding:8px 12px 8px 32px;border:1px solid var(--line);border-radius:9px;width:220px;outline:none;color:var(--text);background:#fbfcfe}
+.search input:focus{border-color:var(--navy-600);background:#fff;box-shadow:0 0 0 3px rgba(34,85,140,.1)}
+.search::before{content:"\2315";position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted-2);font-size:15px}
+.scroll{max-height:640px;overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:12.6px}
+thead th{
+  position:sticky;top:0;z-index:3;background:var(--navy-800);color:#fff;font-weight:700;
+  text-align:center;padding:9px 10px;white-space:nowrap;font-size:11.8px;letter-spacing:.02em;
+  border-right:1px solid rgba(255,255,255,.09);background-clip:padding-box;
+}
+.scroll{position:relative}
+.scroll thead th{top:0}
+.scroll thead tr.gh th{top:0}
+.scroll thead tr.sh th{top:30px}
+thead tr.gh th{top:0;height:30px}
+thead tr.sh th{top:30px;background:var(--navy-700);font-size:11.2px;font-weight:600;height:28px}
+thead th.lft{text-align:left}
+thead th.grp-box{background:#123a2f}
+thead th.grp-box2{background:#1a5344}
+thead th.office-col{z-index:5}
+tbody td{padding:8px 10px;border-bottom:1px solid #eef2f8;border-right:1px solid #f4f7fb;text-align:center;white-space:nowrap;color:#2c3f57}
+tbody td.lft{text-align:left}
+tbody tr:nth-child(even){background:#fafbfe}
+tbody tr:hover{background:#eff5fd}
+tbody tr.total-row{background:var(--accent-soft)!important;font-weight:800;color:var(--navy-900)}
+tbody tr.total-row td{border-top:2px solid var(--accent)}
+td.num{font-variant-numeric:tabular-nums;font-weight:600}
+td.tbd{color:#c3cedd;font-style:italic}
+.ccy{font-size:11.4px;line-height:1.45;white-space:nowrap;font-variant-numeric:tabular-nums}
+.ccy+.ccy{margin-top:1px}
+td.hi{background:#fdecea;color:#b3261e;font-weight:800}
+td.mid{background:#fef5e3;color:#a9700f;font-weight:800}
+td.good{color:#137a52;font-weight:700}
+.pill{display:inline-block;font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px}
+.pill.warn{background:#fdecea;color:#b3261e}
+.pill.risk{background:#fdeee0;color:#b45309}
+.pill.watch{background:#fdf4e0;color:#a9700f}
+.pill.ok{background:#e8f6f0;color:#1f8a5f}
+/* notice */
+.notice{
+  display:flex;gap:13px;align-items:flex-start;border-radius:var(--radius);padding:15px 18px;
+  background:linear-gradient(180deg,#fffaf0,#fff6e4);border:1px solid #f2dcae;
+  border-left:4px solid var(--accent);font-size:12.8px;color:#7a5a13;
+}
+.notice b{color:#8a5a06}
+.notice code{background:#fff3d8;border:1px solid #f0dcae;border-radius:5px;padding:1px 5px;font-size:11.8px;color:#7a4d05}
+.notice .ni{font-size:17px;line-height:1.25}
+/* calc panel */
+.calc{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fld{display:flex;flex-direction:column;gap:7px}
+.fld label{font-size:12.2px;font-weight:800;color:var(--navy-800)}
+.fld .hint{font-size:11.5px;color:var(--muted-2);font-weight:400}
+.fld textarea{
+  font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;font-size:11.6px;
+  border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-height:128px;resize:vertical;
+  color:var(--text);background:#fbfcfe;outline:none;line-height:1.5;
+}
+.fld textarea:focus{border-color:var(--navy-600);background:#fff;box-shadow:0 0 0 3px rgba(34,85,140,.1)}
+.calc-foot{display:flex;align-items:center;gap:14px;margin-top:14px;flex-wrap:wrap}
+.btn{
+  font-family:inherit;font-size:13px;font-weight:800;border-radius:10px;padding:10px 20px;cursor:pointer;
+  border:1px solid var(--navy-700);background:var(--navy-700);color:#fff;transition:.15s;
+}
+.btn:hover{background:var(--navy-600)}
+.btn.ghost{background:#fff;color:var(--navy-700);border-color:var(--line)}
+.btn.ghost:hover{background:#f5f8fc}
+.msg{font-size:12.5px;color:var(--muted)}
+.msg.ok{color:#137a52;font-weight:700}
+.msg.err{color:#b3261e;font-weight:700}
+footer{margin-top:40px;padding-top:22px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted-2)}
+footer b{color:var(--muted)}
+.hidden{display:none!important}
+/* ---- module visibility controls ---- */
+.sec-hidden{display:none!important}
+.mod-bar{
+  position:sticky;top:0;z-index:60;background:rgba(255,255,255,.93);
+  -webkit-backdrop-filter:blur(9px);backdrop-filter:blur(9px);
+  border-bottom:1px solid var(--line);box-shadow:0 6px 18px rgba(16,42,73,.07);
+  margin-bottom:26px;
+}
+.mod-bar-in{max-width:1440px;margin:0 auto;padding:10px 24px;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.mod-bar .mb-title{font-size:11.5px;font-weight:800;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-right:3px}
+.mod-chip{
+  font-family:inherit;font-size:12.5px;font-weight:700;border:1px solid var(--line);background:#fff;
+  color:var(--navy-700);border-radius:999px;padding:6px 13px;cursor:pointer;transition:.15s;
+  display:inline-flex;align-items:center;gap:7px;white-space:nowrap;
+}
+.mod-chip:hover{border-color:var(--navy-600);background:#f5f8fc}
+.mod-chip .dotm{width:8px;height:8px;border-radius:50%;background:var(--rc);box-shadow:0 0 0 3px rgba(31,158,110,.16);transition:.15s}
+.mod-chip .eye{font-size:12px;line-height:1}
+.mod-chip.off{color:var(--muted-2);background:#f4f6fa;border-style:dashed}
+.mod-chip.off .dotm{background:#c3cedd;box-shadow:0 0 0 3px rgba(195,206,221,.22)}
+.mod-chip.solid{background:var(--navy-700);border-color:var(--navy-700);color:#fff}
+.mod-chip.solid:hover{background:var(--navy-600)}
+.mod-bar .mb-all{margin-left:auto;display:flex;gap:8px}
+.mod-btn{
+  font-family:inherit;font-size:12px;font-weight:700;color:var(--navy-700);background:#fff;
+  border:1px solid var(--line);border-radius:999px;padding:5px 12px;cursor:pointer;transition:.15s;
+  display:inline-flex;align-items:center;gap:6px;flex:none;
+}
+.mod-btn:hover{border-color:var(--navy-600);background:#f5f8fc}
+.mod-btn .chev{font-size:11px;line-height:1}
+.mod-btn.is-off{color:var(--muted-2);background:#f4f6fa;border-style:dashed}
+@media(max-width:1180px){
+  .kpis{grid-template-columns:repeat(3,1fr)}
+  .grid2,.grid2b,.calc{grid-template-columns:1fr}
+}
+@media(max-width:720px){
+  .wrap{padding:0 14px 40px}
+  .hero-in{padding:24px 14px}
+  .kpis{grid-template-columns:repeat(2,1fr);margin-top:-18px}
+  .warn-tiers{grid-template-columns:1fr}
+  .age-cols{gap:7px}
+  .rk-ofc{width:56px}
+  .rk-warn{display:none}
+}
+@media print{
+  body{background:#fff}
+  .hero{color:#000;background:#fff!important;border-bottom:2px solid #000}
+  .hero h1 span,.eyebrow{color:#000}
+  .hero p.sub,.chip{color:#333}
+  .kpi,.card,.table-card,.tw{box-shadow:none;border:1px solid #ccc;break-inside:avoid}
+  .scroll{max-height:none;overflow:visible}
+  .search,.calc,.btn,.mod-bar,.mod-btn{display:none!important}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="hero-in">
+    <div class="eyebrow"><span class="dot"></span>CONTAINER REPAIR · LOCATION ANALYSIS</div>
+    <h1>维修点位分析 <span>Office × 箱型</span></h1>
+    <p class="sub">按估价单 Office 对齐维修状态、账龄与进口量。进口量来自 CIN_M1051 Movement Performance by Location，按用户提供的 SMD → 估价单 Office 映射归并；箱型维度仍保留为待补录项，空值不会误算为 0。</p>
+    <div class="hero-meta">
+      <span class="chip"><span class="ic">◈</span>数据截止 <b>2026-10-26</b></span>
+      <span class="chip"><span class="ic">◈</span>覆盖 Office <b>21 个</b></span>
+      <span class="chip chip-warn"><span class="ic">⚠</span>超 7 天预警 <b id="chip-warn">500 箱</b></span>
+      <span class="chip"><span class="ic">◈</span>维修明细 <b id="chip-repair">9,356 条</b></span>
+      <span class="chip"><span class="ic">◈</span>总进口量 <b>53,208</b></span>
+      <span class="chip"><span class="ic">◈</span>查询期 <b>2026-09-26 ～ 2026-10-26</b></span>
+      <span class="chip"><span class="ic">◈</span>数据来源 <b>NAW Manage Repair + CIN_M1051</b></span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <section class="kpis">
+    <div class="kpi" style="--c:#22558c"><div class="k-label">维修总量</div><div class="k-val" id="k-total">9,356</div><div class="k-foot">21 个 Office / 点位</div></div>
+    <div class="kpi" style="--c:var(--ur)"><div class="k-label">维修中 · Under repair</div><div class="k-val" id="k-ur">1,080</div><div class="k-foot">占总量 <b>11.5%</b></div></div>
+    <div class="kpi" style="--c:var(--rj)"><div class="k-label">已驳回 · Rejected</div><div class="k-val" id="k-rj">195</div><div class="k-foot">占总量 <b>2.1%</b></div></div>
+    <div class="kpi" style="--c:var(--rc)"><div class="k-label">维修完成 · Complete</div><div class="k-val" id="k-rc">8,081</div><div class="k-foot">完成率 <b>86.4%</b></div></div>
+    <div class="kpi" style="--c:#d92b2b"><div class="k-label">未闭环</div><div class="k-val" id="k-open">1,275</div><div class="k-foot">维修中 + 已驳回</div></div>
+    <div class="kpi" style="--c:#b3261e"><div class="k-label">超 7 天预警</div><div class="k-val" id="k-warn">500</div><div class="k-foot">占未闭环 <b>39.2%</b></div></div>
+    <div class="kpi" style="--c:#1f9e6e"><div class="k-label">总进口量</div><div class="k-val" id="k-import">53,208</div><div class="k-foot">VD(MTY) 28,965 + ID-MT 24,243</div></div>
+    <div class="kpi" style="--c:#8b5cf6"><div class="k-label">维修量 / 进口量</div><div class="k-val" id="k-ri">17.6%</div><div class="k-foot">未闭环 / 进口量 <b>2.4%</b></div></div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><h2>超 7 天预警总览</h2><div class="note">范围：Under repair + Rejected · 账龄 &gt; 7 天</div></div>
+    <div class="warn-banner">
+      <div class="wb-left"><div class="wb-ic">!</div><div><div class="wb-t">超 7 天未闭环工单预警</div><div class="wb-s">维修中与已驳回工单中账龄超过 7 天的箱子需逐单跟进。当前预警占未闭环工单 39.2%。</div></div></div>
+      <div class="wb-nums"><div class="wb-n"><b id="wb-total">500</b><span>预警总量</span></div><div class="wb-n"><b id="wb-ur">359</b><span>维修中</span></div><div class="wb-n"><b id="wb-rj">141</b><span>已驳回</span></div><div class="wb-n"><b id="wb-pct">39.2%</b><span>占未闭环</span></div></div>
+    </div>
+    <div class="warn-tiers" id="warn-tiers"></div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><h2>各点位维修情况</h2><div class="note">按维修总量降序 · 点击明细表搜索 Office</div></div>
+    <div class="grid2">
+      <div class="card"><h3>Office 维修量排名 <span class="tag">BY OFFICE</span></h3><div class="desc">状态构成：维修中 / 已驳回 / 维修完成；右侧显示预警量与预警占未闭环比例。<b>鼠标悬停任意一行可查看该 Office 的具体数字</b></div><div class="rank-list" id="rank-list"></div><div class="lg"><span><i style="background:var(--ur)"></i>维修中</span><span><i style="background:var(--rj)"></i>已驳回</span><span><i style="background:var(--rc)"></i>维修完成</span><span><i style="background:#d92b2b"></i>超 7 天预警</span></div></div>
+      <div class="card"><h3>账龄分布 <span class="tag">AGING</span></h3><div class="desc">两排口径：上排 = 全部维修工单账龄（含维修完成）；下排 = 其中的未闭环预警（仅维修中 + 已驳回，账龄 &gt; 7 天）。<b>两者不是同一个总数</b></div><div class="age-rowlbl" id="age-lbl-all">全部工单账龄</div><div class="age-cols" id="age-cols"></div><div class="age-rowlbl warn" id="age-lbl-warn">其中：未闭环预警（维修中 + 已驳回）</div><div class="age-cols warn" id="age-warn-cols"></div><div class="notice" id="age-note"><span class="ni">!</span><span></span></div></div>
+    </div>
+    <div class="card" style="margin-top:16px"><h3>表现不好 TOP 10 <span class="tag">WORST 10</span></h3><div class="desc">按「超 7 天预警量」降序取前 10 的 Office（并列时按预警占未闭环比例）。四个分档均为未闭环预警分档，合计应等于超 7 天预警量。等级规则：含 30+ 天 → 超期；含 21-30 天 → 高危；含 14-21 天 → 预警；仅 7-14 天 → 关注</div><div class="table-card"><div class="scroll"><table><thead><tr><th>#</th><th class="lft">Office</th><th>维修总量</th><th>未闭环</th><th>超 7 天预警</th><th>预警占未闭环</th><th>预警 7-14 天</th><th>预警 14-21 天</th><th>预警 21-30 天</th><th>预警 30+ 天</th><th>等级</th></tr></thead><tbody id="worst-tbody"></tbody></table></div></div></div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><h2>估价单 Office × 进口量</h2><div class="note">已完成：按估价单 Office 对齐 · 箱型明细待补录</div></div>
+    <div class="notice"><span class="ni">✓</span><span><b>进口量已整合完成。</b>总进口量 53,208（VD(MTY) 28,965 + ID-MT 24,243），已按你提供的 SMD → 估价单 Office 对应关系归并。维修总量 9,356，整体维修量 / 进口量 17.6%；未闭环 / 进口量 2.4%。由于当前进口数据按 SMD 汇总、未按箱型拆分，箱型列仍显示 —，不代表 0。</span></div>
+    <div class="card" style="margin-top:16px"><h3>Office 进口量与维修量 <span class="tag">ESTIMATE OFFICE</span></h3><div class="desc">进口量按估价单 Office 统计；无对应维修清单的 Office 保留进口量，无进口量的维修 Office 显示 —。</div><div class="table-card"><div class="scroll"><table><thead><tr><th class="office-col lft">估价单 Office</th><th>进口量</th><th>VD(MTY)</th><th>ID-MT</th><th>维修总量</th><th>未闭环</th><th>维修量 / 进口量</th><th>未闭环 / 进口量</th><th>对应 SMD 点位</th></tr></thead><tbody id="office-import-tbody"></tbody></table></div></div></div>
+    <div class="card" style="margin-top:16px"><h3>箱型维度 <span class="tag">待补录 Type/Size</span></h3><div class="desc">Manage Repair 原始估价单只有 EQ No.，未提供可靠 Type/Size；补齐“箱号-箱型映射”后可继续生成 Office × 箱型维修量。进口量当前没有箱型拆分，因此箱型进口列暂不虚构。</div><div class="table-card"><div class="scroll"><table><thead><tr><th rowspan="2" class="office-col">Office / 点位</th><th colspan="3" class="grp-box">维修量（待箱型映射）</th><th colspan="5" class="grp-box">进口量（未按箱型拆分）</th><th rowspan="2">维修量 / 进口量</th></tr><tr class="sh"><th>20GP</th><th>20HC</th><th>40GP</th><th>20GP</th><th>20HC</th><th>40GP</th><th>40HC</th><th>Import Total</th></tr></thead><tbody id="box-tbody"></tbody></table></div></div></div>
+  </section>
+
+  <section class="sec"><div class="sec-head"><h2>维修明细汇总</h2><div class="note">已验证数据 · 支持 Office 搜索</div></div><div class="table-card"><div class="table-tools"><div class="tt-title">共 <b>21</b> 个 Office，合计 <b>9,356</b> 条维修记录</div><div class="search"><input id="q" type="text" placeholder="搜索 Office…"></div></div><div class="scroll"><table id="detail-table"><thead><tr><th class="lft">Office</th><th>Under repair</th><th>Rejected</th><th>Repair Complete</th><th>总量</th><th>未闭环</th><th>完成率</th><th>超7天预警</th><th>预警占未闭环</th><th>1-7天</th><th>7-14天</th><th>14-21天</th><th>21-30天</th><th>30+天</th></tr></thead><tbody id="detail-tbody"></tbody></table></div></div></section>  <section class="sec">
+    <div class="sec-head"><h2>prefix 箱清单 × 字头更换（按 Location）</h2><div class="note">Lease Term = SBI + 企业微信文档 Change container's cost · 同一张表按 Location 对齐</div></div>
+    <div class="notice"><span class="ni">✓</span><span><b>prefix 箱（SBI）箱量分布。</b>全量 SBI <b>28,344</b> 箱，按箱号前缀（BXAU / SLVU / VOTU / VOLU / BAXU）筛选后 <b>6,830</b> 箱；本表只列示 <b>MT / ID / IC</b> 三种 Movement，合计 <b>4,606</b> 箱。覆盖 <b>68</b> 个 Location（Location = Movement Yard 前 5 位，按全 Movement 口径；MT / ID / IC 均无箱的 Location 不出现在表内）。数据日期 2026-10-26。</span></div>
+    <div class="notice" id="chg-notice"></div>
+    <div class="table-card">
+      <div class="table-tools"><div class="tt-title">共 <b>67</b> 个 Location（prefix 箱 <b>4,606</b> 箱 · 字头更换 <b>4,483</b> 箱）</div><div class="search"><input id="ql" type="text" placeholder="搜索 Location…"></div></div>
+      <div class="scroll"><table id="lc-table"><thead><tr id="lc-head-g" class="gh"></tr><tr id="lc-head" class="sh"></tr></thead><tbody id="lc-tbody"></tbody><tfoot id="lc-tfoot"></tfoot></table></div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <h3>两张清单的口径 <span class="tag">不可互相替代</span></h3>
+      <div class="desc">表的左半部分（<b>MT / ID / IC</b> 三列 + 合计）= <b>prefix 箱清单在场箱量</b>（Lease Term = SBI，箱号前缀筛选后；其余 Movement 按需求不再列示，因此合计小于筛选后总量）；右半部分 = <b>字头更换已完成量</b>（来源企业微信文档「Change container's cost」，<b>Date of Change 为日期 = 已完成</b>，日期列为文字 in progress 等或空 = 未完成，不统计）。两者口径相互独立，字头更换箱量不是 prefix 箱箱量的子集，「更换 / 箱量」只作量级参考。Cost 以清单 <b>K 列（Currency）</b>为准，<b>未标注币种的一律按 USD</b>；行内按原币分币种列示、<b>不可跨币种相加</b>，另设 <b>Cost (USD)</b> 列按当日汇率折算，合计行以 USD 给出。</div>
+    </div>
+  </section>  <footer><div>数据来源：<b>C.U.LINES PTE</b> · ops.culines.com（NAW Manage Repair + CIN_M1051 Movement Performance by Location）</div><div>统计口径：Under repair = 查询日 − Job Order Send Date；Rejected = 查询日 − Estimate Request Date；Repair Complete = Repair Complete Date − Estimate Request Date；进口量 = VD(MTY) + ID-MT（SMD 点位，SOC=Exclude，2026-09-26 ～ 2026-10-26）</div></footer>
+</div>
+
+<script>
+(function(){
+'use strict';
+var ROWS = [{"Office":"CUPKG","Under repair":89,"Rejected":5,"Repair Complete":1500,"Total":1594,"未闭环(维修中+已驳回)":94,"完成率":0.941,"超7天预警":58,"预警占未闭环":0.617,"1-7 days":1439,"7-14 days":118,"14-21 days":27,"21-30 days":9,"30+ days":1,"预警7-14 days":37,"预警14-21 days":12,"预警21-30 days":9,"预警30+ days":0,"预警-维修中":56,"预警-已驳回":2},{"Office":"CUSHA","Under repair":456,"Rejected":22,"Repair Complete":673,"Total":1151,"未闭环(维修中+已驳回)":478,"完成率":0.5847,"超7天预警":87,"预警占未闭环":0.182,"1-7 days":1013,"7-14 days":116,"14-21 days":11,"21-30 days":11,"30+ days":0,"预警7-14 days":78,"预警14-21 days":5,"预警21-30 days":4,"预警30+ days":0,"预警-维修中":82,"预警-已驳回":5},{"Office":"CUGGZ","Under repair":30,"Rejected":80,"Repair Complete":955,"Total":1065,"未闭环(维修中+已驳回)":110,"完成率":0.8967,"超7天预警":76,"预警占未闭环":0.6909,"1-7 days":972,"7-14 days":18,"14-21 days":30,"21-30 days":17,"30+ days":28,"预警7-14 days":6,"预警14-21 days":26,"预警21-30 days":16,"预警30+ days":28,"预警-维修中":0,"预警-已驳回":76},{"Office":"CUTPE","Under repair":40,"Rejected":1,"Repair Complete":983,"Total":1024,"未闭环(维修中+已驳回)":41,"完成率":0.96,"超7天预警":8,"预警占未闭环":0.1951,"1-7 days":966,"7-14 days":37,"14-21 days":20,"21-30 days":0,"30+ days":1,"预警7-14 days":3,"预警14-21 days":5,"预警21-30 days":0,"预警30+ days":0,"预警-维修中":7,"预警-已驳回":1},{"Office":"CUSNZ","Under repair":25,"Rejected":0,"Repair Complete":637,"Total":662,"未闭环(维修中+已驳回)":25,"完成率":0.9622,"超7天预警":0,"预警占未闭环":0.0,"1-7 days":655,"7-14 days":7,"14-21 days":0,"21-30 days":0,"30+ days":0,"预警7-14 days":0,"预警14-21 days":0,"预警21-30 days":0,"预警30+ days":0,"预警-维修中":0,"预警-已驳回":0},{"Office":"CUNGB","Under repair":111,"Rejected":15,"Repair Complete":536,"Total":662,"未闭环(维修中+已驳回)":126,"完成率":0.8097,"超7天预警":35,"预警占未闭环":0.2778,"1-7 days":590,"7-14 days":44,"14-21 days":22,"21-30 days":6,"30+ days":0,"预警7-14 days":13,"预警14-21 days":16,"预警21-30 days":6,"预警30+ days":0,"预警-维修中":25,"预警-已驳回":10},{"Office":"CUMUM","Under repair":59,"Rejected":22,"Repair Complete":552,"Total":633,"未闭环(维修中+已驳回)":81,"完成率":0.872,"超7天预警":24,"预警占未闭环":0.2963,"1-7 days":546,"7-14 days":68,"14-21 days":17,"21-30 days":1,"30+ days":1,"预警7-14 days":16,"预警14-21 days":7,"预警21-30 days":1,"预警30+ days":0,"预警-维修中":19,"预警-已驳回":5},{"Office":"CUTAO","Under repair":64,"Rejected":8,"Repair Complete":547,"Total":619,"未闭环(维修中+已驳回)":72,"完成率":0.8837,"超7天预警":21,"预警占未闭环":0.2917,"1-7 days":515,"7-14 days":90,"14-21 days":12,"21-30 days":1,"30+ days":1,"预警7-14 days":15,"预警14-21 days":4,"预警21-30 days":1,"预警30+ days":1,"预警-维修中":14,"预警-已驳回":7},{"Office":"CUMUN","Under repair":45,"Rejected":2,"Repair Complete":553,"Total":600,"未闭环(维修中+已驳回)":47,"完成率":0.9217,"超7天预警":38,"预警占未闭环":0.8085,"1-7 days":433,"7-14 days":95,"14-21 days":28,"21-30 days":43,"30+ days":1,"预警7-14 days":14,"预警14-21 days":5,"预警21-30 days":19,"预警30+ days":0,"预警-维修中":36,"预警-已驳回":2},{"Office":"SAIID","Under repair":26,"Rejected":3,"Repair Complete":379,"Total":408,"未闭环(维修中+已驳回)":29,"完成率":0.9289,"超7天预警":17,"预警占未闭环":0.5862,"1-7 days":386,"7-14 days":9,"14-21 days":13,"21-30 days":0,"30+ days":0,"预警7-14 days":4,"预警14-21 days":13,"预警21-30 days":0,"预警30+ days":0,"预警-维修中":14,"预警-已驳回":3},{"Office":"BENKR","Under repair":28,"Rejected":0,"Repair Complete":142,"Total":170,"未闭环(维修中+已驳回)":28,"完成率":0.8353,"超7天预警":28,"预警占未闭环":1.0,"1-7 days":133,"7-14 days":32,"14-21 days":5,"21-30 days":0,"30+ days":0,"预警7-14 days":28,"预警14-21 days":0,"预警21-30 days":0,"预警30+ days":0,"预警-维修中":28,"预警-已驳回":0},{"Office":"CUDEL","Under repair":0,"Rejected":11,"Repair Complete":155,"Total":166,"未闭环(维修中+已驳回)":11,"完成率":0.9337,"超7天预警":8,"预警占未闭环":0.7273,"1-7 days":143,"7-14 days":21,"14-21 days":2,"21-30 days":0,"30+ days":0,"预警7-14 days":7,"预警14-21 days":1,"预警21-30 days":0,"预警30+ days":0,"预警-维修中":0,"预警-已驳回":8},{"Office":"CUHPH","Under repair":0,"Rejected":2,"Repair Complete":138,"Total":140,"未闭环(维修中+已驳回)":2,"完成率":0.9857,"超7天预警":2,"预警占未闭环":1.0,"1-7 days":138,"7-14 days":1,"14-21 days":0,"21-30 days":1,"30+ days":0,"预警7-14 days":1,"预警14-21 days":0,"预警21-30 days":1,"预警30+ days":0,"预警-维修中":0,"预警-已驳回":2},{"Office":"CUHCM","Under repair":1,"Rejected":1,"Repair Complete":137,"Total":139,"未闭环(维修中+已驳回)":2,"完成率":0.9856,"超7天预警":0,"预警占未闭环":0.0,"1-7 days":138,"7-14 days":1,"14-21 days":0,"21-30 days":0,"30+ days":0,"预警7-14 days":0,"预警14-21 days":0,"预警21-30 days":0,"预警30+ days":0,"预警-维修中":0,"预警-已驳回":0},{"Office":"SBLPH","Under repair":35,"Rejected":7,"Repair Complete":58,"Total":100,"未闭环(维修中+已驳回)":42,"完成率":0.58,"超7天预警":23,"预警占未闭环":0.5476,"1-7 days":71,"7-14 days":16,"14-21 days":1,"21-30 days":12,"30+ days":0,"预警7-14 days":11,"预警14-21 days":0,"预警21-30 days":12,"预警30+ days":0,"预警-维修中":19,"预警-已驳回":4},{"Office":"CUKWA","Under repair":57,"Rejected":12,"Repair Complete":30,"Total":99,"未闭环(维修中+已驳回)":69,"完成率":0.303,"超7天预警":68,"预警占未闭环":0.9855,"1-7 days":22,"7-14 days":13,"14-21 days":60,"21-30 days":4,"30+ days":0,"预警7-14 days":11,"预警14-21 days":53,"预警21-30 days":4,"预警30+ days":0,"预警-维修中":56,"预警-已驳回":12},{"Office":"CUXMN","Under repair":0,"Rejected":0,"Repair Complete":51,"Total":51,"未闭环(维修中+已驳回)":0,"完成率":1.0,"超7天预警":0,"预警占未闭环":0.0,"1-7 days":34,"7-14 days":2,"14-21 days":14,"21-30 days":1,"30+ days":0,"预警7-14 days":0,"预警14-21 days":0,"预警21-30 days":0,"预警30+ days":0,"预警-维修中":0,"预警-已驳回":0},{"Office":"SASRG","Under repair":8,"Rejected":2,"Repair Complete":32,"Total":42,"未闭环(维修中+已驳回)":10,"完成率":0.7619,"超7天预警":2,"预警占未闭环":0.2,"1-7 days":40,"7-14 days":2,"14-21 days":0,"21-30 days":0,"30+ days":0,"预警7-14 days":2,"预警14-21 days":0,"预警21-30 days":0,"预警30+ days":0,"预警-维修中":0,"预警-已驳回":2},{"Office":"CUDAL","Under repair":1,"Rejected":0,"Repair Complete":16,"Total":17,"未闭环(维修中+已驳回)":1,"完成率":0.9412,"超7天预警":0,"预警占未闭环":0.0,"1-7 days":17,"7-14 days":0,"14-21 days":0,"21-30 days":0,"30+ days":0,"预警7-14 days":0,"预警14-21 days":0,"预警21-30 days":0,"预警30+ days":0,"预警-维修中":0,"预警-已驳回":0},{"Office":"SASUB","Under repair":3,"Rejected":2,"Repair Complete":7,"Total":12,"未闭环(维修中+已驳回)":5,"完成率":0.5833,"超7天预警":5,"预警占未闭环":1.0,"1-7 days":5,"7-14 days":1,"14-21 days":6,"21-30 days":0,"30+ days":0,"预警7-14 days":0,"预警14-21 days":5,"预警21-30 days":0,"预警30+ days":0,"预警-维修中":3,"预警-已驳回":2},{"Office":"CUTNJ","Under repair":2,"Rejected":0,"Repair Complete":0,"Total":2,"未闭环(维修中+已驳回)":2,"完成率":0.0,"超7天预警":0,"预警占未闭环":0.0,"1-7 days":2,"7-14 days":0,"14-21 days":0,"21-30 days":0,"30+ days":0,"预警7-14 days":0,"预警14-21 days":0,"预警21-30 days":0,"预警30+ days":0,"预警-维修中":0,"预警-已驳回":0},{"Office":"TOTAL","Under repair":1080,"Rejected":195,"Repair Complete":8081,"Total":9356,"未闭环(维修中+已驳回)":1275,"完成率":0.8637,"超7天预警":500,"预警占未闭环":0.3922,"1-7 days":8258,"7-14 days":691,"14-21 days":268,"21-30 days":106,"30+ days":33,"预警7-14 days":246,"预警14-21 days":152,"预警21-30 days":73,"预警30+ days":29,"预警-维修中":359,"预警-已驳回":141}];
+var OFFICE_ROWS = [{"Office":"SHRJE","进口量":9964.0,"VD(MTY)":0.0,"ID-MT":9964.0,"维修总量":null,"Under repair":null,"Rejected":null,"Repair Complete":null,"未闭环维修量":null,"维修总量/进口量":null,"未闭环/进口量":null,"对应SMD点位":"SAJED"},{"Office":"CUPKG","进口量":5987.0,"VD(MTY)":5649.0,"ID-MT":338.0,"维修总量":1594.0,"Under repair":89.0,"Rejected":5.0,"Repair Complete":1500.0,"未闭环维修量":94.0,"维修总量/进口量":0.266243527643227,"未闭环/进口量":0.01570068481710372,"对应SMD点位":"MYPEN, MYPGU, MYPKG"},{"Office":"EGEGL","进口量":5066.0,"VD(MTY)":3647.0,"ID-MT":1419.0,"维修总量":null,"Under repair":null,"Rejected":null,"Repair Complete":null,"未闭环维修量":null,"维修总量/进口量":null,"未闭环/进口量":null,"对应SMD点位":"EGSOK"},{"Office":"CUSNZ","进口量":4593.0,"VD(MTY)":3975.0,"ID-MT":618.0,"维修总量":662.0,"Under repair":25.0,"Rejected":0.0,"Repair Complete":637.0,"未闭环维修量":25.0,"维修总量/进口量":0.1441323753537992,"未闭环/进口量":0.005443065534509036,"对应SMD点位":"CNSHK"},{"Office":"CUGGZ","进口量":3747.0,"VD(MTY)":3092.0,"ID-MT":655.0,"维修总量":1065.0,"Under repair":30.0,"Rejected":80.0,"Repair Complete":955.0,"未闭环维修量":110.0,"维修总量/进口量":0.2842273819055244,"未闭环/进口量":0.02935681878836402,"对应SMD点位":"CNNAS"},{"Office":"CUSHA","进口量":3666.0,"VD(MTY)":3124.0,"ID-MT":542.0,"维修总量":1151.0,"Under repair":456.0,"Rejected":22.0,"Repair Complete":673.0,"未闭环维修量":478.0,"维修总量/进口量":0.3139661756683033,"未闭环/进口量":0.1303873431533006,"对应SMD点位":"CNSHA"},{"Office":"CUNGB","进口量":3612.0,"VD(MTY)":3193.0,"ID-MT":419.0,"维修总量":662.0,"Under repair":111.0,"Rejected":15.0,"Repair Complete":536.0,"未闭环维修量":126.0,"维修总量/进口量":0.1832779623477298,"未闭环/进口量":0.03488372093023256,"对应SMD点位":"CNNGB"},{"Office":"CUTAO","进口量":2710.0,"VD(MTY)":1894.0,"ID-MT":816.0,"维修总量":619.0,"Under repair":64.0,"Rejected":8.0,"Repair Complete":547.0,"未闭环维修量":72.0,"维修总量/进口量":0.2284132841328413,"未闭环/进口量":0.02656826568265683,"对应SMD点位":"CNTAO"},{"Office":"CUTPE","进口量":2261.0,"VD(MTY)":0.0,"ID-MT":2261.0,"维修总量":1024.0,"Under repair":40.0,"Rejected":1.0,"Repair Complete":983.0,"未闭环维修量":41.0,"维修总量/进口量":0.4528969482529854,"未闭环/进口量":0.01813356921716055,"对应SMD点位":"TWKEL, TWKHH, TWNTC, TWTXG, TWTYN"},{"Office":"SDGTH","进口量":2232.0,"VD(MTY)":651.0,"ID-MT":1581.0,"维修总量":null,"Under repair":null,"Rejected":null,"Repair Complete":null,"未闭环维修量":null,"维修总量/进口量":null,"未闭环/进口量":null,"对应SMD点位":"THBKK, THLCH"},{"Office":"CUMUN","进口量":1523.0,"VD(MTY)":823.0,"ID-MT":700.0,"维修总量":600.0,"Under repair":45.0,"Rejected":2.0,"Repair Complete":553.0,"未闭环维修量":47.0,"维修总量/进口量":0.3939592908732764,"未闭环/进口量":0.03086014445173999,"对应SMD点位":"INMUN, INPAT, INSON, INSSA, INTKD"},{"Office":"CUMUM","进口量":1470.0,"VD(MTY)":498.0,"ID-MT":972.0,"维修总量":633.0,"Under repair":59.0,"Rejected":22.0,"Repair Complete":552.0,"未闭环维修量":81.0,"维修总量/进口量":0.4306122448979592,"未闭环/进口量":0.05510204081632653,"对应SMD点位":"INNSA"},{"Office":"CUIZM","进口量":868.0,"VD(MTY)":758.0,"ID-MT":110.0,"维修总量":null,"Under repair":null,"Rejected":null,"Repair Complete":null,"未闭环维修量":null,"维修总量/进口量":null,"未闭环/进口量":null,"对应SMD点位":"TRALI"},{"Office":"SBLPH","进口量":805.0,"VD(MTY)":0.0,"ID-MT":805.0,"维修总量":100.0,"Under repair":35.0,"Rejected":7.0,"Repair Complete":58.0,"未闭环维修量":42.0,"维修总量/进口量":0.124223602484472,"未闭环/进口量":0.05217391304347826,"对应SMD点位":"PHMNL"},{"Office":"RMSPK","进口量":801.0,"VD(MTY)":151.0,"ID-MT":650.0,"维修总量":null,"Under repair":null,"Rejected":null,"Repair Complete":null,"未闭环维修量":null,"维修总量/进口量":null,"未闭环/进口量":null,"对应SMD点位":"PKKHI"},{"Office":"CUMER","进口量":621.0,"VD(MTY)":430.0,"ID-MT":191.0,"维修总量":null,"Under repair":null,"Rejected":null,"Repair Complete":null,"未闭环维修量":null,"维修总量/进口量":null,"未闭环/进口量":null,"对应SMD点位":"TRMER"},{"Office":"CUHPH","进口量":532.0,"VD(MTY)":0.0,"ID-MT":532.0,"维修总量":140.0,"Under repair":0.0,"Rejected":2.0,"Repair Complete":138.0,"未闭环维修量":2.0,"维修总量/进口量":0.2631578947368421,"未闭环/进口量":0.003759398496240601,"对应SMD点位":"VNHPH"},{"Office":"CUXMN","进口量":390.0,"VD(MTY)":204.0,"ID-MT":186.0,"维修总量":51.0,"Under repair":0.0,"Rejected":0.0,"Repair Complete":51.0,"未闭环维修量":0.0,"维修总量/进口量":0.1307692307692308,"未闭环/进口量":0.0,"对应SMD点位":"CNXMN"},{"Office":"CUHCM","进口量":383.0,"VD(MTY)":257.0,"ID-MT":126.0,"维修总量":139.0,"Under repair":1.0,"Rejected":1.0,"Repair Complete":137.0,"未闭环维修量":2.0,"维修总量/进口量":0.3629242819843342,"未闭环/进口量":0.005221932114882507,"对应SMD点位":"VNSGN"},{"Office":"SHRSA","进口量":358.0,"VD(MTY)":0.0,"ID-MT":358.0,"维修总量":null,"Under repair":null,"Rejected":null,"Repair Complete":null,"未闭环维修量":null,"维修总量/进口量":null,"未闭环/进口量":null,"对应SMD点位":"SADMM"},{"Office":"CUKWA","进口量":340.0,"VD(MTY)":110.0,"ID-MT":230.0,"维修总量":99.0,"Under repair":57.0,"Rejected":12.0,"Repair Complete":30.0,"未闭环维修量":69.0,"维修总量/进口量":0.2911764705882353,"未闭环/进口量":0.2029411764705882,"对应SMD点位":"JPNGO, JPOSA, JPTYO, JPUKB, JPYOK"},{"Office":"CUSAA","进口量":336.0,"VD(MTY)":290.0,"ID-MT":46.0,"维修总量":null,"Under repair":null,"Rejected":null,"Repair Complete":null,"未闭环维修量":null,"维修总量/进口量":null,"未闭环/进口量":null,"对应SMD点位":"CNSWA"},{"Office":"BENKR","进口量":309.0,"VD(MTY)":99.0,"ID-MT":210.0,"维修总量":170.0,"Under repair":28.0,"Rejected":0.0,"Repair Complete":142.0,"未闭环维修量":28.0,"维修总量/进口量":0.5501618122977346,"未闭环/进口量":0.09061488673139159,"对应SMD点位":"KRINC, KRKAN, KRPUS"},{"Office":"SAIID","进口量":294.0,"VD(MTY)":0.0,"ID-MT":294.0,"维修总量":408.0,"Under repair":26.0,"Rejected":3.0,"Repair Complete":379.0,"未闭环维修量":29.0,"维修总量/进口量":1.387755102040816,"未闭环/进口量":0.09863945578231292,"对应SMD点位":"IDJKT"},{"Office":"CUDEL","进口量":150.0,"VD(MTY)":0.0,"ID-MT":150.0,"维修总量":166.0,"Under repair":0.0,"Rejected":11.0,"Repair Complete":155.0,"未闭环维修量":11.0,"维修总量/进口量":1.106666666666667,"未闭环/进口量":0.07333333333333333,"对应SMD点位":"INDDL, INDER, INHAR, INKHO"},{"Office":"SABLW","进口量":127.0,"VD(MTY)":100.0,"ID-MT":27.0,"维修总量":null,"Under repair":null,"Rejected":null,"Repair Complete":null,"未闭环维修量":null,"维修总量/进口量":null,"未闭环/进口量":null,"对应SMD点位":"IDBLW"},{"Office":"SASUB","进口量":34.0,"VD(MTY)":0.0,"ID-MT":34.0,"维修总量":12.0,"Under repair":3.0,"Rejected":2.0,"Repair Complete":7.0,"未闭环维修量":5.0,"维修总量/进口量":0.3529411764705883,"未闭环/进口量":0.1470588235294118,"对应SMD点位":"IDSUB"},{"Office":"CUDAL","进口量":20.0,"VD(MTY)":20.0,"ID-MT":0.0,"维修总量":17.0,"Under repair":1.0,"Rejected":0.0,"Repair Complete":16.0,"未闭环维修量":1.0,"维修总量/进口量":0.85,"未闭环/进口量":0.05,"对应SMD点位":"CNDAL"},{"Office":"SASRG","进口量":9.0,"VD(MTY)":0.0,"ID-MT":9.0,"维修总量":42.0,"Under repair":8.0,"Rejected":2.0,"Repair Complete":32.0,"未闭环维修量":10.0,"维修总量/进口量":4.666666666666667,"未闭环/进口量":1.111111111111111,"对应SMD点位":"IDSRG"},{"Office":"CUTNJ","进口量":null,"VD(MTY)":null,"ID-MT":null,"维修总量":2.0,"Under repair":2.0,"Rejected":0.0,"Repair Complete":0.0,"未闭环维修量":2.0,"维修总量/进口量":null,"未闭环/进口量":null,"对应SMD点位":null},{"Office":"TOTAL","进口量":53208.0,"VD(MTY)":28965.0,"ID-MT":24243.0,"维修总量":9356.0,"Under repair":1080.0,"Rejected":195.0,"Repair Complete":8081.0,"未闭环维修量":1275.0,"维修总量/进口量":0.1758382198165689,"未闭环/进口量":0.02396256202074876,"对应SMD点位":null}];
+var BOXES = ['20GP','20HC','40GP','40HC'];
+var AGING = {"all":[{"label":"1-7 天","key":"1-7 days","value":8258,"color":"#6e9ac7"},{"label":"7-14 天","key":"7-14 days","value":691,"color":"#e0b352"},{"label":"14-21 天","key":"14-21 days","value":268,"color":"#e39a1c"},{"label":"21-30 天","key":"21-30 days","value":106,"color":"#e0564f"},{"label":"30+ 天","key":"30+ days","value":33,"color":"#a51f2a"}],"warn":[{"label":"7-14 天","value":246,"color":"#e0b352"},{"label":"14-21 天","value":152,"color":"#e39a1c"},{"label":"21-30 天","value":73,"color":"#e0564f"},{"label":"30+ 天","value":29,"color":"#a51f2a"}],"warnTotal":500,"allOver7":1098,"warnUR":359,"warnRJ":141,"total":9356,"open":1275};
+var LC = {"cols":["MT","ID","IC"],"rows":[{"loc":"CNNGB","v":{"MT":720,"IC":1},"t":721,"c":[{"cur":"CNY","n":295,"s":135860.0,"a":460.54,"u":20346.1024},{"cur":"USD","n":1,"s":380.0,"a":380.0,"u":380.0}],"n":296,"u":20726.1024},{"loc":"CNSHA","v":{"MT":528,"ID":7,"IC":26},"t":561,"c":[{"cur":"CNY","n":845,"s":302512.0,"a":358.0,"u":45303.5487},{"cur":"USD","n":12,"s":1866.69,"a":155.56,"u":1866.69}],"n":857,"u":47170.2387},{"loc":"SAJED","v":{"MT":229,"ID":202,"IC":57},"t":488,"c":[],"n":0,"u":0},{"loc":"CNSHK","v":{"MT":317,"ID":3,"IC":2},"t":322,"c":[{"cur":"CNY","n":516,"s":186226.0,"a":360.9,"u":27888.8066},{"cur":"USD","n":19,"s":7700.0,"a":405.26,"u":7700.0}],"n":535,"u":35588.8066},{"loc":"CNNAS","v":{"MT":263,"ID":14,"IC":8},"t":285,"c":[{"cur":"CNY","n":1146,"s":649744.0,"a":566.97,"u":97304.2687}],"n":1146,"u":97304.2687},{"loc":"YEADE","v":{"MT":9,"ID":16,"IC":167},"t":192,"c":[],"n":0,"u":0},{"loc":"CNTAO","v":{"MT":184,"IC":3},"t":187,"c":[{"cur":"CNY","n":847,"s":331765.0,"a":391.69,"u":49684.4153}],"n":847,"u":49684.4153},{"loc":"MYPKG","v":{"MT":168,"ID":4,"IC":3},"t":175,"c":[{"cur":"USD","n":8,"s":820.0,"a":102.5,"u":820.0},{"cur":"CNY","n":1,"s":560.0,"a":560.0,"u":83.8644}],"n":9,"u":903.8644},{"loc":"THLCH","v":{"MT":156},"t":156,"c":[{"cur":"USD","n":68,"s":5175.26,"a":76.11,"u":5175.26}],"n":68,"u":5175.26},{"loc":"TRALI","v":{"MT":142},"t":142,"c":[],"n":0,"u":0},{"loc":"AESCT","v":{"MT":117},"t":117,"c":[],"n":0,"u":0},{"loc":"AEJEA","v":{"MT":115,"ID":1},"t":116,"c":[{"cur":"USD","n":207,"s":67005.79,"a":323.7,"u":67005.79}],"n":207,"u":67005.79},{"loc":"INNSA","v":{"MT":71,"ID":25,"IC":1},"t":97,"c":[],"n":0,"u":0},{"loc":"EGSOK","v":{"MT":84,"ID":1,"IC":3},"t":88,"c":[],"n":0,"u":0},{"loc":"TRIST","v":{"MT":74},"t":74,"c":[],"n":0,"u":0},{"loc":"TRMER","v":{"MT":71,"IC":3},"t":74,"c":[],"n":0,"u":0},{"loc":"DZALG","v":{"MT":32,"ID":4,"IC":20},"t":56,"c":[],"n":0,"u":0},{"loc":"DJJIB","v":{"MT":38,"ID":4,"IC":8},"t":50,"c":[],"n":0,"u":0},{"loc":"TRISK","v":{"MT":50},"t":50,"c":[],"n":0,"u":0},{"loc":"INMUN","v":{"MT":42,"ID":3,"IC":1},"t":46,"c":[],"n":0,"u":0},{"loc":"SDPZU","v":{"MT":14,"ID":21,"IC":11},"t":46,"c":[],"n":0,"u":0},{"loc":"CNZPU","v":{"MT":44},"t":44,"c":[{"cur":"CNY","n":13,"s":5100.0,"a":392.31,"u":763.7651}],"n":13,"u":763.7651},{"loc":"CNSWA","v":{"MT":42,"IC":2},"t":44,"c":[],"n":0,"u":0},{"loc":"PKKHI","v":{"MT":31,"IC":12},"t":43,"c":[],"n":0,"u":0},{"loc":"TWKHH","v":{"MT":25,"ID":3,"IC":14},"t":42,"c":[],"n":0,"u":0},{"loc":"OMSOH","v":{"MT":41},"t":41,"c":[],"n":0,"u":0},{"loc":"CNHUA","v":{"MT":29,"IC":7},"t":36,"c":[{"cur":"CNY","n":47,"s":16573.56,"a":352.63,"u":2482.0208}],"n":47,"u":2482.0208},{"loc":"TWKEL","v":{"MT":20,"ID":3,"IC":12},"t":35,"c":[],"n":0,"u":0},{"loc":"JPNGO","v":{"MT":34},"t":34,"c":[],"n":0,"u":0},{"loc":"CNXMN","v":{"MT":33},"t":33,"c":[{"cur":"CNY","n":3,"s":1050.0,"a":350.0,"u":157.2457}],"n":3,"u":157.2457},{"loc":"THBKK","v":{"MT":19,"ID":4,"IC":6},"t":29,"c":[{"cur":"USD","n":67,"s":4665.02,"a":69.63,"u":4665.02}],"n":67,"u":4665.02},{"loc":"TWTPE","v":{"MT":11,"ID":3,"IC":11},"t":25,"c":[],"n":0,"u":0},{"loc":"IDJKT","v":{"MT":18},"t":18,"c":[{"cur":"USD","n":10,"s":1180.0,"a":118.0,"u":1180.0}],"n":10,"u":1180.0},{"loc":"EGALY","v":{"MT":17,"IC":1},"t":18,"c":[],"n":0,"u":0},{"loc":"TRIZT","v":{"MT":16},"t":16,"c":[],"n":0,"u":0},{"loc":"TWTXG","v":{"MT":2,"ID":5,"IC":6},"t":13,"c":[],"n":0,"u":0},{"loc":"JOAQJ","v":{"MT":7,"IC":4},"t":11,"c":[],"n":0,"u":0},{"loc":"PHMNL","v":{"MT":7},"t":7,"c":[],"n":0,"u":0},{"loc":"THSCS","v":{"MT":7},"t":7,"c":[],"n":0,"u":0},{"loc":"TWNTC","v":{"MT":6,"ID":1},"t":7,"c":[],"n":0,"u":0},{"loc":"JPTYO","v":{"MT":6},"t":6,"c":[],"n":0,"u":0},{"loc":"JPYOK","v":{"MT":6},"t":6,"c":[],"n":0,"u":0},{"loc":"CNHMN","v":{"MT":4,"IC":1},"t":5,"c":[],"n":0,"u":0},{"loc":"KRPUS","v":{"MT":4},"t":4,"c":[{"cur":"KRW","n":81,"s":17520125.0,"a":216297.84,"u":13233.6813},{"cur":"USD","n":40,"s":6548.0,"a":163.7,"u":6548.0}],"n":121,"u":19781.6813},{"loc":"KEMBA","v":{"MT":4},"t":4,"c":[{"cur":"USD","n":6,"s":3010.0,"a":501.67,"u":3010.0}],"n":6,"u":3010.0},{"loc":"AEQIW","v":{"MT":4},"t":4,"c":[],"n":0,"u":0},{"loc":"JPUKB","v":{"MT":4},"t":4,"c":[],"n":0,"u":0},{"loc":"KRKAN","v":{"MT":4},"t":4,"c":[],"n":0,"u":0},{"loc":"IDBLW","v":{"MT":2,"ID":1},"t":3,"c":[{"cur":"USD","n":8,"s":898.0,"a":112.25,"u":898.0}],"n":8,"u":898.0},{"loc":"IDSUB","v":{"MT":3},"t":3,"c":[{"cur":"USD","n":7,"s":758.0,"a":108.29,"u":758.0}],"n":7,"u":758.0},{"loc":"AEASJ","v":{"MT":2},"t":2,"c":[],"n":0,"u":0},{"loc":"INHAR","v":{"MT":2},"t":2,"c":[],"n":0,"u":0},{"loc":"PHMNN","v":{"ID":1,"IC":1},"t":2,"c":[],"n":0,"u":0},{"loc":"VNHPH","v":{"IC":2},"t":2,"c":[],"n":0,"u":0},{"loc":"IDSRG","v":{"MT":1},"t":1,"c":[{"cur":"USD","n":56,"s":3413.0,"a":60.95,"u":3413.0}],"n":56,"u":3413.0},{"loc":"VNSGN","v":{"MT":1},"t":1,"c":[{"cur":"USD","n":37,"s":4925.09,"a":133.11,"u":4925.09}],"n":37,"u":4925.09},{"loc":"AEKLF","v":{"MT":1},"t":1,"c":[],"n":0,"u":0},{"loc":"CNFOS","v":{"MT":1},"t":1,"c":[],"n":0,"u":0},{"loc":"ETADD","v":{"MT":1},"t":1,"c":[],"n":0,"u":0},{"loc":"HKHKG","v":{"MT":1},"t":1,"c":[],"n":0,"u":0},{"loc":"INLUD","v":{"MT":1},"t":1,"c":[],"n":0,"u":0},{"loc":"JOAMM","v":{"MT":1},"t":1,"c":[],"n":0,"u":0},{"loc":"JPOSA","v":{"MT":1},"t":1,"c":[],"n":0,"u":0},{"loc":"CNDAL","v":{},"t":0,"c":[{"cur":"CNY","n":129,"s":65145.0,"a":505.0,"u":9755.9756}],"n":129,"u":9755.9756},{"loc":"MYPGU","v":{},"t":0,"c":[{"cur":"MYR","n":6,"s":2760.0,"a":460.0,"u":675.5968}],"n":6,"u":675.5968},{"loc":"CNTNJ","v":{},"t":0,"c":[{"cur":"CNY","n":4,"s":540.0,"a":135.0,"u":80.8692}],"n":4,"u":80.8692},{"loc":"MYPEN","v":{},"t":0,"c":[{"cur":"MYR","n":3,"s":1233.0,"a":411.0,"u":301.8155},{"cur":"USD","n":1,"s":72.0,"a":72.0,"u":72.0}],"n":4,"u":373.8155}],"sel":6830,"sub":4606,"all":28344,"locNAll":68,"date":"2026-10-26","src":"lease_SBI_summary_20261026.xlsx","chg":{"done":4483,"skip":463,"rowsTotal":4946,"locN":29,"curs":[{"cur":"KRW","n":81,"costSum":17520125.0,"costAvg":216297.84,"costUsd":13233.6813},{"cur":"CNY","n":3846,"costSum":1695075.56,"costAvg":440.74,"costUsd":253850.8825},{"cur":"USD","n":547,"costSum":108416.85,"costAvg":198.2,"costUsd":108416.85},{"cur":"MYR","n":9,"costSum":3993.0,"costAvg":443.67,"costUsd":977.4123}],"noCostN":102,"nWithCost":4381,"usdTotal":376478.83,"usdAvg":85.93,"fx":{"src":"open.er-api.com (mid-market)","date":"2026-10-26","perUsd":{"CNY":6.677446,"KRW":1323.904108,"MYR":4.085277,"USD":1.0}}},"both":19,"leaseOnly":44,"chgOnly":4,"leaseLocN":63};
+function $(id){return document.getElementById(id)}
+function fmt(v){return Number(v||0).toLocaleString('en-US')}
+function pct(v){return (Number(v||0)*100).toFixed(1)+'%'}
+function esc(v){return String(v==null?'':v).replace(/[&<>\"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]})}
+function rowByOffice(){return ROWS.filter(function(r){return r.Office!=='TOTAL'}).slice().sort(function(a,b){return b.Total-a.Total})}
+function renderTiers(){var arr=AGING.warn;var mx=arr.reduce(function(a,x){return Math.max(a,x.value)},1);$('warn-tiers').innerHTML=arr.map(function(x){return '<div class="tw" style="--c:'+x.color+'"><div class="tw-l">'+x.label+'</div><div class="tw-v">'+fmt(x.value)+'</div><div class="tw-f">预警工单</div><div class="tw-bar"><i style="width:'+Math.round(x.value/mx*100)+'%"></i></div></div>'}).join('')}
+function renderRanks(){var rows=rowByOffice(),max=rows[0].Total;$('rank-list').innerHTML=rows.map(function(r,i){var warn=Number(r['超7天预警']||0),ratio=Number(r['预警占未闭环']||0);return '<div class="rk" data-ofc="'+esc(r.Office)+'" data-ur="'+(r['Under repair']||0)+'" data-rj="'+(r.Rejected||0)+'" data-rc="'+(r['Repair Complete']||0)+'" data-tot="'+(r.Total||0)+'" data-warn="'+warn+'" data-ratio="'+ratio+'" title="'+esc(r.Office)+' · 维修中 '+fmt(r['Under repair'])+' / 已驳回 '+fmt(r.Rejected)+' / 完成 '+fmt(r['Repair Complete'])+' / 合计 '+fmt(r.Total)+'"><div class="rk-no">'+(i+1)+'</div><div class="rk-ofc">'+esc(r.Office)+'</div><div class="rk-bar"><span style="width:'+(r['Under repair']/r.Total*100)+'%;background:var(--ur)"></span><span style="width:'+(r.Rejected/r.Total*100)+'%;background:var(--rj)"></span><span style="width:'+(r['Repair Complete']/r.Total*100)+'%;background:var(--rc)"></span></div><div class="rk-num">'+fmt(r.Total)+'</div><div class="rk-warn"><span class="pill '+(ratio>=.5?'warn':ratio>=.25?'risk':ratio>0?'watch':'ok')+'">'+fmt(warn)+'</span></div><div class="rk-ratio">'+pct(ratio)+'</div></div>'}).join('')}
+function renderAging(){var mxA=AGING.all.reduce(function(a,x){return Math.max(a,x.value)},0)||1;$('age-cols').innerHTML=AGING.all.map(function(x){return '<div class="ac"><div class="ac-v">'+fmt(x.value)+'</div><div class="ac-b" style="height:'+Math.max(4,Math.round(x.value/mxA*118))+'px;background:'+x.color+'"></div></div>'}).join('');var wm={};AGING.warn.forEach(function(x){wm[x.label]=x});var mxW=AGING.warn.reduce(function(a,x){return Math.max(a,x.value)},0)||1;$('age-warn-cols').innerHTML=AGING.all.map(function(x){var w=wm[x.label];if(!w){return '<div class="ac"><div class="ac-w off">&mdash;</div><div class="ac-b off" style="height:8px"></div><div class="ac-l">'+x.label+'<em>无预警</em></div></div>'}return '<div class="ac"><div class="ac-w">'+fmt(w.value)+'</div><div class="ac-b" style="height:'+Math.max(8,Math.round(w.value/mxW*72))+'px;background:'+w.color+'"></div><div class="ac-l">'+x.label+'<em>预警区间</em></div></div>'}).join('');$('age-lbl-all').innerHTML='全部工单账龄 <span class="pl">合计 '+fmt(AGING.total)+' 单 · 其中 7 天以上 '+fmt(AGING.allOver7)+' 单</span>';$('age-lbl-warn').innerHTML='其中：未闭环预警（维修中 + 已驳回）<b>'+fmt(AGING.warnTotal)+' 单</b><span class="pl">维修中 '+fmt(AGING.warnUR)+' · 已驳回 '+fmt(AGING.warnRJ)+' · 占未闭环 '+pct(AGING.open?AGING.warnTotal/AGING.open:0)+'</span>';var parts=AGING.warn.map(function(x){return x.label+' '+fmt(x.value)}).join('、');$('age-note').innerHTML='<span class="ni">!</span><span>上排 = <b>全部状态</b>账龄（含维修完成），7 天以上共 <b>'+fmt(AGING.allOver7)+' 单</b>；下排 = 其中的<b>未闭环预警</b>（仅维修中 + 已驳回），合计 <b>'+fmt(AGING.warnTotal)+' 单</b>：'+parts+'，即维修中 '+fmt(AGING.warnUR)+' + 已驳回 '+fmt(AGING.warnRJ)+'。下排是上排「7 天以上」部分的子集，两排口径不同。</span>'}
+function renderBanner(){$('chip-warn').textContent=fmt(AGING.warnTotal)+' 箱';$('chip-repair').textContent=fmt(AGING.total)+' 条';$('wb-total').textContent=fmt(AGING.warnTotal);$('wb-ur').textContent=fmt(AGING.warnUR);$('wb-rj').textContent=fmt(AGING.warnRJ);$('wb-pct').textContent=pct(AGING.open?AGING.warnTotal/AGING.open:0)}
+function boxRow(office, rep, imp){return '<tr><td class="lft"><b>'+esc(office)+'</b></td>'+BOXES.map(function(b){return '<td class="tbd">'+(rep[office]&&rep[office][b]!=null?fmt(rep[office][b]):'—')+'</td>'}).join('')+BOXES.map(function(b){return '<td class="tbd">'+(imp[office]&&imp[office][b]!=null?fmt(imp[office][b]):'—')+'</td>'}).join('')+'<td class="tbd">—</td></tr>'}
+function renderBox(rep,imp){$('box-tbody').innerHTML=rowByOffice().map(function(r){return boxRow(r.Office,rep||{},imp||{})}).join('')}
+function renderDetails(filter){var rows=rowByOffice().filter(function(r){return !filter||String(r.Office).toLowerCase().indexOf(filter.toLowerCase())>=0});$('detail-tbody').innerHTML=rows.map(function(r){var ratio=Number(r['预警占未闭环']||0);return '<tr><td class="lft"><b>'+esc(r.Office)+'</b></td><td class="num">'+fmt(r['Under repair'])+'</td><td class="num">'+fmt(r.Rejected)+'</td><td class="num good">'+fmt(r['Repair Complete'])+'</td><td class="num">'+fmt(r.Total)+'</td><td class="num">'+fmt(r['未闭环(维修中+已驳回)'])+'</td><td class="num">'+pct(r['完成率'])+'</td><td class="num '+(Number(r['超7天预警'])>=20?'hi':'')+'">'+fmt(r['超7天预警'])+'</td><td class="num '+(ratio>=.5?'hi':ratio>=.25?'mid':'')+'">'+pct(ratio)+'</td><td>'+fmt(r['1-7 days'])+'</td><td>'+fmt(r['7-14 days'])+'</td><td>'+fmt(r['14-21 days'])+'</td><td>'+fmt(r['21-30 days'])+'</td><td>'+fmt(r['30+ days'])+'</td></tr>'}).join('')}
+function renderOfficeImport(){var rows=OFFICE_ROWS.filter(function(r){return r.Office&&r.Office!=='TOTAL'});function has(v){return v!==null&&v!==undefined&&v!==''&&String(v).toLowerCase()!=='nan'}var mx=Math.max.apply(null,rows.map(function(r){return has(r['进口量'])?Number(r['进口量']):0}))||1;$('office-import-tbody').innerHTML=rows.map(function(r){var hasImp=has(r['进口量']),hasRep=has(r['维修总量']),hasOpen=has(r['未闭环维修量']);var imp=hasImp?Number(r['进口量']):0,rep=hasRep?Number(r['维修总量']):0,op=hasOpen?Number(r['未闭环维修量']):0;var ri=(hasRep&&hasImp&&imp)?rep/imp:null,oi=(hasOpen&&hasImp&&imp)?op/imp:null;return '<tr><td class="lft"><b>'+esc(r.Office)+'</b></td><td class="num" style="position:relative">'+(hasImp?'<span style="position:absolute;left:0;top:0;bottom:0;background:rgba(31,158,110,.16);width:'+Math.round(imp/mx*100)+'%"></span><span style="position:relative">'+fmt(imp)+'</span>':'<span class="tbd">—</span>')+'</td><td class="num">'+(hasImp?fmt(r['VD(MTY)']):'<span class="tbd">—</span>')+'</td><td class="num">'+(hasImp?fmt(r['ID-MT']):'<span class="tbd">—</span>')+'</td><td class="num">'+(hasRep?fmt(rep):'<span class="tbd">—</span>')+'</td><td class="num">'+(hasOpen?fmt(op):'<span class="tbd">—</span>')+'</td><td class="num '+(ri==null?'':ri>=.5?'hi':ri>=.25?'mid':'good')+'">'+(ri==null?'<span class="tbd">—</span>':pct(ri))+'</td><td class="num '+(oi==null?'':oi>=.2?'hi':'')+'">'+(oi==null?'<span class="tbd">—</span>':pct(oi))+'</td><td class="lft" style="white-space:normal;max-width:360px;font-size:11.5px;color:var(--muted)">'+esc(r['对应SMD点位']||'')+'</td></tr>'}).join('')+'<tr class="total-row"><td class="lft">TOTAL</td><td class="num">'+fmt(sumOf(rows,'进口量'))+'</td><td class="num">'+fmt(sumOf(rows,'VD(MTY)'))+'</td><td class="num">'+fmt(sumOf(rows,'ID-MT'))+'</td><td class="num">'+fmt(sumOf(rows,'维修总量'))+'</td><td class="num">'+fmt(sumOf(rows,'未闭环维修量'))+'</td><td class="num">'+pct(sumOf(rows,'维修总量')/sumOf(rows,'进口量'))+'</td><td class="num">'+pct(sumOf(rows,'未闭环维修量')/sumOf(rows,'进口量'))+'</td><td class="lft"></td></tr>'}
+function sumOf(rows,key){var t=0;rows.forEach(function(r){var v=r[key];if(v!==null&&v!==undefined&&v!==''&&String(v).toLowerCase()!=='nan')t+=Number(v)});return t}
+function sevOf(r){if(Number(r['预警30+ days']||0)>0)return{t:'超期',c:'warn'};if(Number(r['预警21-30 days']||0)>0)return{t:'高危',c:'risk'};if(Number(r['预警14-21 days']||0)>0)return{t:'预警',c:'watch'};return{t:'关注',c:'ok'}}
+function renderWorst(){var el=$('worst-tbody');if(!el)return;var rows=rowByOffice().filter(function(r){return Number(r['超7天预警']||0)>0}).sort(function(a,b){var d=Number(b['超7天预警']||0)-Number(a['超7天预警']||0);if(d!==0)return d;return Number(b['预警占未闭环']||0)-Number(a['预警占未闭环']||0)}).slice(0,10);el.innerHTML=rows.map(function(r,i){var sv=sevOf(r),warn=Number(r['超7天预警']||0),ratio=Number(r['预警占未闭环']||0);return '<tr><td class="num">'+(i+1)+'</td><td class="lft"><b>'+esc(r.Office)+'</b></td><td class="num">'+fmt(r.Total)+'</td><td class="num">'+fmt(r['未闭环(维修中+已驳回)'])+'</td><td class="num '+(warn>=50?'hi':'')+'">'+fmt(warn)+'</td><td class="num '+(ratio>=.5?'hi':ratio>=.25?'mid':'')+'">'+pct(ratio)+'</td><td>'+fmt(r['预警7-14 days'])+'</td><td>'+fmt(r['预警14-21 days'])+'</td><td>'+fmt(r['预警21-30 days'])+'</td><td>'+fmt(r['预警30+ days'])+'</td><td><span class="pill '+sv.c+'">'+sv.t+'</span></td></tr>'}).join('')}
+/* ---- module show / hide ---- */
+function initModuleBar(){
+  var secs=[].slice.call(document.querySelectorAll('.wrap > section'));
+  if(secs.length<6)return;
+  var defs=[['kpis','核心指标'],['warn','超 7 天预警'],['rank','各点位维修情况'],['import','估价单 Office × 进口量'],['detail','维修明细汇总'],['lease','prefix 箱 × 字头更换']];
+  var mods=secs.slice(0,6).map(function(s,i){s.id='mod-'+defs[i][0];return {key:defs[i][0],label:defs[i][1],el:s,ctrls:[]}});
+  function setState(m,hide,save){
+    m.el.classList.toggle('sec-hidden',hide);
+    m.ctrls.forEach(function(f){f(hide)});
+    if(save!==false){try{localStorage.setItem('mod_'+m.key,hide?'1':'0')}catch(e){}}
+  }
+  var bar=document.createElement('div');bar.className='mod-bar';
+  var inner=document.createElement('div');inner.className='mod-bar-in';
+  inner.insertAdjacentHTML('beforeend','<span class="mb-title">模块显示</span>');
+  mods.forEach(function(m){
+    var b=document.createElement('button');b.type='button';b.className='mod-chip';
+    b.innerHTML='<span class="dotm"></span><span class="eye">&#9673;</span><span>'+m.label+'</span>';
+    b.title='显示 / 隐藏「'+m.label+'」';
+    b.addEventListener('click',function(){setState(m,!m.el.classList.contains('sec-hidden'))});
+    m.ctrls.push(function(hide){b.classList.toggle('off',hide);b.querySelector('.eye').innerHTML=hide?'&#9678;':'&#9673;'});
+    inner.appendChild(b);
+    var head=m.el.querySelector('.sec-head');
+    if(head){
+      var cb=document.createElement('button');cb.type='button';cb.className='mod-btn';
+      cb.innerHTML='<span class="chev">&#9662;</span><span class="lbl">收起</span>';
+      cb.title='收起 / 展开本模块';
+      cb.addEventListener('click',function(){setState(m,!m.el.classList.contains('sec-hidden'))});
+      m.ctrls.push(function(hide){cb.querySelector('.chev').innerHTML=hide?'&#9656;':'&#9662;';cb.querySelector('.lbl').textContent=hide?'展开':'收起';cb.classList.toggle('is-off',hide)});
+      head.appendChild(cb);
+    }
+  });
+  var all=document.createElement('div');all.className='mb-all';
+  var bS=document.createElement('button');bS.type='button';bS.className='mod-chip solid';bS.textContent='全部展开';
+  var bH=document.createElement('button');bH.type='button';bH.className='mod-chip';bH.textContent='全部收起';
+  bS.addEventListener('click',function(){mods.forEach(function(m){setState(m,false)})});
+  bH.addEventListener('click',function(){mods.forEach(function(m){setState(m,true)})});
+  all.appendChild(bS);all.appendChild(bH);inner.appendChild(all);
+  bar.appendChild(inner);
+  var hero=document.querySelector('header.hero');
+  if(hero&&hero.parentNode){hero.parentNode.insertBefore(bar,hero.nextSibling)}else{document.body.insertBefore(bar,document.body.firstChild)}
+  mods.forEach(function(m){try{if(localStorage.getItem('mod_'+m.key)==='1')setState(m,true,false)}catch(e){}});
+}
+/* ---- card-level collapse (e.g. 箱型维度) ---- */
+function initCardToggles(){
+  [].slice.call(document.querySelectorAll('.wrap .card')).forEach(function(card){
+    var h3=card.querySelector('h3');
+    if(!h3||h3.querySelector('.mod-btn'))return;
+    var body=document.createElement('div');body.className='card-body';
+    var n=h3.nextSibling;
+    while(n){var nx=n.nextSibling;body.appendChild(n);n=nx;}
+    card.appendChild(body);
+    var cb=document.createElement('button');cb.type='button';cb.className='mod-btn';
+    cb.style.marginLeft='auto';
+    cb.innerHTML='<span class="chev">&#9662;</span><span class="lbl">收起</span>';
+    cb.title='收起 / 展开本模块';
+    cb.addEventListener('click',function(){
+      var hide=!body.classList.contains('hidden');
+      body.classList.toggle('hidden',hide);
+      cb.querySelector('.chev').innerHTML=hide?'&#9656;':'&#9662;';
+      cb.querySelector('.lbl').textContent=hide?'展开':'收起';
+      cb.classList.toggle('is-off',hide);
+    });
+    h3.appendChild(cb);
+  });
+}
+/* ---- hover tooltip: Office 维修量排名具体数字 ---- */
+var RK_TIP=null;
+function initRankTip(){
+  var list=$('rank-list');if(!list)return;
+  if(!RK_TIP){RK_TIP=document.createElement('div');RK_TIP.className='rk-tip';document.body.appendChild(RK_TIP)}
+  var tip=RK_TIP;
+  function hide(){tip.classList.remove('on')}
+  function show(e){
+    var rk=e.target&&e.target.closest?e.target.closest('.rk'):null;
+    if(!rk||!rk.dataset||!rk.dataset.ofc){hide();return}
+    var d=rk.dataset;
+    tip.innerHTML='<div class="tt-h">'+esc(d.ofc)+'</div>'
+      +'<div class="tt-r"><span><i class="tt-d" style="background:var(--ur)"></i>维修中</span><b>'+fmt(d.ur)+'</b></div>'
+      +'<div class="tt-r"><span><i class="tt-d" style="background:var(--rj)"></i>已驳回</span><b>'+fmt(d.rj)+'</b></div>'
+      +'<div class="tt-r"><span><i class="tt-d" style="background:var(--rc)"></i>维修完成</span><b>'+fmt(d.rc)+'</b></div>'
+      +'<div class="tt-sep"></div>'
+      +'<div class="tt-r tt-tot"><span>维修总量</span><b>'+fmt(d.tot)+'</b></div>'
+      +'<div class="tt-r tt-warn"><span>超 7 天预警</span><b>'+fmt(d.warn)+' · '+pct(d.ratio)+'</b></div>';
+    tip.classList.add('on');
+    var x=e.clientX+15,y=e.clientY+15,w=tip.offsetWidth,h=tip.offsetHeight;
+    if(x+w>window.innerWidth-10)x=Math.max(8,e.clientX-w-15);
+    if(y+h>window.innerHeight-10)y=Math.max(8,e.clientY-h-15);
+    tip.style.left=x+'px';tip.style.top=y+'px';
+  }
+  list.addEventListener('mousemove',show);
+  list.addEventListener('mouseleave',hide);
+  window.addEventListener('scroll',hide,true);
+}
+
+function fmt4(v){return Number(v||0).toLocaleString('en-US',{minimumFractionDigits:4,maximumFractionDigits:4})}
+function fmt2(v){return Number(v||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function ccyLines(list,key){
+  if(!list||!list.length)return '<span class="tbd">\u2014</span>';
+  return list.map(function(x){return '<div class="ccy"><b>'+esc(x.cur)+'</b> '+fmt2(key==='a'?x.a:x.s)+'</div>'}).join('');
+}
+/* merged report: lease (Movement columns) + prefix change (completed, cost per currency); rows = union of locations */
+function renderLC(filter){
+  if(!LC||!LC.rows)return;
+  var cols=LC.cols||[], rows=LC.rows||[], C=LC.chg;
+  var f=(filter||'').trim().toLowerCase();
+  var mx=1;rows.forEach(function(r){if(Number(r.t)>mx)mx=Number(r.t)});
+  var nC=C?5:0;
+  $('lc-head-g').innerHTML='<th class="lft grp-box" rowspan="2">Location</th>'
+    +'<th class="grp-box" colspan="'+(cols.length+1)+'">prefix 箱清单（MT / ID / IC）</th>'
+    +(C?'<th class="grp-box2" colspan="5">字头更换（已完成 · Date of Change 为日期）</th>':'');
+  $('lc-head').innerHTML=cols.map(function(k){return '<th class="sh">'+esc(k)+'</th>'}).join('')
+    +'<th class="sh tot">合计</th>'
+    +(C?'<th class="sh">已更换</th><th class="sh">更换 / 箱量</th><th class="sh">Cost（原币）</th><th class="sh">Cost (USD)</th><th class="sh">平均 Cost (USD)</th>':'');
+  var shown=rows.filter(function(r){return !f||String(r.loc).toLowerCase().indexOf(f)>=0});
+  $('lc-tbody').innerHTML=shown.map(function(r){
+    var w=Math.round(Number(r.t)/mx*100), t=Number(r.t)||0, nn=Number(r.n)||0;
+    return '<tr><td class="lft"><b>'+esc(r.loc)+'</b><span class="bar" style="width:'+w+'%"></span></td>'
+      +cols.map(function(k){var v=Number(r.v[k]||0);
+          return '<td class="num'+(v?'':' z')+'">'+(v?fmt(v):'\u2014')+'</td>'}).join('')
+      +'<td class="num tot"><b>'+fmt(t)+'</b></td>'
+      +(C?'<td class="num'+(nn?'':' z')+'">'+(nn?fmt(nn):'\u2014')+'</td>'
+         +'<td class="num'+(t?'':' z')+'">'+(t&&nn?pct(nn/t):'\u2014')+'</td>'
+         +'<td class="num">'+ccyLines(r.c,'s')+'</td>'
+         +'<td class="num'+(Number(r.u)?'':' z')+'">'+(Number(r.u)?fmt2(r.u):'\u2014')+'</td>'
+         +'<td class="num'+(nn?'':' z')+'">'+(nn?fmt2(Number(r.u||0)/nn):'\u2014')+'</td>':'');
+  }).join('')||'<tr><td class="lft" colspan="'+(cols.length+2+nC)+'">没有匹配的 Location</td></tr>';
+  var tot={};cols.forEach(function(k){tot[k]=0});
+  var g=0,gn=0,gu=0,agg=[],idx={};
+  shown.forEach(function(r){
+    cols.forEach(function(k){tot[k]+=Number(r.v[k]||0)});
+    g+=Number(r.t)||0;gn+=Number(r.n)||0;gu+=Number(r.u)||0;
+    (r.c||[]).forEach(function(x){
+      if(idx[x.cur]===undefined){idx[x.cur]=agg.length;agg.push({cur:x.cur,n:0,s:0})}
+      agg[idx[x.cur]].n+=Number(x.n)||0;agg[idx[x.cur]].s+=Number(x.s)||0;
+    });
+  });
+  var gpct=(C&&g)?pct(gn/g):'\u2014';
+  $('lc-tfoot').innerHTML='<tr><td class="lft">合计（'+(f?'当前筛选 '+shown.length+' 个':'全部 '+shown.length+' 个')+' Location）</td>'
+    +cols.map(function(k){return '<td class="num">'+fmt(tot[k])+'</td>'}).join('')
+    +'<td class="num tot"><b>'+fmt(g)+'</b></td>'
+    +(C?'<td class="num"><b>'+fmt(gn)+'</b></td><td class="num">'+gpct+'</td>'
+       +'<td class="num tbd">分币种不可相加</td>'
+       +'<td class="num tot"><b>'+fmt2(gu)+'</b></td>'
+       +'<td class="num"><b>'+(gn?fmt2(gu/gn):'\u2014')+'</b></td>':'');
+}
+
+function renderChgNotice(){
+  var nEl=$('chg-notice');if(!nEl)return;
+  if(!LC||!LC.chg){nEl.innerHTML='<span class="ni">✓</span><span>（未取到字头更换清单，合并表只显示租箱部分）</span>';return;}
+  var C=LC.chg;
+  var curTxt=(C.curs||[]).map(function(c){
+    return '<b>'+esc(c.cur)+'</b> '+fmt2(c.costSum)+' → <b>'+fmt2(c.costUsd)+'</b> USD（'+fmt(c.n)+' 箱 · 原币平均 '+fmt2(c.costAvg)+'）';
+  }).join('；');
+  var fx=C.fx||{}, per=fx.perUsd||{};
+  var fxTxt=Object.keys(per).filter(function(k){return k!=='USD'}).map(function(k){
+    return '1 USD = '+fmt4(per[k])+' '+esc(k);
+  }).join(' · ');
+  nEl.innerHTML='<span class="ni">✓</span><span><b>字头更换进度。</b>清单共 <b>'+fmt(C.rowsTotal)+'</b> 行：已完成更换（Date of Change 为日期）<b>'+fmt(C.done)+'</b> 箱，未完成 <b>'+fmt(C.skip)+'</b> 箱（日期列为文字或空，不计入）'
+    +(C.noCostN?('，其中 <b>'+fmt(C.noCostN)+'</b> 箱 Cost 未填（计入数量、不计金额）'):'')
+    +'。<b>币种以 K 列（Currency）为准，未标注的一律按 USD 计</b>。Cost 原币分币种：'+curTxt+'。'
+    +'<b>合计行统一折算为 USD：<b>'+fmt2(C.usdTotal)+'</b> USD</b>（汇率 '+fxTxt+'，来源 '+esc(fx.src||'')+' '+esc(fx.date||'')+'）；平均 <b>'+fmt2(C.usdTotal/C.done)+'</b> USD/箱（按 '+fmt(C.done)+' 已更换箱计），若只算 '+fmt(C.nWithCost)+' 箱已填 Cost 的为 <b>'+fmt2(C.usdAvg)+'</b> USD/箱。'
+    +'两张清单按 Location 对齐：同时有两项数据 <b>'+fmt(LC.both)+'</b> 个，仅 prefix 箱 <b>'+fmt(LC.leaseOnly)+'</b> 个，仅字头更换 <b>'+fmt(LC.chgOnly)+'</b> 个。</span>';
+}
+
+$('ql').addEventListener('input',function(){renderLC(this.value.trim())})
+$('q').addEventListener('input',function(){renderDetails(this.value.trim())})
+renderTiers();renderRanks();renderAging();renderBox({},{});renderOfficeImport();renderDetails('');renderWorst();renderBanner();renderLC('');renderChgNotice();
+initModuleBar();
+initCardToggles();
+initRankTip();
+})();
+</script>
+</body>
+</html>
