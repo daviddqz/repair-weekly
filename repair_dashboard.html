@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Container Repair Management · 集装箱维修管理总览</title>
+<style>
+:root{
+  --navy-900:#0a1c33; --navy-800:#0f2a49; --navy-700:#173d68; --navy-600:#22558c;
+  --accent:#e0b352; --accent-soft:#f6e7c4;
+  --bg:#eef2f8; --card:#ffffff; --line:#e2e8f2;
+  --text:#132a44; --muted:#6b7f96; --muted-2:#93a4b8;
+  --ur:#e39a1c; --rj:#e0564f; --rc:#1f9e6e;
+  --shadow:0 1px 2px rgba(16,42,73,.06),0 8px 24px rgba(16,42,73,.07);
+  --radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei","PingFang SC","Hiragino Sans GB",sans-serif;
+  background:var(--bg); color:var(--text); line-height:1.5;
+  font-feature-settings:"tnum" 1,"cv05" 1;
+}
+.wrap{max-width:1360px;margin:0 auto;padding:0 24px 56px}
+/* ============ HEADER ============ */
+.hero{
+  background:
+    radial-gradient(1100px 420px at 88% -10%, rgba(224,179,82,.20), transparent 60%),
+    radial-gradient(760px 380px at 4% 120%, rgba(34,85,140,.55), transparent 62%),
+    linear-gradient(135deg,var(--navy-900) 0%,var(--navy-800) 46%,var(--navy-700) 100%);
+  color:#fff; position:relative; overflow:hidden;
+  border-bottom:3px solid var(--accent);
+}
+.hero::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);
+  background-size:46px 46px; mask-image:linear-gradient(180deg,rgba(0,0,0,.9),transparent 82%);
+}
+.hero-in{position:relative;z-index:2;max-width:1360px;margin:0 auto;padding:34px 24px 30px}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:9px;font-size:12px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--accent);font-weight:700;
+  border:1px solid rgba(224,179,82,.42);border-radius:999px;padding:5px 14px;margin-bottom:16px;
+  background:rgba(224,179,82,.08);
+}
+.eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px rgba(224,179,82,.18)}
+.hero h1{font-size:clamp(24px,3.2vw,38px);font-weight:800;letter-spacing:-.015em;line-height:1.18}
+.hero h1 span{color:var(--accent)}
+.hero p.sub{margin-top:10px;color:#c3d3e6;font-size:14.5px;max-width:760px}
+.hero-meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.chip{
+  display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:#dce7f4;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);
+  border-radius:10px;padding:7px 13px;backdrop-filter:blur(4px);
+}
+.chip b{color:#fff;font-weight:700}
+.chip .ic{color:var(--accent);font-size:13px}
+/* ============ KPI ============ */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:-26px;position:relative;z-index:5}
+.kpi{
+  background:var(--card);border-radius:var(--radius);padding:20px 20px 18px;
+  box-shadow:var(--shadow);border:1px solid var(--line);position:relative;overflow:hidden;
+  transition:transform .18s ease,box-shadow .18s ease;
+}
+.kpi:hover{transform:translateY(-3px);box-shadow:0 2px 4px rgba(16,42,73,.07),0 16px 36px rgba(16,42,73,.12)}
+.kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--c,var(--navy-600))}
+.kpi .k-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.kpi .k-label{font-size:12.5px;font-weight:700;color:var(--muted);letter-spacing:.04em}
+.kpi .k-ic{
+  width:32px;height:32px;border-radius:9px;display:grid;place-items:center;font-size:15px;
+  background:var(--cs,rgba(34,85,140,.1));color:var(--c,var(--navy-600));
+}
+.kpi .k-val{font-size:34px;font-weight:800;letter-spacing:-.02em;margin-top:8px;line-height:1.05;color:var(--navy-800)}
+.kpi .k-foot{margin-top:9px;font-size:12px;color:var(--muted-2);display:flex;align-items:center;gap:7px}
+.kpi .bar{height:5px;border-radius:999px;background:#eef2f8;margin-top:12px;overflow:hidden}
+.kpi .bar i{display:block;height:100%;border-radius:999px;background:var(--c);width:0;transition:width 1s cubic-bezier(.22,1,.36,1)}
+/* ============ SECTION ============ */
+.sec{margin-top:34px}
+.sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:16px;flex-wrap:wrap}
+.sec-head h2{font-size:19px;font-weight:800;letter-spacing:-.01em;display:flex;align-items:center;gap:10px}
+.sec-head h2::before{content:"";width:4px;height:19px;border-radius:2px;background:var(--accent)}
+.sec-head .note{font-size:12.5px;color:var(--muted)}
+.grid2{display:grid;grid-template-columns:1.45fr 1fr;gap:16px}
+.grid2b{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.card{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:20px;
+}
+.card h3{font-size:14.5px;font-weight:800;color:var(--navy-800);display:flex;align-items:center;gap:9px;margin-bottom:4px}
+.card h3 .tag{font-size:10.5px;font-weight:700;color:var(--muted);background:#eef2f8;border-radius:6px;padding:2px 7px;letter-spacing:.03em}
+.card .desc{font-size:12px;color:var(--muted);margin-bottom:14px}
+.chart-box{position:relative;width:100%}
+/* ============ INSIGHTS ============ */
+.ins-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+.ins{
+  background:linear-gradient(180deg,#fff,#fbfcfe);border:1px solid var(--line);border-radius:var(--radius);
+  padding:18px;box-shadow:var(--shadow);position:relative;
+}
+.ins .sev{position:absolute;top:0;right:0;font-size:10px;font-weight:800;letter-spacing:.08em;
+  padding:4px 10px;border-radius:0 var(--radius) 0 10px;text-transform:uppercase}
+.sev.high{background:#fdecea;color:#c0392b}
+.sev.mid{background:#fef5e3;color:#b7791f}
+.sev.ok{background:#e8f6f0;color:#1f8a5f}
+.ins .n{font-size:11px;font-weight:800;color:var(--muted-2);letter-spacing:.12em}
+.ins h4{font-size:14px;font-weight:800;margin:8px 0 6px;color:var(--navy-800);line-height:1.35}
+.ins p{font-size:12.5px;color:var(--muted);line-height:1.55}
+.ins .hl{color:var(--navy-700);font-weight:800}
+/* ============ TABS / TABLE ============ */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:0}
+.tab{
+  border:1px solid var(--line);background:#fff;color:var(--muted);font-size:13px;font-weight:700;
+  padding:9px 16px;border-radius:10px 10px 0 0;cursor:pointer;border-bottom:none;
+  transition:.15s;font-family:inherit;
+}
+.tab:hover{color:var(--navy-700);background:#f7f9fc}
+.tab.active{background:var(--navy-800);color:#fff;border-color:var(--navy-800)}
+.table-card{background:#fff;border:1px solid var(--line);border-radius:0 var(--radius) var(--radius) var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.table-tools{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.table-tools .tt-title{font-size:13px;color:var(--muted)}
+.table-tools .tt-title b{color:var(--navy-700)}
+.search{position:relative}
+.search input{
+  font-family:inherit;font-size:13px;padding:8px 12px 8px 32px;border:1px solid var(--line);
+  border-radius:9px;width:240px;outline:none;color:var(--text);background:#fbfcfe;transition:.15s;
+}
+.search input:focus{border-color:var(--navy-600);background:#fff;box-shadow:0 0 0 3px rgba(34,85,140,.1)}
+.search::before{content:"⌕";position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted-2);font-size:15px}
+.scroll{max-height:620px;overflow:auto;position:relative}
+table{width:100%;border-collapse:collapse;font-size:12.8px}
+thead th{
+  position:sticky;top:0;z-index:3;background:var(--navy-800);color:#fff;font-weight:700;
+  text-align:center;padding:11px 12px;white-space:nowrap;font-size:12px;letter-spacing:.02em;
+  background-clip:padding-box;
+}
+.scroll thead th{top:0}
+thead th.lft{text-align:left}
+tbody td{padding:9px 12px;border-bottom:1px solid #eef2f8;text-align:center;white-space:nowrap;color:#2c3f57}
+tbody td.lft{text-align:left}
+tbody tr:nth-child(even){background:#fafbfe}
+tbody tr:hover{background:#eff5fd}
+tbody tr.total-row{background:var(--accent-soft)!important;font-weight:800;color:var(--navy-900)}
+tbody tr.total-row td{border-top:2px solid var(--accent)}
+td.num{font-variant-numeric:tabular-nums;font-weight:600}
+.pill{display:inline-block;font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px}
+.pill.ur{background:#fdf1da;color:#a9700f}
+.pill.rj{background:#fde9e8;color:#b3403a}
+.pill.rc{background:#e5f5ee;color:#137a52}
+.sp-name{max-width:330px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:bottom}
+.zero{color:#c3cedd}
+.heat{position:relative}
+/* ============ ALERT / OVER-7-DAY WARNING ============ */
+.warn-banner{
+  background:
+    radial-gradient(620px 260px at 92% -30%, rgba(255,255,255,.16), transparent 62%),
+    linear-gradient(118deg,#6d1414 0%,#a81c1c 46%,#d92b2b 100%);
+  color:#fff;border-radius:var(--radius);padding:19px 22px;
+  display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;
+  box-shadow:0 10px 30px rgba(168,28,28,.26);position:relative;overflow:hidden;
+}
+.warn-banner::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px);
+  background-size:32px 32px; mask-image:linear-gradient(180deg,rgba(0,0,0,.85),transparent);
+}
+.wb-left{display:flex;align-items:center;gap:14px;position:relative;z-index:2}
+.wb-ic{
+  width:44px;height:44px;border-radius:12px;display:grid;place-items:center;flex:none;
+  background:rgba(255,255,255,.17);border:1px solid rgba(255,255,255,.32);
+  font-size:23px;font-weight:900;line-height:1;
+}
+.wb-t{font-size:18px;font-weight:800;letter-spacing:-.01em}
+.wb-s{font-size:12.5px;color:rgba(255,255,255,.84);margin-top:3px;max-width:560px}
+.wb-nums{display:flex;gap:11px;position:relative;z-index:2;flex-wrap:wrap}
+.wb-n{
+  background:rgba(0,0,0,.17);border:1px solid rgba(255,255,255,.2);
+  border-radius:11px;padding:8px 15px;min-width:108px;text-align:center;
+}
+.wb-n b{display:block;font-size:23px;font-weight:800;line-height:1.16;letter-spacing:-.02em}
+.wb-n span{font-size:11px;color:rgba(255,255,255,.82);letter-spacing:.02em}
+.warn-tiers{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:16px}
+.tw{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:15px 17px;position:relative;overflow:hidden;
+}
+.tw::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--c)}
+.tw-l{font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.05em}
+.tw-v{font-size:27px;font-weight:800;margin-top:5px;color:var(--c);letter-spacing:-.02em;line-height:1.1}
+.tw-f{font-size:11.5px;color:var(--muted-2);margin-top:3px}
+.tw-bar{height:6px;border-radius:999px;background:#eef2f8;margin-top:11px;overflow:hidden}
+.tw-bar i{display:block;height:100%;border-radius:999px;background:var(--c);width:0;
+  transition:width 1s cubic-bezier(.22,1,.36,1)}
+.wl-head{
+  display:flex;align-items:center;gap:10px;padding:0 2px 8px;font-size:11px;font-weight:800;
+  color:var(--muted-2);letter-spacing:.06em;border-bottom:1px solid var(--line);
+}
+.wl-row{display:flex;align-items:center;gap:10px;padding:9px 2px;border-bottom:1px dashed #eef2f8}
+.wl-row:last-child{border-bottom:none}
+.wl-rank{width:20px;flex:none;text-align:center;font-size:12px;font-weight:800;color:#93a4b8}
+.wl-ofc{width:58px;flex:none;font-size:12.5px;font-weight:800;color:#2c3f57}
+.wl-bar{flex:1;height:15px;border-radius:5px;background:#f1f5fb;display:flex;overflow:hidden;min-width:56px}
+.wl-bar span{display:block;height:100%}
+.wl-num{width:46px;flex:none;text-align:right;font-size:13px;font-weight:800;color:#173d68;
+  font-variant-numeric:tabular-nums}
+.wl-sev{width:56px;flex:none;text-align:right}
+.pill.warn{background:#fdecea;color:#b3261e}
+.pill.risk{background:#fdeee0;color:#b45309}
+.pill.alert{background:#fdf4e0;color:#a9700f}
+.pill.watch{background:#eaf1fa;color:#2f6aa8}
+.pill.all{background:#e8eef7;color:#3a5875}
+.chip-warn{background:rgba(217,43,43,.22);border-color:rgba(248,113,113,.5)}
+.chip-warn .ic{color:#fca5a5}
+/* ============ FOOTER ============ */
+footer{margin-top:40px;padding-top:22px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted-2)}
+footer b{color:var(--muted)}
+/* ============ RESPONSIVE ============ */
+@media(max-width:1080px){
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .grid2,.grid2b{grid-template-columns:1fr}
+  .ins-grid{grid-template-columns:repeat(2,1fr)}
+  .warn-tiers{grid-template-columns:repeat(2,1fr)}
+  .wb-nums{width:100%}
+}
+@media(max-width:620px){
+  .wrap{padding:0 14px 40px}
+  .hero-in{padding:24px 14px 24px}
+  .kpis{grid-template-columns:1fr;margin-top:-18px}
+  .ins-grid{grid-template-columns:1fr}
+  .warn-tiers{grid-template-columns:1fr}
+  .wb-num{flex:1 1 auto}
+  .kpi .k-val{font-size:29px}
+}
+/* ============ PRINT ============ */
+@media print{
+  body{background:#fff}
+  .hero{color:#000;background:#fff!important;border-bottom:2px solid #000}
+  .hero h1 span,.eyebrow{color:#000}
+  .hero p.sub,.chip{color:#333}
+  .kpi,.card,.ins,.table-card{box-shadow:none;border:1px solid #ccc;break-inside:avoid}
+  .scroll{max-height:none;overflow:visible}
+  .tab{display:none}
+  .panel{display:block!important}
+  .search{display:none}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="hero-in">
+    <div class="eyebrow"><span class="dot"></span>CONTAINER REPAIR · MANAGEMENT OVERVIEW</div>
+    <h1>集装箱维修管理 <span>总览看板</span></h1>
+    <p class="sub">覆盖全球 30 个 Office 的维修工单数据汇总，按 Under Repair / Rejected / Repair Complete 三种状态统计，并按工单账龄区间（1-7 / 7-14 / 14-21 / 21-30 / 30+ 天）拆解。<b style="color:#fca5a5">超 7 天未闭环工单（Under Repair / Rejected）全部纳入预警。</b></p>
+    <div class="hero-meta">
+      <span class="chip"><span class="ic">◈</span>数据截止 <b id="m-date">—</b></span>
+      <span class="chip"><span class="ic">◈</span>查询区间 <b id="m-range">—</b></span>
+      <span class="chip"><span class="ic">◈</span>覆盖 Office <b id="m-office">—</b></span>
+      <span class="chip chip-warn"><span class="ic">⚠</span>超 7 天预警 <b id="m-warn">—</b></span>
+      <span class="chip"><span class="ic">◈</span>数据来源 <b>C.U.LINES · NAW Manage Repair</b></span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="kpis">
+    <div class="kpi" style="--c:#22558c;--cs:rgba(34,85,140,.1)">
+      <div class="k-top"><span class="k-label">总工单量</span><span class="k-ic">Σ</span></div>
+      <div class="k-val" id="k-total">0</div>
+      <div class="k-foot"><span id="k-total-office">—</span></div>
+      <div class="bar"><i style="background:#22558c;width:100%"></i></div>
+    </div>
+    <div class="kpi" style="--c:var(--ur);--cs:rgba(227,154,28,.12)">
+      <div class="k-top"><span class="k-label">维修中 · Under Repair</span><span class="k-ic">⚙</span></div>
+      <div class="k-val" id="k-ur">0</div>
+      <div class="k-foot"><span id="k-ur-pct">—</span></div>
+      <div class="bar"><i style="background:var(--ur)" id="b-ur"></i></div>
+    </div>
+    <div class="kpi" style="--c:var(--rj);--cs:rgba(224,86,79,.12)">
+      <div class="k-top"><span class="k-label">已驳回 · Rejected</span><span class="k-ic">✕</span></div>
+      <div class="k-val" id="k-rj">0</div>
+      <div class="k-foot"><span id="k-rj-pct">—</span></div>
+      <div class="bar"><i style="background:var(--rj)" id="b-rj"></i></div>
+    </div>
+    <div class="kpi" style="--c:var(--rc);--cs:rgba(31,158,110,.12)">
+      <div class="k-top"><span class="k-label">维修完成 · Complete</span><span class="k-ic">✓</span></div>
+      <div class="k-val" id="k-rc">0</div>
+      <div class="k-foot"><span id="k-rc-pct">—</span></div>
+      <div class="bar"><i style="background:var(--rc)" id="b-rc"></i></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head">
+      <h2>超 7 天预警</h2>
+      <div class="note">范围：Under Repair + Rejected 未闭环工单 · 账龄 &gt; 7 天全部纳入预警</div>
+    </div>
+
+    <div class="warn-banner">
+      <div class="wb-left">
+        <div class="wb-ic">!</div>
+        <div>
+          <div class="wb-t">超 7 天未闭环工单预警</div>
+          <div class="wb-s">维修中与已驳回工单中账龄超过 7 天的箱子需逐单跟进：已驳回需重新安排维修，维修中需催办完工。</div>
+        </div>
+      </div>
+      <div class="wb-nums">
+        <div class="wb-n"><b id="w-total">0</b><span>预警总量</span></div>
+        <div class="wb-n"><b id="w-ur">0</b><span>维修中 · 超 7 天</span></div>
+        <div class="wb-n"><b id="w-rj">0</b><span>已驳回 · 超 7 天</span></div>
+        <div class="wb-n"><b id="w-share">0%</b><span>占未闭环工单</span></div>
+      </div>
+    </div>
+
+    <div class="warn-tiers" id="warn-tiers"></div>
+
+    <div class="grid2b" style="margin-top:16px">
+      <div class="card">
+        <h3>超 7 天 Office 分布 <span class="tag">BY OFFICE</span></h3>
+        <div class="desc">各 Office 超 7 天未闭环工单量，堆叠区分维修中 / 已驳回</div>
+        <div class="chart-box" style="height:420px"><canvas id="c-warn"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>高风险 Office 清单 <span class="tag">RISK LIST</span></h3>
+        <div class="desc">超 7 天工单量 Top 10，按账龄分档与预警等级标注</div>
+        <div id="warn-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head">
+      <h2>Office 分布与状态构成</h2>
+      <div class="note">Top 12 Office 按工单量排序 · 状态占比基于全部工单</div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h3>Top Office 工单量 <span class="tag">TOP 12</span></h3>
+        <div class="desc">各 Office 维修工单总量排名（含三种状态）</div>
+        <div class="chart-box" style="height:400px"><canvas id="c-top"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>状态占比 <span class="tag">MIX</span></h3>
+        <div class="desc">Under Repair / Rejected / Repair Complete 工单构成</div>
+        <div class="chart-box" style="height:300px"><canvas id="c-donut"></canvas></div>
+        <div id="donut-legend" style="margin-top:6px"></div>
+      </div>
+    </div>
+    <div class="grid2b">
+      <div class="card">
+        <h3>Office × 状态 堆叠 <span class="tag">STACKED</span></h3>
+        <div class="desc">各 Office 的状态结构对比，识别异常结构 Office</div>
+        <div class="chart-box" style="height:430px"><canvas id="c-stack"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>工单账龄分布 <span class="tag">AGING</span></h3>
+        <div class="desc">全部工单账龄分布 · 红线右侧为超 7 天预警区间（UR / Rejected 需跟进）</div>
+        <div class="chart-box" style="height:272px"><canvas id="c-age"></canvas></div>
+        <div id="age-extra" style="margin-top:12px"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head">
+      <h2>关键洞察</h2>
+      <div class="note">自动基于当前数据生成</div>
+    </div>
+    <div class="ins-grid" id="insights"></div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head">
+      <h2>明细数据</h2>
+      <div class="note">点击页签切换视图 · 支持搜索与打印</div>
+    </div>
+    <div class="tabs" id="tabs"></div>
+    <div class="table-card">
+      <div class="table-tools">
+        <div class="tt-title" id="tt-title">—</div>
+        <div class="search"><input id="q" type="text" placeholder="搜索 Office / 服务商…"></div>
+      </div>
+      <div class="scroll"><table id="tbl"><thead></thead><tbody></tbody></table></div>
+    </div>
+  </section>
+
+  <footer>
+    <div>数据来源：<b>C.U.LINES PTE</b> · ops.culines.com（CyberLogitec NAW · Manage Repair）</div>
+    <div>统计口径：Under Repair = 查询日 − Job Order Send Date；Rejected = 查询日 − Estimate Request Date；Repair Complete = Repair Complete Date − Estimate Request Date</div>
+  </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+var META = {"queryDate": "2026-10-26", "range": "2026-09-26 ~ 2026-10-26"};
+var DATA = {"Office Summary": [{"Office": "BENKR", "Under repair": 28, "Rejected": 0, "Repair Complete": 142, "Total": 170}, {"Office": "CUDAL", "Under repair": 1, "Rejected": 0, "Repair Complete": 16, "Total": 17}, {"Office": "CUDEL", "Under repair": 0, "Rejected": 11, "Repair Complete": 155, "Total": 166}, {"Office": "CUGGZ", "Under repair": 30, "Rejected": 80, "Repair Complete": 955, "Total": 1065}, {"Office": "CUHCM", "Under repair": 1, "Rejected": 1, "Repair Complete": 137, "Total": 139}, {"Office": "CUHPH", "Under repair": 0, "Rejected": 2, "Repair Complete": 138, "Total": 140}, {"Office": "CUKWA", "Under repair": 57, "Rejected": 12, "Repair Complete": 30, "Total": 99}, {"Office": "CUMUM", "Under repair": 59, "Rejected": 22, "Repair Complete": 552, "Total": 633}, {"Office": "CUMUN", "Under repair": 45, "Rejected": 2, "Repair Complete": 553, "Total": 600}, {"Office": "CUNGB", "Under repair": 111, "Rejected": 15, "Repair Complete": 536, "Total": 662}, {"Office": "CUPKG", "Under repair": 89, "Rejected": 5, "Repair Complete": 1500, "Total": 1594}, {"Office": "CUSHA", "Under repair": 456, "Rejected": 22, "Repair Complete": 673, "Total": 1151}, {"Office": "CUSNZ", "Under repair": 25, "Rejected": 0, "Repair Complete": 637, "Total": 662}, {"Office": "CUTAO", "Under repair": 64, "Rejected": 8, "Repair Complete": 547, "Total": 619}, {"Office": "CUTNJ", "Under repair": 2, "Rejected": 0, "Repair Complete": 0, "Total": 2}, {"Office": "CUTPE", "Under repair": 40, "Rejected": 1, "Repair Complete": 983, "Total": 1024}, {"Office": "CUXMN", "Under repair": 0, "Rejected": 0, "Repair Complete": 51, "Total": 51}, {"Office": "SAIID", "Under repair": 26, "Rejected": 3, "Repair Complete": 379, "Total": 408}, {"Office": "SASRG", "Under repair": 8, "Rejected": 2, "Repair Complete": 32, "Total": 42}, {"Office": "SASUB", "Under repair": 3, "Rejected": 2, "Repair Complete": 7, "Total": 12}, {"Office": "SBLPH", "Under repair": 35, "Rejected": 7, "Repair Complete": 58, "Total": 100}, {"Office": "TOTAL", "Under repair": 1080, "Rejected": 195, "Repair Complete": 8081, "Total": 9356}], "Office x Status x Days": [{"Office": "BENKR", "Status": "Repair Complete", "1-7 days": 133, "7-14 days": 4, "14-21 days": 5, "21-30 days": 0, "30+ days": 0, "Total": 142}, {"Office": "BENKR", "Status": "Under repair", "1-7 days": 0, "7-14 days": 28, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 28}, {"Office": "CUDAL", "Status": "Repair Complete", "1-7 days": 16, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 16}, {"Office": "CUDAL", "Status": "Under repair", "1-7 days": 1, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 1}, {"Office": "CUDEL", "Status": "Rejected", "1-7 days": 3, "7-14 days": 7, "14-21 days": 1, "21-30 days": 0, "30+ days": 0, "Total": 11}, {"Office": "CUDEL", "Status": "Repair Complete", "1-7 days": 140, "7-14 days": 14, "14-21 days": 1, "21-30 days": 0, "30+ days": 0, "Total": 155}, {"Office": "CUGGZ", "Status": "Rejected", "1-7 days": 4, "7-14 days": 6, "14-21 days": 26, "21-30 days": 16, "30+ days": 28, "Total": 80}, {"Office": "CUGGZ", "Status": "Repair Complete", "1-7 days": 938, "7-14 days": 12, "14-21 days": 4, "21-30 days": 1, "30+ days": 0, "Total": 955}, {"Office": "CUGGZ", "Status": "Under repair", "1-7 days": 30, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 30}, {"Office": "CUHCM", "Status": "Rejected", "1-7 days": 1, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 1}, {"Office": "CUHCM", "Status": "Repair Complete", "1-7 days": 136, "7-14 days": 1, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 137}, {"Office": "CUHCM", "Status": "Under repair", "1-7 days": 1, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 1}, {"Office": "CUHPH", "Status": "Rejected", "1-7 days": 0, "7-14 days": 1, "14-21 days": 0, "21-30 days": 1, "30+ days": 0, "Total": 2}, {"Office": "CUHPH", "Status": "Repair Complete", "1-7 days": 138, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 138}, {"Office": "CUKWA", "Status": "Rejected", "1-7 days": 0, "7-14 days": 3, "14-21 days": 6, "21-30 days": 3, "30+ days": 0, "Total": 12}, {"Office": "CUKWA", "Status": "Repair Complete", "1-7 days": 21, "7-14 days": 2, "14-21 days": 7, "21-30 days": 0, "30+ days": 0, "Total": 30}, {"Office": "CUKWA", "Status": "Under repair", "1-7 days": 1, "7-14 days": 8, "14-21 days": 47, "21-30 days": 1, "30+ days": 0, "Total": 57}, {"Office": "CUMUM", "Status": "Rejected", "1-7 days": 17, "7-14 days": 5, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 22}, {"Office": "CUMUM", "Status": "Repair Complete", "1-7 days": 489, "7-14 days": 52, "14-21 days": 10, "21-30 days": 0, "30+ days": 1, "Total": 552}, {"Office": "CUMUM", "Status": "Under repair", "1-7 days": 40, "7-14 days": 11, "14-21 days": 7, "21-30 days": 1, "30+ days": 0, "Total": 59}, {"Office": "CUMUN", "Status": "Rejected", "1-7 days": 0, "7-14 days": 2, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 2}, {"Office": "CUMUN", "Status": "Repair Complete", "1-7 days": 424, "7-14 days": 81, "14-21 days": 23, "21-30 days": 24, "30+ days": 1, "Total": 553}, {"Office": "CUMUN", "Status": "Under repair", "1-7 days": 9, "7-14 days": 12, "14-21 days": 5, "21-30 days": 19, "30+ days": 0, "Total": 45}, {"Office": "CUNGB", "Status": "Rejected", "1-7 days": 5, "7-14 days": 7, "14-21 days": 2, "21-30 days": 1, "30+ days": 0, "Total": 15}, {"Office": "CUNGB", "Status": "Repair Complete", "1-7 days": 499, "7-14 days": 31, "14-21 days": 6, "21-30 days": 0, "30+ days": 0, "Total": 536}, {"Office": "CUNGB", "Status": "Under repair", "1-7 days": 86, "7-14 days": 6, "14-21 days": 14, "21-30 days": 5, "30+ days": 0, "Total": 111}, {"Office": "CUPKG", "Status": "Rejected", "1-7 days": 3, "7-14 days": 0, "14-21 days": 0, "21-30 days": 2, "30+ days": 0, "Total": 5}, {"Office": "CUPKG", "Status": "Repair Complete", "1-7 days": 1403, "7-14 days": 81, "14-21 days": 15, "21-30 days": 0, "30+ days": 1, "Total": 1500}, {"Office": "CUPKG", "Status": "Under repair", "1-7 days": 33, "7-14 days": 37, "14-21 days": 12, "21-30 days": 7, "30+ days": 0, "Total": 89}, {"Office": "CUSHA", "Status": "Rejected", "1-7 days": 17, "7-14 days": 5, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 22}, {"Office": "CUSHA", "Status": "Repair Complete", "1-7 days": 622, "7-14 days": 38, "14-21 days": 6, "21-30 days": 7, "30+ days": 0, "Total": 673}, {"Office": "CUSHA", "Status": "Under repair", "1-7 days": 374, "7-14 days": 73, "14-21 days": 5, "21-30 days": 4, "30+ days": 0, "Total": 456}, {"Office": "CUSNZ", "Status": "Repair Complete", "1-7 days": 630, "7-14 days": 7, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 637}, {"Office": "CUSNZ", "Status": "Under repair", "1-7 days": 25, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 25}, {"Office": "CUTAO", "Status": "Rejected", "1-7 days": 1, "7-14 days": 1, "14-21 days": 4, "21-30 days": 1, "30+ days": 1, "Total": 8}, {"Office": "CUTAO", "Status": "Repair Complete", "1-7 days": 464, "7-14 days": 75, "14-21 days": 8, "21-30 days": 0, "30+ days": 0, "Total": 547}, {"Office": "CUTAO", "Status": "Under repair", "1-7 days": 50, "7-14 days": 14, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 64}, {"Office": "CUTNJ", "Status": "Under repair", "1-7 days": 2, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 2}, {"Office": "CUTPE", "Status": "Rejected", "1-7 days": 0, "7-14 days": 1, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 1}, {"Office": "CUTPE", "Status": "Repair Complete", "1-7 days": 933, "7-14 days": 34, "14-21 days": 15, "21-30 days": 0, "30+ days": 1, "Total": 983}, {"Office": "CUTPE", "Status": "Under repair", "1-7 days": 33, "7-14 days": 2, "14-21 days": 5, "21-30 days": 0, "30+ days": 0, "Total": 40}, {"Office": "CUXMN", "Status": "Repair Complete", "1-7 days": 34, "7-14 days": 2, "14-21 days": 14, "21-30 days": 1, "30+ days": 0, "Total": 51}, {"Office": "SAIID", "Status": "Rejected", "1-7 days": 0, "7-14 days": 3, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 3}, {"Office": "SAIID", "Status": "Repair Complete", "1-7 days": 374, "7-14 days": 5, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 379}, {"Office": "SAIID", "Status": "Under repair", "1-7 days": 12, "7-14 days": 1, "14-21 days": 13, "21-30 days": 0, "30+ days": 0, "Total": 26}, {"Office": "SASRG", "Status": "Rejected", "1-7 days": 0, "7-14 days": 2, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 2}, {"Office": "SASRG", "Status": "Repair Complete", "1-7 days": 32, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 32}, {"Office": "SASRG", "Status": "Under repair", "1-7 days": 8, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 8}, {"Office": "SASUB", "Status": "Rejected", "1-7 days": 0, "7-14 days": 0, "14-21 days": 2, "21-30 days": 0, "30+ days": 0, "Total": 2}, {"Office": "SASUB", "Status": "Repair Complete", "1-7 days": 5, "7-14 days": 1, "14-21 days": 1, "21-30 days": 0, "30+ days": 0, "Total": 7}, {"Office": "SASUB", "Status": "Under repair", "1-7 days": 0, "7-14 days": 0, "14-21 days": 3, "21-30 days": 0, "30+ days": 0, "Total": 3}, {"Office": "SBLPH", "Status": "Rejected", "1-7 days": 3, "7-14 days": 1, "14-21 days": 0, "21-30 days": 3, "30+ days": 0, "Total": 7}, {"Office": "SBLPH", "Status": "Repair Complete", "1-7 days": 52, "7-14 days": 5, "14-21 days": 1, "21-30 days": 0, "30+ days": 0, "Total": 58}, {"Office": "SBLPH", "Status": "Under repair", "1-7 days": 16, "7-14 days": 10, "14-21 days": 0, "21-30 days": 9, "30+ days": 0, "Total": 35}], "Office x Days": [{"Office": "BENKR", "1-7 days": 133, "7-14 days": 32, "14-21 days": 5, "21-30 days": 0, "30+ days": 0, "Total": 170}, {"Office": "CUDAL", "1-7 days": 17, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 17}, {"Office": "CUDEL", "1-7 days": 143, "7-14 days": 21, "14-21 days": 2, "21-30 days": 0, "30+ days": 0, "Total": 166}, {"Office": "CUGGZ", "1-7 days": 972, "7-14 days": 18, "14-21 days": 30, "21-30 days": 17, "30+ days": 28, "Total": 1065}, {"Office": "CUHCM", "1-7 days": 138, "7-14 days": 1, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 139}, {"Office": "CUHPH", "1-7 days": 138, "7-14 days": 1, "14-21 days": 0, "21-30 days": 1, "30+ days": 0, "Total": 140}, {"Office": "CUKWA", "1-7 days": 22, "7-14 days": 13, "14-21 days": 60, "21-30 days": 4, "30+ days": 0, "Total": 99}, {"Office": "CUMUM", "1-7 days": 546, "7-14 days": 68, "14-21 days": 17, "21-30 days": 1, "30+ days": 1, "Total": 633}, {"Office": "CUMUN", "1-7 days": 433, "7-14 days": 95, "14-21 days": 28, "21-30 days": 43, "30+ days": 1, "Total": 600}, {"Office": "CUNGB", "1-7 days": 590, "7-14 days": 44, "14-21 days": 22, "21-30 days": 6, "30+ days": 0, "Total": 662}, {"Office": "CUPKG", "1-7 days": 1439, "7-14 days": 118, "14-21 days": 27, "21-30 days": 9, "30+ days": 1, "Total": 1594}, {"Office": "CUSHA", "1-7 days": 1013, "7-14 days": 116, "14-21 days": 11, "21-30 days": 11, "30+ days": 0, "Total": 1151}, {"Office": "CUSNZ", "1-7 days": 655, "7-14 days": 7, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 662}, {"Office": "CUTAO", "1-7 days": 515, "7-14 days": 90, "14-21 days": 12, "21-30 days": 1, "30+ days": 1, "Total": 619}, {"Office": "CUTNJ", "1-7 days": 2, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 2}, {"Office": "CUTPE", "1-7 days": 966, "7-14 days": 37, "14-21 days": 20, "21-30 days": 0, "30+ days": 1, "Total": 1024}, {"Office": "CUXMN", "1-7 days": 34, "7-14 days": 2, "14-21 days": 14, "21-30 days": 1, "30+ days": 0, "Total": 51}, {"Office": "SAIID", "1-7 days": 386, "7-14 days": 9, "14-21 days": 13, "21-30 days": 0, "30+ days": 0, "Total": 408}, {"Office": "SASRG", "1-7 days": 40, "7-14 days": 2, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 42}, {"Office": "SASUB", "1-7 days": 5, "7-14 days": 1, "14-21 days": 6, "21-30 days": 0, "30+ days": 0, "Total": 12}, {"Office": "SBLPH", "1-7 days": 71, "7-14 days": 16, "14-21 days": 1, "21-30 days": 12, "30+ days": 0, "Total": 100}, {"Office": "TOTAL", "1-7 days": 8258, "7-14 days": 691, "14-21 days": 268, "21-30 days": 106, "30+ days": 33, "Total": 9356}], "Detail": [{"Office": "BENKR", "Status": "Repair Complete", "Service Provider Code": "KR120002", "Service Provider Name": "HANTA LOGISTICS CO., LTD", "1-7 days": 73, "7-14 days": 4, "14-21 days": 5, "21-30 days": 0, "30+ days": 0, "Total": 82}, {"Office": "BENKR", "Status": "Repair Complete", "Service Provider Code": "KR319669", "Service Provider Name": "SUN-KWANG LOGISTICS CY", "1-7 days": 49, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 49}, {"Office": "BENKR", "Status": "Repair Complete", "Service Provider Code": "KR378927", "Service Provider Name": "KUKDONG TLS", "1-7 days": 10, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 10}, {"Office": "BENKR", "Status": "Repair Complete", "Service Provider Code": "KR433699", "Service Provider Name": "SHINJI DUDONG CY", "1-7 days": 1, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 1}, {"Office": "BENKR", "Status": "Under repair", "Service Provider Code": "KR428673", "Service Provider Name": "Hanjin Busan New Port Co. (HJNC)", "1-7 days": 0, "7-14 days": 28, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 28}, {"Office": "CUDAL", "Status": "Repair Complete", "Service Provider Code": "CN430903", "Service Provider Name": "Dalian Zhongyun Haitong Logistics  Co., Ltd.", "1-7 days": 16, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 16}, {"Office": "CUDAL", "Status": "Under repair", "Service Provider Code": "CN430903", "Service Provider Name": "Dalian Zhongyun Haitong Logistics  Co., Ltd.", "1-7 days": 1, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 1}, {"Office": "CUDEL", "Status": "Rejected", "Service Provider Code": "IN439134", "Service Provider Name": "Admek Terminals Pvt Ltd - Gurgaon", "1-7 days": 3, "7-14 days": 7, "14-21 days": 1, "21-30 days": 0, "30+ days": 0, "Total": 11}, {"Office": "CUDEL", "Status": "Repair Complete", "Service Provider Code": "IN388796", "Service Provider Name": "Allcargo logistics park pvt. ltd", "1-7 days": 24, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 24}, {"Office": "CUDEL", "Status": "Repair Complete", "Service Provider Code": "IN426958", "Service Provider Name": "SRB Terminals Pvt Ltd.", "1-7 days": 1, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 1}, {"Office": "CUDEL", "Status": "Repair Complete", "Service Provider Code": "IN439134", "Service Provider Name": "Admek Terminals Pvt Ltd - Gurgaon", "1-7 days": 115, "7-14 days": 11, "14-21 days": 1, "21-30 days": 0, "30+ days": 0, "Total": 127}, {"Office": "CUDEL", "Status": "Repair Complete", "Service Provider Code": "IN439135", "Service Provider Name": "Willmarine Container Service Pvt Ltd - Gurgaon (Within ICD)", "1-7 days": 0, "7-14 days": 3, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 3}, {"Office": "CUGGZ", "Status": "Rejected", "Service Provider Code": "CN120021", "Service Provider Name": "Guangzhou Hongyun Logistics Service Co.,Ltd.", "1-7 days": 0, "7-14 days": 6, "14-21 days": 25, "21-30 days": 8, "30+ days": 23, "Total": 62}, {"Office": "CUGGZ", "Status": "Rejected", "Service Provider Code": "CN327337", "Service Provider Name": "Greating Fortune(Guangzhou)Container Service Co.LTD", "1-7 days": 0, "7-14 days": 0, "14-21 days": 0, "21-30 days": 2, "30+ days": 0, "Total": 2}, {"Office": "CUGGZ", "Status": "Rejected", "Service Provider Code": "CN369785", "Service Provider Name": "Shenzhen Yupeng Container Service Co.,Ltd", "1-7 days": 4, "7-14 days": 0, "14-21 days": 1, "21-30 days": 6, "30+ days": 5, "Total": 16}, {"Office": "CUGGZ", "Status": "Repair Complete", "Service Provider Code": "CN120020", "Service Provider Name": "Guangzhou Shen Peng Logistics Co.,Ltd", "1-7 days": 23, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 23}, {"Office": "CUGGZ", "Status": "Repair Complete", "Service Provider Code": "CN120021", "Service Provider Name": "Guangzhou Hongyun Logistics Service Co.,Ltd.", "1-7 days": 703, "7-14 days": 4, "14-21 days": 0, "21-30 days": 1, "30+ days": 0, "Total": 708}, {"Office": "CUGGZ", "Status": "Repair Complete", "Service Provider Code": "CN327337", "Service Provider Name": "Greating Fortune(Guangzhou)Container Service Co.LTD", "1-7 days": 42, "7-14 days": 4, "14-21 days": 4, "21-30 days": 0, "30+ days": 0, "Total": 50}, {"Office": "CUGGZ", "Status": "Repair Complete", "Service Provider Code": "CN349679", "Service Provider Name": "CIMC HUANG PU DEPOT", "1-7 days": 90, "7-14 days": 1, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 91}, {"Office": "CUGGZ", "Status": "Repair Complete", "Service Provider Code": "CN369785", "Service Provider Name": "Shenzhen Yupeng Container Service Co.,Ltd", "1-7 days": 80, "7-14 days": 3, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 83}, {"Office": "CUGGZ", "Status": "Under repair", "Service Provider Code": "CN120020", "Service Provider Name": "Guangzhou Shen Peng Logistics Co.,Ltd", "1-7 days": 3, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 3}, {"Office": "CUGGZ", "Status": "Under repair", "Service Provider Code": "CN120021", "Service Provider Name": "Guangzhou Hongyun Logistics Service Co.,Ltd.", "1-7 days": 23, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 23}, {"Office": "CUGGZ", "Status": "Under repair", "Service Provider Code": "CN349679", "Service Provider Name": "CIMC HUANG PU DEPOT", "1-7 days": 1, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 1}, {"Office": "CUGGZ", "Status": "Under repair", "Service Provider Code": "CN369785", "Service Provider Name": "Shenzhen Yupeng Container Service Co.,Ltd", "1-7 days": 3, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 3}, {"Office": "CUHCM", "Status": "Rejected", "Service Provider Code": "VN371109", "Service Provider Name": "CIMC LOGISTIC SERVICES(VIET NAM)CO.,LTD", "1-7 days": 1, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 1}, {"Office": "CUHCM", "Status": "Repair Complete", "Service Provider Code": "VN313442", "Service Provider Name": "Cong TY CP GREATING FORTUNE LOGISTICS", "1-7 days": 9, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 9}, {"Office": "CUHCM", "Status": "Repair Complete", "Service Provider Code": "VN325614", "Service Provider Name": "TAN CANG – HIEP LUC JOINT STOCK COMPANY", "1-7 days": 120, "7-14 days": 1, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 121}, {"Office": "CUHCM", "Status": "Repair Complete", "Service Provider Code": "VN371109", "Service Provider Name": "CIMC LOGISTIC SERVICES(VIET NAM)CO.,LTD", "1-7 days": 7, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 7}, {"Office": "CUHCM", "Status": "Under repair", "Service Provider Code": "VN325614", "Service Provider Name": "TAN CANG – HIEP LUC JOINT STOCK COMPANY", "1-7 days": 1, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 1}, {"Office": "CUHPH", "Status": "Rejected", "Service Provider Code": "VN300313", "Service Provider Name": "GREATING FORTURE (HPH) CONTAINER JOINT STOCK CO.,", "1-7 days": 0, "7-14 days": 1, "14-21 days": 0, "21-30 days": 1, "30+ days": 0, "Total": 2}, {"Office": "CUHPH", "Status": "Repair Complete", "Service Provider Code": "VN300313", "Service Provider Name": "GREATING FORTURE (HPH) CONTAINER JOINT STOCK CO.,", "1-7 days": 134, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 134}, {"Office": "CUHPH", "Status": "Repair Complete", "Service Provider Code": "VN371109", "Service Provider Name": "CIMC LOGISTIC SERVICES(VIET NAM)CO.,LTD", "1-7 days": 4, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 4}, {"Office": "CUKWA", "Status": "Rejected", "Service Provider Code": "JP439140", "Service Provider Name": "Fujitrans Nishihama Container Yard", "1-7 days": 0, "7-14 days": 0, "14-21 days": 1, "21-30 days": 0, "30+ days": 0, "Total": 1}, {"Office": "CUKWA", "Status": "Rejected", "Service Provider Code": "JP439141", "Service Provider Name": "Sumitomo Soko Oi Van Pool", "1-7 days": 0, "7-14 days": 0, "14-21 days": 0, "21-30 days": 2, "30+ days": 0, "Total": 2}, {"Office": "CUKWA", "Status": "Rejected", "Service Provider Code": "JP439142", "Service Provider Name": "Kobe PC 18", "1-7 days": 0, "7-14 days": 3, "14-21 days": 5, "21-30 days": 1, "30+ days": 0, "Total": 9}, {"Office": "CUKWA", "Status": "Repair Complete", "Service Provider Code": "JP439140", "Service Provider Name": "Fujitrans Nishihama Container Yard", "1-7 days": 19, "7-14 days": 2, "14-21 days": 7, "21-30 days": 0, "30+ days": 0, "Total": 28}, {"Office": "CUKWA", "Status": "Repair Complete", "Service Provider Code": "JP439141", "Service Provider Name": "Sumitomo Soko Oi Van Pool", "1-7 days": 1, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 1}, {"Office": "CUKWA", "Status": "Repair Complete", "Service Provider Code": "JP439142", "Service Provider Name": "Kobe PC 18", "1-7 days": 1, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 1}, {"Office": "CUKWA", "Status": "Under repair", "Service Provider Code": "JP439140", "Service Provider Name": "Fujitrans Nishihama Container Yard", "1-7 days": 0, "7-14 days": 6, "14-21 days": 3, "21-30 days": 0, "30+ days": 0, "Total": 9}, {"Office": "CUKWA", "Status": "Under repair", "Service Provider Code": "JP439141", "Service Provider Name": "Sumitomo Soko Oi Van Pool", "1-7 days": 0, "7-14 days": 0, "14-21 days": 1, "21-30 days": 1, "30+ days": 0, "Total": 2}, {"Office": "CUKWA", "Status": "Under repair", "Service Provider Code": "JP439142", "Service Provider Name": "Kobe PC 18", "1-7 days": 1, "7-14 days": 2, "14-21 days": 36, "21-30 days": 0, "30+ days": 0, "Total": 39}, {"Office": "CUKWA", "Status": "Under repair", "Service Provider Code": "JP439143", "Service Provider Name": "Honmoku D Tottei", "1-7 days": 0, "7-14 days": 0, "14-21 days": 7, "21-30 days": 0, "30+ days": 0, "Total": 7}, {"Office": "CUMUM", "Status": "Rejected", "Service Provider Code": "IN300307", "Service Provider Name": "SEABIRD MARINE SERVICES PRIVATE LIMITED", "1-7 days": 11, "7-14 days": 2, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 13}, {"Office": "CUMUM", "Status": "Rejected", "Service Provider Code": "IN426957", "Service Provider Name": "DP World Multi Modal Logistics Pvt Ltd - INNSA", "1-7 days": 1, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 1}, {"Office": "CUMUM", "Status": "Rejected", "Service Provider Code": "IN436942", "Service Provider Name": "Maersk Logistics & Services India Private Limited", "1-7 days": 5, "7-14 days": 3, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 8}, {"Office": "CUMUM", "Status": "Repair Complete", "Service Provider Code": "IN300307", "Service Provider Name": "SEABIRD MARINE SERVICES PRIVATE LIMITED", "1-7 days": 439, "7-14 days": 51, "14-21 days": 10, "21-30 days": 0, "30+ days": 0, "Total": 500}, {"Office": "CUMUM", "Status": "Repair Complete", "Service Provider Code": "IN436942", "Service Provider Name": "Maersk Logistics & Services India Private Limited", "1-7 days": 49, "7-14 days": 1, "14-21 days": 0, "21-30 days": 0, "30+ days": 1, "Total": 51}, {"Office": "CUMUM", "Status": "Repair Complete", "Service Provider Code": "IN439130", "Service Provider Name": "ALLCARGO TERMINALS LIMITED", "1-7 days": 1, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 1}, {"Office": "CUMUM", "Status": "Under repair", "Service Provider Code": "IN300307", "Service Provider Name": "SEABIRD MARINE SERVICES PRIVATE LIMITED", "1-7 days": 32, "7-14 days": 10, "14-21 days": 7, "21-30 days": 1, "30+ days": 0, "Total": 50}, {"Office": "CUMUM", "Status": "Under repair", "Service Provider Code": "IN426957", "Service Provider Name": "DP World Multi Modal Logistics Pvt Ltd - INNSA", "1-7 days": 1, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 1}, {"Office": "CUMUM", "Status": "Under repair", "Service Provider Code": "IN436942", "Service Provider Name": "Maersk Logistics & Services India Private Limited", "1-7 days": 7, "7-14 days": 1, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 8}, {"Office": "CUMUN", "Status": "Rejected", "Service Provider Code": "IN408606", "Service Provider Name": "Ashutosh Container Services Pvt. Ltd", "1-7 days": 0, "7-14 days": 2, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 2}, {"Office": "CUMUN", "Status": "Repair Complete", "Service Provider Code": "IN377019", "Service Provider Name": "Saurashtra Freight Pvt Ltd", "1-7 days": 79, "7-14 days": 35, "14-21 days": 7, "21-30 days": 2, "30+ days": 0, "Total": 123}, {"Office": "CUMUN", "Status": "Repair Complete", "Service Provider Code": "IN408606", "Service Provider Name": "Ashutosh Container Services Pvt. Ltd", "1-7 days": 108, "7-14 days": 15, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 123}, {"Office": "CUMUN", "Status": "Repair Complete", "Service Provider Code": "IN439124", "Service Provider Name": "SEABIRD MARINE SERVICES PRIVATE LIMITED (INMUN)", "1-7 days": 34, "7-14 days": 18, "14-21 days": 14, "21-30 days": 13, "30+ days": 1, "Total": 80}, {"Office": "CUMUN", "Status": "Repair Complete", "Service Provider Code": "IN439125", "Service Provider Name": "APM Terminal, Mundra /Maersk Logistics & Services India Private Limited", "1-7 days": 171, "7-14 days": 2, "14-21 days": 0, "21-30 days": 8, "30+ days": 0, "Total": 181}, {"Office": "CUMUN", "Status": "Repair Complete", "Service Provider Code": "IN440825", "Service Provider Name": "Allcargo Terminals Limited", "1-7 days": 32, "7-14 days": 11, "14-21 days": 2, "21-30 days": 1, "30+ days": 0, "Total": 46}, {"Office": "CUMUN", "Status": "Under repair", "Service Provider Code": "IN377019", "Service Provider Name": "Saurashtra Freight Pvt Ltd", "1-7 days": 4, "7-14 days": 3, "14-21 days": 3, "21-30 days": 18, "30+ days": 0, "Total": 28}, {"Office": "CUMUN", "Status": "Under repair", "Service Provider Code": "IN408606", "Service Provider Name": "Ashutosh Container Services Pvt. Ltd", "1-7 days": 2, "7-14 days": 4, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 6}, {"Office": "CUMUN", "Status": "Under repair", "Service Provider Code": "IN439124", "Service Provider Name": "SEABIRD MARINE SERVICES PRIVATE LIMITED (INMUN)", "1-7 days": 3, "7-14 days": 0, "14-21 days": 1, "21-30 days": 1, "30+ days": 0, "Total": 5}, {"Office": "CUMUN", "Status": "Under repair", "Service Provider Code": "IN439125", "Service Provider Name": "APM Terminal, Mundra /Maersk Logistics & Services India Private Limited", "1-7 days": 0, "7-14 days": 0, "14-21 days": 1, "21-30 days": 0, "30+ days": 0, "Total": 1}, {"Office": "CUMUN", "Status": "Under repair", "Service Provider Code": "IN440825", "Service Provider Name": "Allcargo Terminals Limited", "1-7 days": 0, "7-14 days": 5, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 5}, {"Office": "CUNGB", "Status": "Rejected", "Service Provider Code": "CN319529", "Service Provider Name": "NingBo Beilun Hai feng logistics.co", "1-7 days": 0, "7-14 days": 1, "14-21 days": 1, "21-30 days": 0, "30+ days": 0, "Total": 2}, {"Office": "CUNGB", "Status": "Rejected", "Service Provider Code": "CN342022", "Service Provider Name": "Ningbo FTX XinGao Depot", "1-7 days": 0, "7-14 days": 4, "14-21 days": 1, "21-30 days": 0, "30+ days": 0, "Total": 5}, {"Office": "CUNGB", "Status": "Rejected", "Service Provider Code": "CN348792", "Service Provider Name": "嘉兴泰利国际货柜有限公司", "1-7 days": 2, "7-14 days": 2, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 4}, {"Office": "CUNGB", "Status": "Rejected", "Service Provider Code": "CN366201", "Service Provider Name": "Greating Fortune (Ningbo) Logistics Co.,Ltd.", "1-7 days": 3, "7-14 days": 0, "14-21 days": 0, "21-30 days": 1, "30+ days": 0, "Total": 4}, {"Office": "CUNGB", "Status": "Repair Complete", "Service Provider Code": "CN319529", "Service Provider Name": "NingBo Beilun Hai feng logistics.co", "1-7 days": 158, "7-14 days": 4, "14-21 days": 2, "21-30 days": 0, "30+ days": 0, "Total": 164}, {"Office": "CUNGB", "Status": "Repair Complete", "Service Provider Code": "CN342022", "Service Provider Name": "Ningbo FTX XinGao Depot", "1-7 days": 147, "7-14 days": 22, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 169}, {"Office": "CUNGB", "Status": "Repair Complete", "Service Provider Code": "CN348792", "Service Provider Name": "嘉兴泰利国际货柜有限公司", "1-7 days": 49, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 49}, {"Office": "CUNGB", "Status": "Repair Complete", "Service Provider Code": "CN366201", "Service Provider Name": "Greating Fortune (Ningbo) Logistics Co.,Ltd.", "1-7 days": 73, "7-14 days": 4, "14-21 days": 3, "21-30 days": 0, "30+ days": 0, "Total": 80}, {"Office": "CUNGB", "Status": "Repair Complete", "Service Provider Code": "CN417620", "Service Provider Name": "Zhoushan Tao Sheng Supply Chain Management Co. LTD", "1-7 days": 72, "7-14 days": 1, "14-21 days": 1, "21-30 days": 0, "30+ days": 0, "Total": 74}, {"Office": "CUNGB", "Status": "Under repair", "Service Provider Code": "CN319529", "Service Provider Name": "NingBo Beilun Hai feng logistics.co", "1-7 days": 8, "7-14 days": 3, "14-21 days": 4, "21-30 days": 0, "30+ days": 0, "Total": 15}, {"Office": "CUNGB", "Status": "Under repair", "Service Provider Code": "CN342022", "Service Provider Name": "Ningbo FTX XinGao Depot", "1-7 days": 3, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 3}, {"Office": "CUNGB", "Status": "Under repair", "Service Provider Code": "CN348792", "Service Provider Name": "嘉兴泰利国际货柜有限公司", "1-7 days": 3, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 3}, {"Office": "CUNGB", "Status": "Under repair", "Service Provider Code": "CN366201", "Service Provider Name": "Greating Fortune (Ningbo) Logistics Co.,Ltd.", "1-7 days": 70, "7-14 days": 3, "14-21 days": 1, "21-30 days": 5, "30+ days": 0, "Total": 79}, {"Office": "CUNGB", "Status": "Under repair", "Service Provider Code": "CN417620", "Service Provider Name": "Zhoushan Tao Sheng Supply Chain Management Co. LTD", "1-7 days": 2, "7-14 days": 0, "14-21 days": 9, "21-30 days": 0, "30+ days": 0, "Total": 11}, {"Office": "CUPKG", "Status": "Rejected", "Service Provider Code": "MY345936", "Service Provider Name": "ODD99 (NEK GPC Container Service (M) Sdn Bhd)", "1-7 days": 3, "7-14 days": 0, "14-21 days": 0, "21-30 days": 1, "30+ days": 0, "Total": 4}, {"Office": "CUPKG", "Status": "Rejected", "Service Provider Code": "MY437509", "Service Provider Name": "SMART DEPOT SERVICE (MALAYSIA) SDN BHD", "1-7 days": 0, "7-14 days": 0, "14-21 days": 0, "21-30 days": 1, "30+ days": 0, "Total": 1}, {"Office": "CUPKG", "Status": "Repair Complete", "Service Provider Code": "MY324820", "Service Provider Name": "Malaysia CIMC depot", "1-7 days": 10, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 10}, {"Office": "CUPKG", "Status": "Repair Complete", "Service Provider Code": "MY345936", "Service Provider Name": "ODD99 (NEK GPC Container Service (M) Sdn Bhd)", "1-7 days": 1007, "7-14 days": 13, "14-21 days": 7, "21-30 days": 0, "30+ days": 1, "Total": 1028}, {"Office": "CUPKG", "Status": "Repair Complete", "Service Provider Code": "MY374299", "Service Provider Name": "INFINITY LOGISTICS & TRANSPORT SDN. BHD.", "1-7 days": 126, "7-14 days": 1, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 127}, {"Office": "CUPKG", "Status": "Repair Complete", "Service Provider Code": "MY416578", "Service Provider Name": "ENG KONG CONTAINER SERVICES (JOHOR) SDN BHD", "1-7 days": 17, "7-14 days": 4, "14-21 days": 1, "21-30 days": 0, "30+ days": 0, "Total": 22}, {"Office": "CUPKG", "Status": "Repair Complete", "Service Provider Code": "MY437509", "Service Provider Name": "SMART DEPOT SERVICE (MALAYSIA) SDN BHD", "1-7 days": 243, "7-14 days": 63, "14-21 days": 7, "21-30 days": 0, "30+ days": 0, "Total": 313}, {"Office": "CUPKG", "Status": "Under repair", "Service Provider Code": "MY324820", "Service Provider Name": "Malaysia CIMC depot", "1-7 days": 2, "7-14 days": 3, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 5}, {"Office": "CUPKG", "Status": "Under repair", "Service Provider Code": "MY345936", "Service Provider Name": "ODD99 (NEK GPC Container Service (M) Sdn Bhd)", "1-7 days": 26, "7-14 days": 10, "14-21 days": 9, "21-30 days": 5, "30+ days": 0, "Total": 50}, {"Office": "CUPKG", "Status": "Under repair", "Service Provider Code": "MY374299", "Service Provider Name": "INFINITY LOGISTICS & TRANSPORT SDN. BHD.", "1-7 days": 2, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 2}, {"Office": "CUPKG", "Status": "Under repair", "Service Provider Code": "MY437509", "Service Provider Name": "SMART DEPOT SERVICE (MALAYSIA) SDN BHD", "1-7 days": 3, "7-14 days": 24, "14-21 days": 3, "21-30 days": 2, "30+ days": 0, "Total": 32}, {"Office": "CUSHA", "Status": "Rejected", "Service Provider Code": "CN336943", "Service Provider Name": "Shanghai Huanji International Logistics Co.,Ltd.", "1-7 days": 2, "7-14 days": 3, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 5}, {"Office": "CUSHA", "Status": "Rejected", "Service Provider Code": "CN342406", "Service Provider Name": "ShangHai De Well Empty & Laden Container Depot", "1-7 days": 8, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 8}, {"Office": "CUSHA", "Status": "Rejected", "Service Provider Code": "CN430694", "Service Provider Name": "Shanghai Lianglong Container Service Co.,LTD", "1-7 days": 7, "7-14 days": 2, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 9}, {"Office": "CUSHA", "Status": "Repair Complete", "Service Provider Code": "CN332449", "Service Provider Name": "Greating Fortune (Shanghai) Container Service Co.,Ltd", "1-7 days": 19, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 19}, {"Office": "CUSHA", "Status": "Repair Complete", "Service Provider Code": "CN336943", "Service Provider Name": "Shanghai Huanji International Logistics Co.,Ltd.", "1-7 days": 39, "7-14 days": 16, "14-21 days": 5, "21-30 days": 7, "30+ days": 0, "Total": 67}, {"Office": "CUSHA", "Status": "Repair Complete", "Service Provider Code": "CN342406", "Service Provider Name": "ShangHai De Well Empty & Laden Container Depot", "1-7 days": 258, "7-14 days": 20, "14-21 days": 1, "21-30 days": 0, "30+ days": 0, "Total": 279}, {"Office": "CUSHA", "Status": "Repair Complete", "Service Provider Code": "CN363900", "Service Provider Name": "Shanghai HuaYu LOGISTICS CO.,LTD.", "1-7 days": 80, "7-14 days": 2, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 82}, {"Office": "CUSHA", "Status": "Repair Complete", "Service Provider Code": "CN431203", "Service Provider Name": "SHANGHAI EVER-UNION CONTAINER SERVICE CO.,LTD", "1-7 days": 226, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 226}, {"Office": "CUSHA", "Status": "Under repair", "Service Provider Code": "CN332449", "Service Provider Name": "Greating Fortune (Shanghai) Container Service Co.,Ltd", "1-7 days": 0, "7-14 days": 2, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 2}, {"Office": "CUSHA", "Status": "Under repair", "Service Provider Code": "CN336943", "Service Provider Name": "Shanghai Huanji International Logistics Co.,Ltd.", "1-7 days": 9, "7-14 days": 4, "14-21 days": 0, "21-30 days": 1, "30+ days": 0, "Total": 14}, {"Office": "CUSHA", "Status": "Under repair", "Service Provider Code": "CN342406", "Service Provider Name": "ShangHai De Well Empty & Laden Container Depot", "1-7 days": 293, "7-14 days": 66, "14-21 days": 5, "21-30 days": 3, "30+ days": 0, "Total": 367}, {"Office": "CUSHA", "Status": "Under repair", "Service Provider Code": "CN363900", "Service Provider Name": "Shanghai HuaYu LOGISTICS CO.,LTD.", "1-7 days": 2, "7-14 days": 1, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 3}, {"Office": "CUSHA", "Status": "Under repair", "Service Provider Code": "CN430694", "Service Provider Name": "Shanghai Lianglong Container Service Co.,LTD", "1-7 days": 70, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 70}, {"Office": "CUSNZ", "Status": "Repair Complete", "Service Provider Code": "CN120018", "Service Provider Name": "SHENZHEN YUPENG CONTAINER SERVICE CO., LTD.", "1-7 days": 27, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 27}, {"Office": "CUSNZ", "Status": "Repair Complete", "Service Provider Code": "CN341039", "Service Provider Name": "GUANGDONG POLYACER SHUNPENG CONTAINER SERVICE CO.,LTD", "1-7 days": 16, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 16}, {"Office": "CUSNZ", "Status": "Repair Complete", "Service Provider Code": "CN349793", "Service Provider Name": "Shenzhen YanGang Depot", "1-7 days": 125, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 125}, {"Office": "CUSNZ", "Status": "Repair Complete", "Service Provider Code": "CN349836", "Service Provider Name": "Shenzhen Ever-Union Container Co.;Ltd", "1-7 days": 458, "7-14 days": 7, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 465}, {"Office": "CUSNZ", "Status": "Repair Complete", "Service Provider Code": "CN366349", "Service Provider Name": "CIMC Humen Jianxun Container Depot", "1-7 days": 2, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 2}, {"Office": "CUSNZ", "Status": "Repair Complete", "Service Provider Code": "HK340247", "Service Provider Name": "Sun Power Container Logistics Ltd", "1-7 days": 2, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 2}, {"Office": "CUSNZ", "Status": "Under repair", "Service Provider Code": "CN120018", "Service Provider Name": "SHENZHEN YUPENG CONTAINER SERVICE CO., LTD.", "1-7 days": 3, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 3}, {"Office": "CUSNZ", "Status": "Under repair", "Service Provider Code": "CN349793", "Service Provider Name": "Shenzhen YanGang Depot", "1-7 days": 22, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 22}, {"Office": "CUTAO", "Status": "Rejected", "Service Provider Code": "CN120013", "Service Provider Name": "QINGDAO SINOTRANS LOGISTICS CO., LTD.", "1-7 days": 0, "7-14 days": 1, "14-21 days": 3, "21-30 days": 0, "30+ days": 0, "Total": 4}, {"Office": "CUTAO", "Status": "Rejected", "Service Provider Code": "CN120014", "Service Provider Name": "QINGDAO STX-KEYUN LOGISTICS CO., LTD.", "1-7 days": 1, "7-14 days": 0, "14-21 days": 0, "21-30 days": 1, "30+ days": 1, "Total": 3}, {"Office": "CUTAO", "Status": "Rejected", "Service Provider Code": "CN120063", "Service Provider Name": "QINGDAO GANGLIANJIE LOGISTICS CO., LTD.", "1-7 days": 0, "7-14 days": 0, "14-21 days": 1, "21-30 days": 0, "30+ days": 0, "Total": 1}, {"Office": "CUTAO", "Status": "Repair Complete", "Service Provider Code": "CN120013", "Service Provider Name": "QINGDAO SINOTRANS LOGISTICS CO., LTD.", "1-7 days": 315, "7-14 days": 74, "14-21 days": 8, "21-30 days": 0, "30+ days": 0, "Total": 397}, {"Office": "CUTAO", "Status": "Repair Complete", "Service Provider Code": "CN120063", "Service Provider Name": "QINGDAO GANGLIANJIE LOGISTICS CO., LTD.", "1-7 days": 132, "7-14 days": 1, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 133}, {"Office": "CUTAO", "Status": "Repair Complete", "Service Provider Code": "CN431995", "Service Provider Name": "QINGDAO GANGLIANYUN INTERNATIONAL LOGISRICS CO., LTD", "1-7 days": 17, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 17}, {"Office": "CUTAO", "Status": "Under repair", "Service Provider Code": "CN120013", "Service Provider Name": "QINGDAO SINOTRANS LOGISTICS CO., LTD.", "1-7 days": 0, "7-14 days": 14, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 14}, {"Office": "CUTAO", "Status": "Under repair", "Service Provider Code": "CN120014", "Service Provider Name": "QINGDAO STX-KEYUN LOGISTICS CO., LTD.", "1-7 days": 50, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 50}, {"Office": "CUTNJ", "Status": "Under repair", "Service Provider Code": "CN120011", "Service Provider Name": "TIANJIN SINOTRANS CONTAINER DEVELOPMENT CO., LTD.", "1-7 days": 2, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 2}, {"Office": "CUTPE", "Status": "Rejected", "Service Provider Code": "TW120020", "Service Provider Name": "EXPRESS CONTAINER TERMINAL CORP.", "1-7 days": 0, "7-14 days": 1, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 1}, {"Office": "CUTPE", "Status": "Repair Complete", "Service Provider Code": "TW120004", "Service Provider Name": "TAIPEI PORT CONTAINER TERMINAL CORP.", "1-7 days": 19, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 19}, {"Office": "CUTPE", "Status": "Repair Complete", "Service Provider Code": "TW120010", "Service Provider Name": "HONG MING TERMINAL & STEVEDORING CORP. (P.70)", "1-7 days": 31, "7-14 days": 22, "14-21 days": 15, "21-30 days": 0, "30+ days": 0, "Total": 68}, {"Office": "CUTPE", "Status": "Repair Complete", "Service Provider Code": "TW120014", "Service Provider Name": "CMA CGM KAOHSIUNG TERMINAL CO., LTD.(P.68/69)", "1-7 days": 184, "7-14 days": 1, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 185}, {"Office": "CUTPE", "Status": "Repair Complete", "Service Provider Code": "TW120018", "Service Provider Name": "TUNGYA TRANSPORTATION & TERMINAL CO., LTD.( 5-DU)", "1-7 days": 11, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 11}, {"Office": "CUTPE", "Status": "Repair Complete", "Service Provider Code": "TW120020", "Service Provider Name": "EXPRESS CONTAINER TERMINAL CORP.", "1-7 days": 24, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 24}, {"Office": "CUTPE", "Status": "Repair Complete", "Service Provider Code": "TW120023", "Service Provider Name": "TK LOGISTICS INTERNATIONAL CO., LTD.(台基拖车)", "1-7 days": 17, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 17}, {"Office": "CUTPE", "Status": "Repair Complete", "Service Provider Code": "TW120028", "Service Provider Name": "EXCELLENCY CONTAINER CORP.", "1-7 days": 218, "7-14 days": 2, "14-21 days": 0, "21-30 days": 0, "30+ days": 1, "Total": 221}, {"Office": "CUTPE", "Status": "Repair Complete", "Service Provider Code": "TW120029", "Service Provider Name": "LANCER CONTAINER SERVICE CO LTD", "1-7 days": 29, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 29}, {"Office": "CUTPE", "Status": "Repair Complete", "Service Provider Code": "TW120031", "Service Provider Name": "KAOFENG INTERNATIONAL LOGISTICS CO.,", "1-7 days": 91, "7-14 days": 9, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 100}, {"Office": "CUTPE", "Status": "Repair Complete", "Service Provider Code": "TW300793", "Service Provider Name": "CHINA CONTAINER TERMINAL CORPORATON (5DU YARD)", "1-7 days": 4, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 4}, {"Office": "CUTPE", "Status": "Repair Complete", "Service Provider Code": "TW303305", "Service Provider Name": "HO CHANG GARDENING CO., LTD.", "1-7 days": 1, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 1}, {"Office": "CUTPE", "Status": "Repair Complete", "Service Provider Code": "TW308916", "Service Provider Name": "T.V.L CONTAINER TERMINAL CO.,LTD", "1-7 days": 6, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 6}, {"Office": "CUTPE", "Status": "Repair Complete", "Service Provider Code": "TW313193", "Service Provider Name": "Donglian storage Co., Ltd", "1-7 days": 93, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 93}, {"Office": "CUTPE", "Status": "Repair Complete", "Service Provider Code": "TW335174", "Service Provider Name": "CONSPEC CONTAINER NO ., LTD.", "1-7 days": 45, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 45}, {"Office": "CUTPE", "Status": "Repair Complete", "Service Provider Code": "TW337630", "Service Provider Name": "正方仓储", "1-7 days": 160, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 160}, {"Office": "CUTPE", "Status": "Under repair", "Service Provider Code": "TW120020", "Service Provider Name": "EXPRESS CONTAINER TERMINAL CORP.", "1-7 days": 4, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 4}, {"Office": "CUTPE", "Status": "Under repair", "Service Provider Code": "TW120028", "Service Provider Name": "EXCELLENCY CONTAINER CORP.", "1-7 days": 26, "7-14 days": 2, "14-21 days": 2, "21-30 days": 0, "30+ days": 0, "Total": 30}, {"Office": "CUTPE", "Status": "Under repair", "Service Provider Code": "TW120031", "Service Provider Name": "KAOFENG INTERNATIONAL LOGISTICS CO.,", "1-7 days": 2, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 2}, {"Office": "CUTPE", "Status": "Under repair", "Service Provider Code": "TW313193", "Service Provider Name": "Donglian storage Co., Ltd", "1-7 days": 0, "7-14 days": 0, "14-21 days": 3, "21-30 days": 0, "30+ days": 0, "Total": 3}, {"Office": "CUTPE", "Status": "Under repair", "Service Provider Code": "TW335174", "Service Provider Name": "CONSPEC CONTAINER NO ., LTD.", "1-7 days": 1, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 1}, {"Office": "CUXMN", "Status": "Repair Complete", "Service Provider Code": "CN310285", "Service Provider Name": "Sinotrans Xiamen Greating-Fortune Refrigeration Engineering Co.,LTD.", "1-7 days": 34, "7-14 days": 2, "14-21 days": 14, "21-30 days": 1, "30+ days": 0, "Total": 51}, {"Office": "SAIID", "Status": "Rejected", "Service Provider Code": "ID380917", "Service Provider Name": "PT. Tirta Mandiri Jasatama", "1-7 days": 0, "7-14 days": 2, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 2}, {"Office": "SAIID", "Status": "Rejected", "Service Provider Code": "ID434324", "Service Provider Name": "pt. sanggraha pintar logistik indonesia", "1-7 days": 0, "7-14 days": 1, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 1}, {"Office": "SAIID", "Status": "Repair Complete", "Service Provider Code": "ID380917", "Service Provider Name": "PT. Tirta Mandiri Jasatama", "1-7 days": 361, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 361}, {"Office": "SAIID", "Status": "Repair Complete", "Service Provider Code": "ID434324", "Service Provider Name": "pt. sanggraha pintar logistik indonesia", "1-7 days": 13, "7-14 days": 5, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 18}, {"Office": "SAIID", "Status": "Under repair", "Service Provider Code": "ID380917", "Service Provider Name": "PT. Tirta Mandiri Jasatama", "1-7 days": 3, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 3}, {"Office": "SAIID", "Status": "Under repair", "Service Provider Code": "ID434324", "Service Provider Name": "pt. sanggraha pintar logistik indonesia", "1-7 days": 9, "7-14 days": 1, "14-21 days": 13, "21-30 days": 0, "30+ days": 0, "Total": 23}, {"Office": "SASRG", "Status": "Rejected", "Service Provider Code": "ID437918", "Service Provider Name": "PT Tirta Mandiri Jasatama", "1-7 days": 0, "7-14 days": 2, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 2}, {"Office": "SASRG", "Status": "Repair Complete", "Service Provider Code": "ID437918", "Service Provider Name": "PT Tirta Mandiri Jasatama", "1-7 days": 32, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 32}, {"Office": "SASRG", "Status": "Under repair", "Service Provider Code": "ID437918", "Service Provider Name": "PT Tirta Mandiri Jasatama", "1-7 days": 8, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 8}, {"Office": "SASUB", "Status": "Rejected", "Service Provider Code": "ID414650", "Service Provider Name": "PT Samudera Agencies Indonesia (Surabaya)", "1-7 days": 0, "7-14 days": 0, "14-21 days": 2, "21-30 days": 0, "30+ days": 0, "Total": 2}, {"Office": "SASUB", "Status": "Repair Complete", "Service Provider Code": "ID414650", "Service Provider Name": "PT Samudera Agencies Indonesia (Surabaya)", "1-7 days": 5, "7-14 days": 1, "14-21 days": 1, "21-30 days": 0, "30+ days": 0, "Total": 7}, {"Office": "SASUB", "Status": "Under repair", "Service Provider Code": "ID414650", "Service Provider Name": "PT Samudera Agencies Indonesia (Surabaya)", "1-7 days": 0, "7-14 days": 0, "14-21 days": 3, "21-30 days": 0, "30+ days": 0, "Total": 3}, {"Office": "SBLPH", "Status": "Rejected", "Service Provider Code": "PH120001", "Service Provider Name": "Simba Logistics Inc.", "1-7 days": 2, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 2}, {"Office": "SBLPH", "Status": "Rejected", "Service Provider Code": "PH359327", "Service Provider Name": "E-SAFE LOGISTICS SERVICES", "1-7 days": 0, "7-14 days": 1, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 1}, {"Office": "SBLPH", "Status": "Rejected", "Service Provider Code": "PH437011", "Service Provider Name": "LSG CY FRONTIER INC.", "1-7 days": 1, "7-14 days": 0, "14-21 days": 0, "21-30 days": 3, "30+ days": 0, "Total": 4}, {"Office": "SBLPH", "Status": "Repair Complete", "Service Provider Code": "PH120001", "Service Provider Name": "Simba Logistics Inc.", "1-7 days": 23, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 23}, {"Office": "SBLPH", "Status": "Repair Complete", "Service Provider Code": "PH359327", "Service Provider Name": "E-SAFE LOGISTICS SERVICES", "1-7 days": 29, "7-14 days": 0, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 29}, {"Office": "SBLPH", "Status": "Repair Complete", "Service Provider Code": "PH437011", "Service Provider Name": "LSG CY FRONTIER INC.", "1-7 days": 0, "7-14 days": 5, "14-21 days": 1, "21-30 days": 0, "30+ days": 0, "Total": 6}, {"Office": "SBLPH", "Status": "Under repair", "Service Provider Code": "PH120001", "Service Provider Name": "Simba Logistics Inc.", "1-7 days": 4, "7-14 days": 2, "14-21 days": 0, "21-30 days": 2, "30+ days": 0, "Total": 8}, {"Office": "SBLPH", "Status": "Under repair", "Service Provider Code": "PH359327", "Service Provider Name": "E-SAFE LOGISTICS SERVICES", "1-7 days": 11, "7-14 days": 8, "14-21 days": 0, "21-30 days": 0, "30+ days": 0, "Total": 19}, {"Office": "SBLPH", "Status": "Under repair", "Service Provider Code": "PH437011", "Service Provider Name": "LSG CY FRONTIER INC.", "1-7 days": 1, "7-14 days": 0, "14-21 days": 0, "21-30 days": 7, "30+ days": 0, "Total": 8}]};
+(function(){
+  'use strict';
+
+  /* ---------- 基础数据整理 ---------- */
+  var SUMMARY = DATA['Office Summary'];
+  var TOTAL = SUMMARY.filter(function(r){return r.Office==='TOTAL';})[0] || {};
+  var OFFICES = SUMMARY.filter(function(r){return r.Office!=='TOTAL';})
+                       .slice().sort(function(a,b){return b.Total-a.Total;});
+  var BUCKETS = ['1-7 days','7-14 days','14-21 days','21-30 days','30+ days'];
+  var OVER = ['7-14 days','14-21 days','21-30 days','30+ days'];   /* 超 7 天口径 */
+  var STATUS = ['Under repair','Rejected','Repair Complete'];
+  var ALERT_STATUS = ['Under repair','Rejected'];                  /* 需预警的未闭环状态 */
+  var COLOR = {'Under repair':'#e39a1c','Rejected':'#e0564f','Repair Complete':'#1f9e6e'};
+  var CLS = {'Under repair':'ur','Rejected':'rj','Repair Complete':'rc','ALL':'all'};
+  var CN = {'Under repair':'维修中','Rejected':'已驳回','Repair Complete':'维修完成','ALL':'合计'};
+  var OXD = DATA['Office x Status x Days'].filter(function(r){return r.Office!=='TOTAL';});
+
+  function fmt(n){ return (n===null||n===undefined||n==='')? '-':Number(n).toLocaleString('en-US'); }
+  function pct(a,b){ return b?(a/b*100).toFixed(1)+'%':'0%'; }
+  function $(id){ return document.getElementById(id); }
+  function sum(arr,k){ return arr.reduce(function(s,r){return s+(Number(r[k])||0);},0); }
+
+  /* ---------- Hero 元信息 ---------- */
+  $('m-date').textContent = META.queryDate;
+  $('m-range').textContent = META.range;
+  $('m-office').textContent = OFFICES.length + ' 个';
+
+  /* ---------- KPI ---------- */
+  var tTotal = TOTAL.Total||0, tUR = TOTAL['Under repair']||0,
+      tRJ = TOTAL.Rejected||0, tRC = TOTAL['Repair Complete']||0;
+
+  function countUp(el, target){
+    var dur=900, t0=null;
+    function step(ts){
+      if(!t0) t0=ts;
+      var p=Math.min((ts-t0)/dur,1), e=1-Math.pow(1-p,3);
+      el.textContent = Math.round(target*e).toLocaleString('en-US');
+      if(p<1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  countUp($('k-total'), tTotal);
+  countUp($('k-ur'), tUR);
+  countUp($('k-rj'), tRJ);
+  countUp($('k-rc'), tRC);
+
+  $('k-total-office').textContent = '覆盖 ' + OFFICES.length + ' 个有数据 Office';
+  $('k-ur-pct').textContent = '占比 ' + pct(tUR,tTotal) + ' · 待跟进处置';
+  $('k-rj-pct').textContent = '占比 ' + pct(tRJ,tTotal) + ' · 需重新安排';
+  $('k-rc-pct').textContent = '占比 ' + pct(tRC,tTotal) + ' · 已完成闭环';
+  setTimeout(function(){
+    $('b-ur').style.width = (tUR/tTotal*100)+'%';
+    $('b-rj').style.width = (tRJ/tTotal*100)+'%';
+    $('b-rc').style.width = (tRC/tTotal*100)+'%';
+  },60);
+
+  /* ---------- Chart.js 全局 ---------- */
+  Chart.defaults.font.family = '-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei","PingFang SC",sans-serif';
+  Chart.defaults.font.size = 11.5;
+  Chart.defaults.color = '#6b7f96';
+  Chart.defaults.plugins.legend.display = false;
+  Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(10,28,51,.94)';
+  Chart.defaults.plugins.tooltip.padding = 11;
+  Chart.defaults.plugins.tooltip.cornerRadius = 8;
+  Chart.defaults.plugins.tooltip.titleFont = {weight:'700',size:12};
+  Chart.defaults.plugins.tooltip.bodyFont = {size:12};
+  Chart.defaults.plugins.tooltip.displayColors = true;
+  Chart.defaults.plugins.tooltip.boxPadding = 4;
+
+  /* 横向条形数值标签 */
+  var hLabels = {
+    id:'hLabels',
+    afterDatasetsDraw:function(chart){
+      var ctx = chart.ctx;
+      var meta = chart.getDatasetMeta(0);
+      var data = chart.data.datasets[0].data;
+      meta.data.forEach(function(el,i){
+        var v = data[i]; if(!v) return;
+        ctx.save();
+        ctx.font='700 11px -apple-system,"Segoe UI",sans-serif';
+        ctx.fillStyle='#3a5875'; ctx.textAlign='left'; ctx.textBaseline='middle';
+        ctx.fillText(fmt(v), el.x+7, el.y);
+        ctx.restore();
+      });
+    }
+  };
+  /* 纵向柱状数值标签 */
+  var vLabels = {
+    id:'vLabels',
+    afterDatasetsDraw:function(chart){
+      var ctx = chart.ctx;
+      var meta = chart.getDatasetMeta(0);
+      var data = chart.data.datasets[0].data;
+      meta.data.forEach(function(el,i){
+        var v = data[i]; if(!v) return;
+        ctx.save();
+        ctx.font='700 11px -apple-system,"Segoe UI",sans-serif';
+        ctx.fillStyle='#3a5875'; ctx.textAlign='center'; ctx.textBaseline='bottom';
+        ctx.fillText(fmt(v), el.x, el.y-5);
+        ctx.restore();
+      });
+    }
+  };
+  /* 环形图中心文字 */
+  var centerText = {
+    id:'centerText',
+    afterDraw:function(chart){
+      var ctx = chart.ctx, a = chart.chartArea;
+      var cx=(a.left+a.right)/2, cy=(a.top+a.bottom)/2;
+      ctx.save();
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillStyle='#0f2a49'; ctx.font='800 26px -apple-system,"Segoe UI",sans-serif';
+      ctx.fillText(fmt(TOTAL.Total), cx, cy-8);
+      ctx.fillStyle='#93a4b8'; ctx.font='700 11px -apple-system,"Segoe UI",sans-serif';
+      ctx.fillText('TOTAL UNITS', cx, cy+16);
+      ctx.restore();
+    }
+  };
+
+  /* 堆叠条形总量标签 */
+  var hStackTotal = {
+    id:'hStackTotal',
+    afterDatasetsDraw:function(chart){
+      var ctx = chart.ctx;
+      var meta = chart.getDatasetMeta(chart.data.datasets.length-1);
+      var d0 = chart.data.datasets[0].data;
+      d0.forEach(function(_,i){
+        var el = meta.data[i]; if(!el) return;
+        var tot = chart.data.datasets.reduce(function(s,ds){return s+(Number(ds.data[i])||0);},0);
+        if(!tot) return;
+        ctx.save();
+        ctx.font='700 11px -apple-system,"Segoe UI",sans-serif';
+        ctx.fillStyle='#3a5875'; ctx.textAlign='left'; ctx.textBaseline='middle';
+        ctx.fillText(fmt(tot), el.x+7, el.y);
+        ctx.restore();
+      });
+    }
+  };
+  /* 7 天警戒线（账龄柱状图） */
+  var sevenLine = {
+    id:'sevenLine',
+    afterDatasetsDraw:function(chart){
+      var m = chart.getDatasetMeta(0);
+      if(m.data.length < 2) return;
+      var x = (m.data[0].x + m.data[1].x)/2, a = chart.chartArea, ctx = chart.ctx;
+      ctx.save();
+      ctx.setLineDash([5,4]); ctx.lineWidth=1.4; ctx.strokeStyle='#e0564f';
+      ctx.beginPath(); ctx.moveTo(x, a.top-4); ctx.lineTo(x, a.bottom); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.font='800 10.5px -apple-system,"Segoe UI",sans-serif';
+      ctx.fillStyle='#e0564f'; ctx.textAlign='center'; ctx.textBaseline='bottom';
+      ctx.fillText('▼ 7 天警戒线', x+26, a.top-3);
+      ctx.restore();
+    }
+  };
+
+  /* ---------- 0. 超 7 天预警（Under repair + Rejected） ---------- */
+  var warnOfc = {};
+  OXD.forEach(function(r){
+    if(ALERT_STATUS.indexOf(r.Status) < 0) return;
+    var s = 0;
+    OVER.forEach(function(b){ s += Number(r[b])||0; });
+    if(!s) return;
+    var a = warnOfc[r.Office] || (warnOfc[r.Office] = {Office:r.Office,UR:0,RJ:0,Total:0,z7:0,z14:0,z21:0,z30:0});
+    if(r.Status==='Under repair'){ a.UR += s; } else { a.RJ += s; }
+    a.Total += s;
+    a.z7  += Number(r['7-14 days'])||0;
+    a.z14 += Number(r['14-21 days'])||0;
+    a.z21 += Number(r['21-30 days'])||0;
+    a.z30 += Number(r['30+ days'])||0;
+  });
+
+  var warnOffices = Object.keys(warnOfc).map(function(k){return warnOfc[k];})
+        .filter(function(a){return a.Total>0;})
+        .sort(function(a,b){return b.Total-a.Total;});
+
+  var W = warnOffices.reduce(function(s,a){
+    return {UR:s.UR+a.UR, RJ:s.RJ+a.RJ, Total:s.Total+a.Total,
+            z7:s.z7+a.z7, z14:s.z14+a.z14, z21:s.z21+a.z21, z30:s.z30+a.z30};
+  }, {UR:0,RJ:0,Total:0,z7:0,z14:0,z21:0,z30:0});
+
+  var openTotal = (TOTAL['Under repair']||0) + (TOTAL.Rejected||0);
+
+  $('m-warn').textContent = fmt(W.Total) + ' 箱';
+  countUp($('w-total'), W.Total);
+  countUp($('w-ur'), W.UR);
+  countUp($('w-rj'), W.RJ);
+  $('w-share').textContent = pct(W.Total, openTotal);
+
+  var TIERS = [
+    {k:'z7',  l:'7-14 天',      c:'#e0b352', note:'刚过警戒线，优先催办'},
+    {k:'z14', l:'14-21 天',     c:'#e39a1c', note:'滞留加深，需介入处理'},
+    {k:'z21', l:'21-30 天',     c:'#e0564f', note:'长期滞留，重点跟进'},
+    {k:'z30', l:'30+ 天 · 超期', c:'#b91c1c', note:'严重超期，须专项处理'}
+  ];
+  var tierW = [];
+  $('warn-tiers').innerHTML = TIERS.map(function(t){
+    var v = W[t.k];
+    tierW.push(W.Total ? (v/W.Total*100) : 0);
+    return '<div class="tw" style="--c:'+t.c+'">'+
+      '<div class="tw-l">'+t.l+'</div>'+
+      '<div class="tw-v">'+fmt(v)+'</div>'+
+      '<div class="tw-f">占预警 '+pct(v,W.Total)+' · '+t.note+'</div>'+
+      '<div class="tw-bar"><i></i></div>'+
+    '</div>';
+  }).join('');
+  setTimeout(function(){
+    Array.prototype.forEach.call(document.querySelectorAll('.tw-bar i'), function(el,i){
+      el.style.width = tierW[i].toFixed(1)+'%';
+    });
+  }, 60);
+
+  /* 超 7 天 Office 堆叠条形图 */
+  var warnTop = warnOffices.slice(0,12);
+  new Chart($('c-warn').getContext('2d'), {
+    type:'bar',
+    data:{
+      labels: warnTop.map(function(a){return a.Office;}),
+      datasets:[
+        { label:'维修中 · 超 7 天', data:warnTop.map(function(a){return a.UR;}),
+          backgroundColor:'#e39a1c', borderSkipped:false,
+          borderRadius:{topLeft:3,bottomLeft:3},
+          barPercentage:.76, categoryPercentage:.86 },
+        { label:'已驳回 · 超 7 天', data:warnTop.map(function(a){return a.RJ;}),
+          backgroundColor:'#e0564f', borderSkipped:false,
+          borderRadius:{topRight:3,bottomRight:3},
+          barPercentage:.76, categoryPercentage:.86 }
+      ]
+    },
+    options:{
+      indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      layout:{padding:{right:50}},
+      plugins:{
+        legend:{display:true,position:'top',align:'end',
+          labels:{boxWidth:10,boxHeight:10,usePointStyle:true,pointStyle:'rectRounded',padding:14,font:{size:11.5,weight:'700'}}},
+        tooltip:{callbacks:{label:function(c){ return ' '+c.dataset.label+'：'+fmt(c.parsed.x)+' 箱'; },
+          footer:function(items){
+            var i = items[0].dataIndex, a = warnTop[i];
+            return '合计 '+fmt(a.Total)+' 箱｜7-14:'+a.z7+' 14-21:'+a.z14+' 21-30:'+a.z21+' 30+:'+a.z30;
+          }}}
+      },
+      scales:{
+        x:{stacked:true,grid:{color:'#eef2f8'},border:{display:false},ticks:{padding:6}},
+        y:{stacked:true,grid:{display:false},border:{display:false},
+           ticks:{font:{weight:'700',size:12},color:'#2c3f57',padding:8}}
+      }
+    },
+    plugins:[hStackTotal]
+  });
+
+  /* 高风险 Office 清单 */
+  function sevOf(a){
+    if(a.z30>0) return {t:'超期', c:'warn'};
+    if(a.z21>0) return {t:'高危', c:'risk'};
+    if(a.z14>0) return {t:'预警', c:'alert'};
+    return {t:'关注', c:'watch'};
+  }
+  var listTop = warnOffices.slice(0,10);
+  var maxW = listTop.length ? listTop[0].Total : 1;
+  var SEG = [{k:'z7',c:'#e0b352'},{k:'z14',c:'#e39a1c'},{k:'z21',c:'#e0564f'},{k:'z30',c:'#b91c1c'}];
+
+  $('warn-list').innerHTML =
+    '<div class="wl-head"><span class="wl-rank">#</span><span class="wl-ofc">Office</span>'+
+      '<span style="flex:1">账龄构成 7-14 / 14-21 / 21-30 / 30+</span>'+
+      '<span class="wl-num">超7天</span><span class="wl-sev">等级</span></div>' +
+    (listTop.length ? listTop.map(function(a,i){
+      var sv = sevOf(a);
+      var segs = SEG.map(function(s){
+        var v = a[s.k]; if(!v) return '';
+        return '<span style="flex:none;width:'+(v/maxW*100).toFixed(2)+'%;background:'+s.c+'" title="'+v+'"></span>';
+      }).join('');
+      return '<div class="wl-row">'+
+        '<span class="wl-rank">'+(i+1)+'</span>'+
+        '<span class="wl-ofc">'+a.Office+'</span>'+
+        '<span class="wl-bar">'+segs+'</span>'+
+        '<span class="wl-num">'+fmt(a.Total)+'</span>'+
+        '<span class="wl-sev"><span class="pill '+sv.c+'">'+sv.t+'</span></span>'+
+      '</div>';
+    }).join('') : '<div style="padding:24px;text-align:center;color:#93a4b8;font-size:13px">无超 7 天工单</div>') +
+    '<div style="margin-top:12px;padding-top:11px;border-top:1px solid #eef2f8;font-size:11.5px;color:#93a4b8;line-height:1.6">'+
+      '等级规则：含 30+ 天 → 超期；含 21-30 天 → 高危；含 14-21 天 → 预警；仅 7-14 天 → 关注。'+
+      '已驳回工单需重新安排维修，维修中工单需催办完工。</div>';
+
+  /* ---------- 1. Top Office ---------- */
+  var top = OFFICES.slice(0,12);
+  var topCtx = $('c-top').getContext('2d');
+  var g1 = topCtx.createLinearGradient(0,0,600,0);
+  g1.addColorStop(0,'#173d68'); g1.addColorStop(1,'#2f6aa8');
+  new Chart(topCtx,{
+    type:'bar',
+    data:{
+      labels: top.map(function(r){return r.Office;}),
+      datasets:[{
+        data: top.map(function(r){return r.Total;}),
+        backgroundColor: top.map(function(r,i){ return i===0 ? '#e0b352' : g1; }),
+        borderRadius:6, borderSkipped:false, barPercentage:.78, categoryPercentage:.86
+      }]
+    },
+    options:{
+      indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      layout:{padding:{right:52,left:2}},
+      scales:{
+        x:{grid:{color:'#eef2f8'},border:{display:false},ticks:{padding:6}},
+        y:{grid:{display:false},border:{display:false},ticks:{font:{weight:'700',size:12},color:'#2c3f57',padding:8}}
+      }
+    },
+    plugins:[hLabels]
+  });
+
+  /* ---------- 2. 状态环形 ---------- */
+  new Chart($('c-donut').getContext('2d'),{
+    type:'doughnut',
+    data:{
+      labels: STATUS.map(function(s){return CN[s];}),
+      datasets:[{
+        data: STATUS.map(function(s){return TOTAL[s]||0;}),
+        backgroundColor: STATUS.map(function(s){return COLOR[s];}),
+        borderColor:'#fff', borderWidth:3, hoverOffset:8
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false, cutout:'68%',
+      plugins:{tooltip:{callbacks:{label:function(c){
+        return ' '+c.label+'：'+fmt(c.parsed)+' （'+pct(c.parsed,TOTAL.Total)+'）';
+      }}}}
+    },
+    plugins:[centerText]
+  });
+  $('donut-legend').innerHTML = STATUS.map(function(s){
+    return '<div style="display:flex;align-items:center;gap:9px;padding:7px 2px;border-bottom:1px dashed #eef2f8">'+
+      '<span style="width:11px;height:11px;border-radius:3px;background:'+COLOR[s]+';flex:none"></span>'+
+      '<span style="font-size:12.5px;font-weight:700;color:#2c3f57;flex:1">'+CN[s]+'</span>'+
+      '<span style="font-size:13px;font-weight:800;color:#173d68">'+fmt(TOTAL[s])+'</span>'+
+      '<span style="font-size:12px;color:#93a4b8;width:52px;text-align:right">'+pct(TOTAL[s],TOTAL.Total)+'</span>'+
+    '</div>';
+  }).join('');
+
+  /* ---------- 3. Office × 状态 堆叠 ---------- */
+  new Chart($('c-stack').getContext('2d'),{
+    type:'bar',
+    data:{
+      labels: OFFICES.map(function(r){return r.Office;}),
+      datasets: STATUS.map(function(s){
+        return {label:CN[s], data:OFFICES.map(function(r){return r[s]||0;}),
+                backgroundColor:COLOR[s], borderRadius:3, borderSkipped:false,
+                barPercentage:.8, categoryPercentage:.86};
+      })
+    },
+    options:{
+      indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      layout:{padding:{right:38}},
+      plugins:{legend:{display:true,position:'top',align:'end',
+        labels:{boxWidth:10,boxHeight:10,usePointStyle:true,pointStyle:'rectRounded',padding:14,font:{size:11.5,weight:'700'}}},
+        tooltip:{callbacks:{label:function(c){ return ' '+c.dataset.label+'：'+fmt(c.parsed.x); }}}
+      },
+      scales:{
+        x:{stacked:true,grid:{color:'#eef2f8'},border:{display:false},ticks:{padding:6}},
+        y:{stacked:true,grid:{display:false},border:{display:false},ticks:{font:{weight:'700',size:11.5},color:'#2c3f57',padding:6}}
+      }
+    }
+  });
+
+  /* ---------- 4. 账龄分布 ---------- */
+  var ageRow = DATA['Office x Days'].filter(function(r){return r.Office==='TOTAL';})[0] || {};
+  var ageData = BUCKETS.map(function(b){return ageRow[b]||0;});
+  var ageColors = ['#1f9e6e','#e0b352','#e39a1c','#e0564f','#b91c1c'];
+  new Chart($('c-age').getContext('2d'),{
+    type:'bar',
+    data:{
+      labels: BUCKETS.map(function(b){return b.replace(' days','');}),
+      datasets:[{ data:ageData, backgroundColor:ageColors, borderRadius:7, borderSkipped:false,
+                  barPercentage:.62, categoryPercentage:.8 }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      layout:{padding:{top:30}},
+      plugins:{tooltip:{callbacks:{label:function(c){
+        return ' '+fmt(c.parsed.y)+' 箱 （'+pct(c.parsed.y,ageRow.Total)+'）'+
+               (c.dataIndex>0 ? ' · 超 7 天' : ' · 7 天内');
+      }}}},
+      scales:{
+        y:{beginAtZero:true,grid:{color:'#eef2f8'},border:{display:false},ticks:{callback:function(v){return v>=1000?(v/1000)+'k':v;},padding:6}},
+        x:{grid:{display:false},border:{display:false},ticks:{font:{weight:'700',size:12},color:'#2c3f57'}}
+      }
+    },
+    plugins:[vLabels, sevenLine]
+  });
+
+  $('age-extra').innerHTML =
+    '<div style="display:flex;gap:10px">'+
+      '<div style="flex:1;background:#fdecea;border:1px solid #f7d7d4;border-radius:10px;padding:11px 13px">'+
+        '<div style="font-size:11px;font-weight:800;color:#c0392b;letter-spacing:.06em">超 7 天未闭环 · 预警</div>'+
+        '<div style="font-size:19px;font-weight:800;color:#c0392b;margin-top:3px">'+fmt(W.Total)+'</div>'+
+        '<div style="font-size:11px;color:#c0392b;opacity:.78">占未闭环（维修中+已驳回）'+pct(W.Total,openTotal)+'</div>'+
+      '</div>'+
+      '<div style="flex:1;background:#fdf1f0;border:1px solid #f2cfcc;border-radius:10px;padding:11px 13px">'+
+        '<div style="font-size:11px;font-weight:800;color:#8c1a14;letter-spacing:.06em">30+ 天 · 严重超期</div>'+
+        '<div style="font-size:19px;font-weight:800;color:#8c1a14;margin-top:3px">'+fmt(W.z30)+'</div>'+
+        '<div style="font-size:11px;color:#8c1a14;opacity:.78">需专项处理</div>'+
+      '</div>'+
+    '</div>';
+
+  /* ---------- 关键洞察 ---------- */
+  var top3 = OFFICES.slice(0,3);
+  var top3Sum = top3.reduce(function(s,r){return s+r.Total;},0);
+  var maxRJ = OFFICES.slice().sort(function(a,b){return b.Rejected-a.Rejected;})[0];
+  var rjRow = OXD.filter(function(r){return r.Office===maxRJ.Office && r.Status==='Rejected';})[0] || {};
+  var rjOver7 = OVER.reduce(function(s,b){return s+(Number(rjRow[b])||0);},0);
+
+  var insights = [
+    {sev:'ok', n:'01 · 完成率',
+     h:'整体维修完成率 <span class="hl">'+pct(tRC,tTotal)+'</span>',
+     p:'合计 '+fmt(tTotal)+' 箱工单中，'+fmt(tRC)+' 箱已完成维修闭环，运营效率整体健康。'},
+    {sev:'high', n:'02 · 超 7 天预警',
+     h:'超 7 天未闭环 <span class="hl">'+fmt(W.Total)+'</span> 箱',
+     p:'维修中 '+fmt(W.UR)+' 箱、已驳回 '+fmt(W.RJ)+' 箱，占全部未闭环工单（'+fmt(openTotal)+' 箱）的 '+pct(W.Total,openTotal)+'，需逐单跟进处置。'},
+    {sev:'high', n:'03 · 严重超期',
+     h:'滞留 21 天以上 <span class="hl">'+fmt(W.z21+W.z30)+'</span> 箱',
+     p:'其中 30 天以上严重超期 '+fmt(W.z30)+' 箱，占预警总量 '+pct(W.z30,W.Total)+'，建议建立超期专项清单优先清理。'},
+    {sev:'mid', n:'04 · 位置集中',
+     h:'Top 3 Office 占总量 <span class="hl">'+pct(top3Sum,tTotal)+'</span>',
+     p:top3.map(function(r){return r.Office+' '+fmt(r.Total);}).join('、')+' —— 工单高度集中于主要口岸，资源投放应相应倾斜。'},
+    {sev:'mid', n:'05 · 结构异常',
+     h:maxRJ.Office+' 超 7 天驳回 <span class="hl">'+fmt(rjOver7)+'</span> 箱',
+     p:'该 Office 驳回共 '+fmt(maxRJ.Rejected)+' 箱，其中 '+fmt(rjOver7)+' 箱滞留已超 7 天（'+pct(rjOver7,maxRJ.Rejected)+'），为重点整改对象。'}
+  ];
+  $('insights').innerHTML = insights.map(function(o){
+    return '<div class="ins"><span class="sev '+o.sev+'">'+o.n.split('·')[1].trim()+'</span>'+
+      '<div class="n">'+o.n+'</div><h4>'+o.h+'</h4><p>'+o.p+'</p></div>';
+  }).join('');
+
+  /* ---------- 明细表 ---------- */
+  /* 超 7 天预警明细（仅未闭环状态，账龄 > 7 天） */
+  var warnRows = (function(){
+    var out = OXD.filter(function(r){return ALERT_STATUS.indexOf(r.Status)>=0;})
+      .map(function(r){
+        var o = {Office:r.Office, Status:r.Status, Total:0};
+        OVER.forEach(function(b){ o[b] = Number(r[b])||0; o.Total += o[b]; });
+        return o;
+      })
+      .filter(function(o){return o.Total>0;});
+    out.sort(function(a,b){return b.Total-a.Total;});
+    var tot = {Office:'TOTAL', Status:'ALL', Total:0};
+    OVER.forEach(function(b){ tot[b] = 0; });
+    out.forEach(function(o){ OVER.forEach(function(b){ tot[b] += o[b]; }); tot.Total += o.Total; });
+    return out.concat([tot]);
+  })();
+
+  var PANELS = [
+    { name:'超 7 天预警',
+      cols:[{k:'Office',t:'Office',a:'lft'},{k:'Status',t:'状态',pill:1}].concat(
+            OVER.map(function(b){return {k:b,t:b.replace(' days','')};})).concat([{k:'Total',t:'合计'}]),
+      rows:warnRows },
+    { name:'Office 汇总',
+      cols:[{k:'Office',t:'Office',a:'lft'},{k:'Under repair',t:'维修中'},{k:'Rejected',t:'已驳回'},
+            {k:'Repair Complete',t:'维修完成'},{k:'Total',t:'合计'}],
+      rows:DATA['Office Summary'] },
+    { name:'Office × 状态 × 账龄',
+      cols:[{k:'Office',t:'Office',a:'lft'},{k:'Status',t:'状态',pill:1}].concat(
+            BUCKETS.map(function(b){return {k:b,t:b.replace(' days','')};})).concat([{k:'Total',t:'合计'}]),
+      rows:DATA['Office x Status x Days'] },
+    { name:'Office × 账龄',
+      cols:[{k:'Office',t:'Office',a:'lft'}].concat(
+            BUCKETS.map(function(b){return {k:b,t:b.replace(' days','')};})).concat([{k:'Total',t:'合计'}]),
+      rows:DATA['Office x Days'] },
+    { name:'服务商明细',
+      cols:[{k:'Office',t:'Office',a:'lft'},{k:'Status',t:'状态',pill:1},
+            {k:'Service Provider Code',t:'服务商代码',a:'lft'},{k:'Service Provider Name',t:'服务商名称',a:'lft',name:1}].concat(
+            BUCKETS.map(function(b){return {k:b,t:b.replace(' days','')};})).concat([{k:'Total',t:'合计'}]),
+      rows:DATA['Detail'] }
+  ];
+  var current = 0;
+
+  $('tabs').innerHTML = PANELS.map(function(p,i){
+    return '<button class="tab'+(i===0?' active':'')+'" data-i="'+i+'">'+p.name+'</button>';
+  }).join('');
+
+  function cell(c,val,row){
+    var isTotal = row.Office==='TOTAL';
+    if(c.pill){
+      return '<td class="lft"><span class="pill '+CLS[val]+'">'+CN[val]+'</span></td>';
+    }
+    if(c.name){
+      return '<td class="lft"><span class="sp-name" title="'+String(val).replace(/"/g,'&quot;')+'">'+val+'</span></td>';
+    }
+    if(c.a==='lft'){
+      return '<td class="lft" style="font-weight:'+(isTotal?'800':'700')+';color:'+(isTotal?'#0f2a49':'#2c3f57')+'">'+val+'</td>';
+    }
+    var n = Number(val)||0;
+    var cls = 'num' + (n===0?' zero':'');
+    return '<td class="'+cls+'">'+(n===0?'–':fmt(n))+'</td>';
+  }
+
+  function render(){
+    var p = PANELS[current];
+    $('tt-title').innerHTML = '<b>'+p.name+'</b> · 共 '+p.rows.length+' 行';
+    var thead = '<tr>' + p.cols.map(function(c){
+      return '<th class="'+(c.a==='lft'?'lft':'')+'">'+c.t+'</th>';
+    }).join('') + '</tr>';
+    $('tbl').tHead.innerHTML = thead;
+
+    var q = ($('q').value||'').trim().toLowerCase();
+    var rows = p.rows.filter(function(r){
+      if(!q) return true;
+      return Object.keys(r).some(function(k){
+        var v = r[k]; return v!=null && String(v).toLowerCase().indexOf(q)>=0;
+      });
+    });
+    $('tbl').tBodies[0].innerHTML = rows.map(function(r){
+      var isTotal = r.Office==='TOTAL';
+      return '<tr class="'+(isTotal?'total-row':'')+'">' +
+        p.cols.map(function(c){ return cell(c, r[c.k], r); }).join('') + '</tr>';
+    }).join('');
+    $('tt-title').innerHTML = '<b>'+p.name+'</b> · '+(q?('筛选 '+rows.length+' / '+p.rows.length+' 行'):('共 '+p.rows.length+' 行'));
+  }
+
+  $('tabs').addEventListener('click',function(e){
+    var b = e.target.closest('.tab'); if(!b) return;
+    current = Number(b.dataset.i);
+    Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(x){x.classList.remove('active');});
+    b.classList.add('active');
+    $('q').value=''; render();
+  });
+  $('q').addEventListener('input', render);
+
+  render();
+})();
+</script>
+</body>
+</html>
