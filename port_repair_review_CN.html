@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>维修账龄回顾 &middot; C.U.LINES</title>
+<style>
+*,*::before,*::after{box-sizing:border-box}
+:root{--navy:#0f2b46;--navy2:#17395b;--accent:#1b6ca8;--line:#e1e7ee;--ink:#1d2733;
+--muted:#69788c;--bg:#f4f6f9;--red:#bf3a2b;--amber:#c07600;--green:#1e7a55}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.7;
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Microsoft YaHei","PingFang SC",sans-serif}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em;background:#eef3f8;
+padding:1px 5px;border-radius:3px;color:var(--navy);white-space:nowrap}
+.dim{color:var(--muted)}
+.page{max-width:1060px;margin:0 auto;background:#fff;box-shadow:0 1px 3px rgba(15,43,70,.10),0 14px 40px rgba(15,43,70,.08)}
+
+/* hero */
+.hero{background:linear-gradient(135deg,#0f2b46 0%,#17395b 52%,#1a4a75 100%);color:#fff;padding:32px 46px 26px}
+.kicker{font-size:10.5px;letter-spacing:.17em;text-transform:uppercase;color:#9cbdd9;font-weight:700}
+.hero h1{margin:9px 0 3px;font-size:30px;line-height:1.18;font-weight:700;letter-spacing:-.01em}
+.hero .sub{margin:0;color:#c6daeb;font-size:14px}
+.meta{display:flex;flex-wrap:wrap;gap:8px 40px;margin-top:20px;padding-top:15px;border-top:1px solid rgba(255,255,255,.18)}
+.meta div{font-size:12.5px;color:#a9c6dd}
+.meta b{display:block;color:#fff;font-size:14px;font-weight:600;margin-top:2px;letter-spacing:.01em}
+
+.wrap{padding:30px 46px 42px}
+section{margin-bottom:30px}
+h2{font-size:17px;margin:0 0 10px;color:var(--navy);font-weight:700;letter-spacing:.005em;
+padding-left:11px;border-left:4px solid var(--accent);line-height:1.35}
+p{margin:0 0 11px}
+.lead{color:#2b3947}
+.rule{margin:0 0 12px;color:var(--muted);font-size:13px}
+
+/* KPI */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:14px 0 12px}
+.kpi{background:#f8fafc;border:1px solid var(--line);border-radius:8px;padding:14px 15px 13px;position:relative;overflow:hidden}
+.kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent)}
+.kpi.hot::before{background:var(--red)}
+.kpi .lbl{font-size:11.5px;color:var(--muted);font-weight:600;letter-spacing:.02em}
+.kpi .num{font-size:27px;font-weight:700;color:var(--navy);line-height:1.15;margin:5px 0 1px;
+font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.kpi.hot .num{color:var(--red)}
+.kpi .note{font-size:11.5px;color:var(--muted)}
+
+/* definition table */
+.defs{width:100%;border-collapse:collapse;font-size:13px;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.defs th,.defs td{padding:8px 12px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.defs tr:last-child td{border-bottom:0}
+.defs th{background:#f6f9fc;color:var(--navy);font-weight:600;width:36%;font-size:12.5px}
+.defs td{color:#2f3d4c}
+
+/* data table */
+.tablewrap{border:1px solid var(--line);border-radius:6px;overflow:auto;max-height:640px;margin-top:12px;position:relative}
+table.data{width:100%;border-collapse:separate;border-spacing:0;font-size:12.5px;font-variant-numeric:tabular-nums}
+table.data th{position:sticky;top:0;z-index:3;background:#0f2b46;color:#fff;font-weight:600;
+padding:9px 10px;text-align:right;white-space:nowrap;font-size:11.5px;letter-spacing:.02em;background-clip:padding-box}
+table.data th:first-child{text-align:left;padding-left:14px}
+table.data td{padding:7px 10px;text-align:right;border-bottom:1px solid #eef2f6;background:#fff;background-clip:padding-box}
+table.data td:first-child{text-align:left;font-weight:600;color:var(--navy);padding-left:14px;white-space:nowrap}
+table.data tbody tr:hover td{background:#f7fafd}
+table.data tr.sev3 td:first-child{box-shadow:inset 3px 0 0 var(--red)}
+table.data tr.sev2 td:first-child{box-shadow:inset 3px 0 0 var(--amber)}
+table.data tr.sev1 td:first-child{box-shadow:inset 3px 0 0 var(--green)}
+table.data tr.sev0 td:first-child{box-shadow:inset 3px 0 0 #c9d4e0}
+table.data td.warn{font-weight:700;color:var(--red)}
+table.data tr.sev0 td.warn{color:var(--muted);font-weight:600}
+table.data tfoot td{position:sticky;bottom:0;background:#eef3f8;font-weight:700;color:var(--navy);
+border-top:2px solid var(--navy);padding:9px 10px}
+.zerocell{color:#c3ccd6}
+
+/* action table */
+.actions{width:100%;border-collapse:separate;border-spacing:0;font-size:12.8px;margin-top:12px;
+border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.actions th{background:#17395b;color:#fff;padding:9px 11px;text-align:left;font-weight:600;font-size:11.8px;letter-spacing:.02em}
+.actions td{padding:11px;border-bottom:1px solid var(--line);vertical-align:top;color:#2f3d4c}
+.actions tr:last-child td{border-bottom:0}
+.actions tr:nth-child(even) td{background:#fafcfe}
+.actions td.n{font-weight:700;color:#fff;background:var(--accent)!important;text-align:center;
+width:34px;font-size:14px;vertical-align:middle}
+.actions td.when{width:21%;font-weight:600;color:var(--navy)}
+.actions td.by{width:13%;white-space:nowrap;font-weight:600;color:var(--red);font-size:12.2px}
+.actions td.out{width:22%;color:#43536b;font-size:12.2px}
+
+/* codes */
+.codes{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0 0}
+.code{display:inline-flex;align-items:center;gap:7px;background:#f4f8fb;border:1px solid var(--line);
+border-radius:5px;padding:5px 10px 5px 6px;font-size:12.2px;color:#33465c}
+.code b{background:var(--navy);color:#fff;border-radius:3px;padding:2px 6px;font-size:11px;letter-spacing:.04em}
+
+/* format box */
+.fbox{margin-top:14px;background:#f7fafc;border:1px dashed #c3d3e2;border-radius:6px;padding:13px 15px}
+.fbox .h{font-weight:700;color:var(--navy);font-size:13px;margin-bottom:5px}
+.fbox .cols{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11.9px;
+color:#1b4a72;background:#fff;border:1px solid var(--line);border-radius:4px;padding:9px 11px;line-height:1.85}
+
+/* notes */
+.callout{background:#fff7f5;border:1px solid #f3d3cc;border-left:4px solid var(--red);
+border-radius:0 6px 6px 0;padding:13px 16px;margin-bottom:12px;color:#5b2b22;font-size:13.2px}
+.callout b{color:#8f2519}
+.note{background:#f7fafc;border-left:3px solid #b9cbdb;padding:10px 14px;color:#4a5a6e;font-size:12.6px;border-radius:0 4px 4px 0}
+
+/* timeline */
+.tl{display:grid;grid-template-columns:96px 1fr;gap:0;margin-top:10px;border-top:1px solid var(--line)}
+.tl .d,.tl .t{padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}
+.tl .d{font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}
+.tl .t{color:#2f3d4c}
+
+/* footer */
+.foot{border-top:1px solid var(--line);margin-top:6px;padding:16px 46px 26px;color:var(--muted);font-size:11.6px;line-height:1.75}
+.conf{display:inline-block;background:#eef3f8;color:#4a637ay;border:1px solid var(--line);border-radius:4px;
+padding:2px 9px;font-size:10.6px;letter-spacing:.06em;text-transform:uppercase;color:#5a7188;margin-bottom:8px}
+
+@media print{
+ body{background:#fff;font-size:11.5px}
+ .page{box-shadow:none;max-width:none}
+ .hero{padding:22px 26px 18px}
+ .hero h1{font-size:24px}
+ .wrap{padding:20px 26px 26px}
+ .tablewrap{max-height:none;overflow:visible}
+ table.data th{position:static}
+ table.data tfoot td{position:static}
+ section{page-break-inside:avoid}
+ .actions td.n{background:#17395b!important;-webkit-print-color-adjust:exact}
+ *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+@media (max-width:820px){
+ .hero,.wrap,.foot{padding-left:20px;padding-right:20px}
+ .kpis{grid-template-columns:repeat(2,1fr)}
+ .actions td.by,.actions td.out{width:auto}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="hero">
+    <div class="kicker">C.U.LINES &middot; 箱管中心 &middot; 每月口岸回顾</div>
+    <h1>维修账龄回顾</h1>
+    <p class="sub">这份报表是什么，以及各口岸需要做什么</p>
+    <div class="meta"><div>统计区间<b>2026-09-19 &ndash; 2026-10-19</b></div><div>账龄基准日<b>2026-10-19</b></div><div>覆盖范围<b>21 个口岸 &middot; 9,356 张维修工单</b></div></div>
+  </header>
+
+  <div class="wrap">
+
+    <section>
+      <h2>1. 这份报表是什么</h2>
+      <p class="lead">总部每月从 NAW（Manage Repair，<span class='mono'>MNR_M2330</span>）把全部口岸在该区间内产生的维修工单拉出来，计算<strong>每一张工单已经挂了多久</strong>。一张工单在系统里挂几周不动，意味着这个箱子既不能放箱、不能计费、也不能复用。所以这份回顾的目的是<strong>尽早找出卡住的箱子</strong>，不是给口岸排名打分。</p>
+      <p class="lead">它是一份<strong>诊断表</strong>，不是考核表。两个口岸可能预警量相同，但原因完全相反：一个是修箱厂产能不足，另一个是在等船东批估价。只有口岸自己知道是哪一种 —— 第 5 节就是为此而设。</p>
+    </section>
+
+    <section>
+      <h2>2. 数字是怎么算出来的</h2>
+      <p class="rule">所有口岸、每个月都用同一套规则，不做任何本地调整。</p>
+      <table class="defs"><tbody><tr><th>数据来源</th><td>NAW / Manage Repair（MNR_M2330）—— Created Date 2026-09-19 &ndash; 2026-10-19，导出于 10-19</td></tr><tr><th>账龄 &mdash; 维修中</th><td>查询日 &minus; <em>Job Order Send Date</em>（工单发出日）</td></tr><tr><th>账龄 &mdash; 已驳回</th><td>查询日 &minus; <em>Estimate Request Date</em>（估价申请日）</td></tr><tr><th>账龄 &mdash; 维修完成</th><td>Repair Complete Date &minus; Estimate Request Date <span class='dim'>（不计入预警）</span></td></tr><tr><th>未闭环</th><td>维修中 + 已驳回</td></tr><tr><th>预警</th><td>未闭环中账龄 <strong>超过 7 天</strong>的箱子</td></tr><tr><th>分档</th><td>7&ndash;14 / 14&ndash;21 / 21&ndash;30 / 30+ 天 —— 只统计未闭环，四档合计恒等于预警总量</td></tr><tr><th>进口量</th><td>CIN_M1051 Movement Performance by Location，VD(MTY) + ID-MT，同区间（仅作规模参考）</td></tr></tbody></table>
+    </section>
+
+    <section>
+      <h2>3. 全局情况</h2>
+      <div class="kpis"><div class="kpi"><div class="lbl">维修工单总数</div><div class="num">9,356</div><div class="note">本区间内产生</div></div><div class="kpi"><div class="lbl">仍未闭环</div><div class="num">1,275</div><div class="note">占全部工单 13.6%</div></div><div class="kpi hot"><div class="lbl">超 7 天预警</div><div class="num">500</div><div class="note">占未闭环 39.2%</div></div><div class="kpi hot"><div class="lbl">超 30 天的箱子</div><div class="num">29</div><div class="note">分布在 2 个口岸</div></div></div>
+      <p class="note">预警高度集中：前 4 个口岸占了全部超 7 天箱子的 57.8%，前 7 个口岸占 78.0%。目前还有 10 个口岸把 73 箱压在 21&ndash;30 天这一档 —— 这一档是箱子还能低成本救回来的最后窗口。</p>
+    </section>
+
+    <section>
+      <h2>4. 你自己口岸的位置</h2>
+      <p class="rule">找到你的 Office 代码。分档只统计未闭环；百分比是预警量占你自己未闭环的比例。</p>
+      <div class="tablewrap">
+        <table class="data">
+          <thead><tr><th>Office</th><th>工单总数</th><th>未闭环</th><th>超 7 天预警</th><th>占未闭环</th><th>7&ndash;14</th><th>14&ndash;21</th><th>21&ndash;30</th><th>30+</th><th>进口量</th></tr></thead>
+          <tbody><tr class="sev2"><td>CUSHA</td><td>1,151</td><td>478</td><td class="warn">87</td><td>18.2%</td><td>78</td><td>5</td><td>4</td><td class="zerocell">0</td><td>3,666</td></tr><tr class="sev3"><td>CUGGZ</td><td>1,065</td><td>110</td><td class="warn">76</td><td>69.1%</td><td>6</td><td>26</td><td>16</td><td class="warn">28</td><td>3,747</td></tr><tr class="sev2"><td>CUKWA</td><td>99</td><td>69</td><td class="warn">68</td><td>98.6%</td><td>11</td><td>53</td><td>4</td><td class="zerocell">0</td><td>340</td></tr><tr class="sev2"><td>CUPKG</td><td>1,594</td><td>94</td><td class="warn">58</td><td>61.7%</td><td>37</td><td>12</td><td>9</td><td class="zerocell">0</td><td>5,987</td></tr><tr class="sev2"><td>CUMUN</td><td>600</td><td>47</td><td class="warn">38</td><td>80.9%</td><td>14</td><td>5</td><td>19</td><td class="zerocell">0</td><td>1,523</td></tr><tr class="sev2"><td>CUNGB</td><td>662</td><td>126</td><td class="warn">35</td><td>27.8%</td><td>13</td><td>16</td><td>6</td><td class="zerocell">0</td><td>3,612</td></tr><tr class="sev0"><td>BENKR</td><td>170</td><td>28</td><td class="warn">28</td><td>100.0%</td><td>28</td><td class="zerocell">0</td><td class="zerocell">0</td><td class="zerocell">0</td><td>309</td></tr><tr class="sev2"><td>CUMUM</td><td>633</td><td>81</td><td class="warn">24</td><td>29.6%</td><td>16</td><td>7</td><td>1</td><td class="zerocell">0</td><td>1,470</td></tr><tr class="sev2"><td>SBLPH</td><td>100</td><td>42</td><td class="warn">23</td><td>54.8%</td><td>11</td><td class="zerocell">0</td><td>12</td><td class="zerocell">0</td><td>805</td></tr><tr class="sev3"><td>CUTAO</td><td>619</td><td>72</td><td class="warn">21</td><td>29.2%</td><td>15</td><td>4</td><td>1</td><td class="warn">1</td><td>2,710</td></tr><tr class="sev1"><td>SAIID</td><td>408</td><td>29</td><td class="warn">17</td><td>58.6%</td><td>4</td><td>13</td><td class="zerocell">0</td><td class="zerocell">0</td><td>294</td></tr><tr class="sev1"><td>CUDEL</td><td>166</td><td>11</td><td class="warn">8</td><td>72.7%</td><td>7</td><td>1</td><td class="zerocell">0</td><td class="zerocell">0</td><td>150</td></tr><tr class="sev1"><td>CUTPE</td><td>1,024</td><td>41</td><td class="warn">8</td><td>19.5%</td><td>3</td><td>5</td><td class="zerocell">0</td><td class="zerocell">0</td><td>2,261</td></tr><tr class="sev1"><td>SASUB</td><td>12</td><td>5</td><td class="warn">5</td><td>100.0%</td><td class="zerocell">0</td><td>5</td><td class="zerocell">0</td><td class="zerocell">0</td><td>34</td></tr><tr class="sev2"><td>CUHPH</td><td>140</td><td>2</td><td class="warn">2</td><td>100.0%</td><td>1</td><td class="zerocell">0</td><td>1</td><td class="zerocell">0</td><td>532</td></tr><tr class="sev0"><td>SASRG</td><td>42</td><td>10</td><td class="warn">2</td><td>20.0%</td><td>2</td><td class="zerocell">0</td><td class="zerocell">0</td><td class="zerocell">0</td><td>9</td></tr><tr class="sev0"><td>CUDAL</td><td>17</td><td>1</td><td class="warn">0</td><td>0.0%</td><td class="zerocell">0</td><td class="zerocell">0</td><td class="zerocell">0</td><td class="zerocell">0</td><td>20</td></tr><tr class="sev0"><td>CUHCM</td><td>139</td><td>2</td><td class="warn">0</td><td>0.0%</td><td class="zerocell">0</td><td class="zerocell">0</td><td class="zerocell">0</td><td class="zerocell">0</td><td>383</td></tr><tr class="sev0"><td>CUSNZ</td><td>662</td><td>25</td><td class="warn">0</td><td>0.0%</td><td class="zerocell">0</td><td class="zerocell">0</td><td class="zerocell">0</td><td class="zerocell">0</td><td>4,593</td></tr><tr class="sev0"><td>CUXMN</td><td>51</td><td class="zerocell">0</td><td class="warn">0</td><td class="zerocell">&mdash;</td><td class="zerocell">0</td><td class="zerocell">0</td><td class="zerocell">0</td><td class="zerocell">0</td><td>390</td></tr><tr class="sev0"><td>CUTNJ</td><td>2</td><td>2</td><td class="warn">0</td><td>0.0%</td><td class="zerocell">0</td><td class="zerocell">0</td><td class="zerocell">0</td><td class="zerocell">0</td><td class="zerocell">&mdash;</td></tr></tbody>
+          <tfoot><tr><td>合计</td><td>9,356</td><td>1,275</td><td>500</td><td>39.2%</td><td>246</td><td>152</td><td>73</td><td>29</td><td>32,835</td></tr></tfoot>
+        </table>
+      </div>
+      <p class="note" style="margin-top:9px">「&mdash;」表示不适用（无未闭环，或该代码没有进口量数据）。空白不等于 0。</p>
+    </section>
+
+    <section>
+      <h2>5. 各口岸需要做的事</h2>
+      <p class="lead"><strong>这是本份材料的重点。</strong>拿第 4 节你自己的数字，对照下面 5 个触发条件逐条处理。如果没有触发项，用一句话说明即可 —— 不要回一张空表。</p>
+      <table class="actions">
+        <thead><tr><th>#</th><th>若你有&hellip;</th><th>必须做什么</th><th>时限</th><th>回什么</th></tr></thead>
+        <tbody><tr><td class="n">1</td><td class="when"><strong>30 天以上</strong>的箱子</td><td>每一箱都必须给出明确结论，四选一：(a) 批准维修并已开工单（PO）；(b) 转 Rejected 并重新提交估价；(c) 判定全损 / 报废，附核销依据；(d) 调运至其他堆场。<strong>「还在等」不算结论。</strong></td><td class="by">5 个工作日</td><td class="out">逐箱清单，每箱一个结论</td></tr><tr><td class="n">2</td><td class="when"><strong>21&ndash;30 天</strong>的箱子</td><td>向修箱厂确认完成日期与备件情况。若预计完成日距今天超过 14 天，在同一封回复里报给区域经理升级。</td><td class="by">5 个工作日</td><td class="out">逐箱预计完成日 + 升级对象（如需）</td></tr><tr><td class="n">3</td><td class="when">处于 <strong>已驳回（Rejected）</strong>状态</td><td>重新提交估价申请，或写明将重新提交的日期。Rejected 是一个决策点，不是可以长期停留的状态 —— 不允许挂几周都没有新估价。</td><td class="by">3 个工作日</td><td class="out">逐箱重新提交日期</td></tr><tr><td class="n">4</td><td class="when"><strong>维修中超过 14 天</strong></td><td>写明真实卡点，用下面的原因代码，不要写笼统评语。</td><td class="by">与第 1 项同时</td><td class="out">逐箱一个原因代码</td></tr><tr><td class="n">5</td><td class="when">全部工单</td><td>核对 NAW 里 <em>Job Order Send Date</em> 与 <em>Estimate Request Date</em> 是否填写、是否正确。日期空着或填错，账龄就算不出来，只会低估你自己的风险敞口。</td><td class="by">立即，并长期保持</td><td class="out">一句话确认</td></tr></tbody>
+      </table>
+      <div style="margin-top:14px">
+        <div style="font-weight:700;color:var(--navy);font-size:13px;margin:8px 0 2px">原因代码</div>
+        <div class="codes"><span class="code"><b>YC</b>堆场 / 修箱厂产能不足</span><span class="code"><b>SP</b>备件缺料</span><span class="code"><b>OA</b>船东未批复估价</span><span class="code"><b>SV</b>验箱 / 定损未完成</span><span class="code"><b>DT</b>单证 / 提单问题</span><span class="code"><b>TR</b>运输 / 调运</span><span class="code"><b>OT</b>其他（一句话说明）</span></div>
+      </div>
+      <div class="fbox">
+        <div class="h">回传格式</div>
+        <div style="color:#4a5a6e;font-size:12.4px;margin-bottom:7px">一个口岸一个文件，一箱一行，列顺序如下：</div>
+        <div class="cols">Office &middot; 箱号 &middot; 状态 &middot; 账龄（天）&middot; 分档 &middot; 原因代码 &middot; 已采取措施 &middot; 责任人 &middot; 预计完成日</div>
+      </div>
+    </section>
+
+    <section>
+      <h2>6. 会核查的两件事</h2>
+      <div class="callout"><strong>不要为了清账龄而关单。</strong>每一张 Repair Complete 都会和箱子动态核对，提前关单会被重新打开并反馈给口岸。</div>
+      <div class="callout"><strong>不要让 Rejected 静默挂着。</strong>没有重新提交日期的 Rejected 箱子，按「无人认领」升级处理。</div>
+    </section>
+
+    <section>
+      <h2>7. 时间安排</h2>
+      <div class="tl"><div class="d">D+0</div><div class="t">你收到这份回顾 + 本口岸明细清单</div><div class="d">D+5</div><div class="t">回传逐箱处理清单</div><div class="d">D+10</div><div class="t">总部汇总全部口岸，重新发布看板</div><div class="d">每月</div><div class="t">同样节奏，账龄基准日为每月 19 日</div></div>
+    </section>
+
+    <section style="margin-bottom:8px">
+      <h2>8. 如果你的数字和台账对不上</h2>
+      <p>把箱号清单发我们，我们对着导出文件逐箱追。请<strong>不要</strong>在本地改这份文件 —— 本地改过的表没办法和其他 20 个口岸合并。</p>
+    </section>
+
+  </div>
+
+  <footer class="foot">
+    <div class="conf">内部资料 &mdash; 仅供口岸作业使用</div><br>
+    C.U.LINES PTE 箱管中心编制 &middot; 数据源：NAW Manage Repair（MNR_M2330）与 CIN_M1051 &middot; 数字为某一时点快照，随工单更新会变动。
+  </footer>
+</div>
+</body>
+</html>
