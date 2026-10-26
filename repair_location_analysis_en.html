@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Repair Location Analysis · Office × Box Type</title>
+<style>
+:root{
+ --navy-900:#0a1c33; --navy-800:#0f2a49; --navy-700:#173d68; --navy-600:#22558c;
+ --accent:#e0b352; --accent-soft:#f6e7c4;
+ --bg:#eef2f8; --card:#ffffff; --line:#e2e8f2;
+ --text:#132a44; --muted:#6b7f96; --muted-2:#93a4b8;
+ --ur:#e39a1c; --rj:#e0564f; --rc:#1f9e6e;
+ --shadow:0 1px 2px rgba(16,42,73,.06),0 8px 24px rgba(16,42,73,.07);
+ --radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei","PingFang SC","Hiragino Sans GB",sans-serif;
+ background:var(--bg);color:var(--text);line-height:1.5;
+ font-feature-settings:"tnum" 1,"cv05" 1;
+}
+.wrap{max-width:1440px;margin:0 auto;padding:0 24px 56px}
+.hero{
+ background:
+ radial-gradient(1100px 420px at 88% -10%, rgba(224,179,82,.20), transparent 60%),
+ radial-gradient(760px 380px at 4% 120%, rgba(34,85,140,.55), transparent 62%),
+ linear-gradient(135deg,var(--navy-900) 0%,var(--navy-800) 46%,var(--navy-700) 100%);
+ color:#fff;position:relative;overflow:hidden;border-bottom:3px solid var(--accent);
+}
+.hero::after{
+ content:"";position:absolute;inset:0;pointer-events:none;
+ background-image:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),
+ linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);
+ background-size:46px 46px;mask-image:linear-gradient(180deg,rgba(0,0,0,.9),transparent 82%);
+}
+.hero-in{position:relative;z-index:2;max-width:1440px;margin:0 auto;padding:34px 24px 30px}
+.eyebrow{
+ display:inline-flex;align-items:center;gap:9px;font-size:12px;letter-spacing:.16em;
+ text-transform:uppercase;color:var(--accent);font-weight:700;
+ border:1px solid rgba(224,179,82,.42);border-radius:999px;padding:5px 14px;margin-bottom:16px;
+ background:rgba(224,179,82,.08);
+}
+.eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px rgba(224,179,82,.18)}
+.hero h1{font-size:clamp(23px,3vw,36px);font-weight:800;letter-spacing:-.015em;line-height:1.18}
+.hero h1 span{color:var(--accent)}
+.hero p.sub{margin-top:10px;color:#c3d3e6;font-size:14.5px;max-width:880px}
+.hero-meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.chip{
+ display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:#dce7f4;
+ background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);
+ border-radius:10px;padding:7px 13px;
+}
+.chip b{color:#fff;font-weight:700}
+.chip .ic{color:var(--accent);font-size:13px}
+.chip-warn{background:rgba(217,43,43,.22);border-color:rgba(248,113,113,.5)}
+.chip-warn .ic{color:#fca5a5}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:-26px;position:relative;z-index:5}
+.kpi{
+ background:var(--card);border-radius:var(--radius);padding:17px 17px 15px;
+ box-shadow:var(--shadow);border:1px solid var(--line);position:relative;overflow:hidden;
+}
+.kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--c,var(--navy-600))}
+.kpi .k-label{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.03em}
+.kpi .k-val{font-size:29px;font-weight:800;letter-spacing:-.02em;margin-top:7px;line-height:1.05;color:var(--navy-800)}
+.kpi .k-foot{margin-top:7px;font-size:11.5px;color:var(--muted-2)}
+.sec{margin-top:32px}
+.sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:15px;flex-wrap:wrap}
+.sec-head h2{font-size:19px;font-weight:800;letter-spacing:-.01em;display:flex;align-items:center;gap:10px}
+.sec-head h2::before{content:"";width:4px;height:19px;border-radius:2px;background:var(--accent)}
+.sec-head .note{font-size:12.5px;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}
+.card h3{font-size:14.5px;font-weight:800;color:var(--navy-800);display:flex;align-items:center;gap:9px;margin-bottom:4px}
+.card h3 .tag{font-size:10.5px;font-weight:700;color:var(--muted);background:#eef2f8;border-radius:6px;padding:2px 7px;letter-spacing:.03em}
+.card .desc{font-size:12px;color:var(--muted);margin-bottom:14px}
+.grid2{display:grid;grid-template-columns:1.5fr 1fr;gap:16px}
+.grid2b{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.warn-banner{
+ background:
+ radial-gradient(620px 260px at 92% -30%, rgba(255,255,255,.16), transparent 62%),
+ linear-gradient(118deg,#6d1414 0%,#a81c1c 46%,#d92b2b 100%);
+ color:#fff;border-radius:var(--radius);padding:19px 22px;
+ display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;
+ box-shadow:0 10px 30px rgba(168,28,28,.26);
+}
+.wb-left{display:flex;align-items:center;gap:14px}
+.wb-ic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;flex:none;
+ background:rgba(255,255,255,.17);border:1px solid rgba(255,255,255,.32);font-size:23px;font-weight:900}
+.wb-t{font-size:18px;font-weight:800}
+.wb-s{font-size:12.5px;color:rgba(255,255,255,.84);margin-top:3px;max-width:640px}
+.wb-nums{display:flex;gap:11px;flex-wrap:wrap}
+.wb-n{background:rgba(0,0,0,.17);border:1px solid rgba(255,255,255,.2);border-radius:11px;padding:8px 15px;min-width:108px;text-align:center}
+.wb-n b{display:block;font-size:23px;font-weight:800;line-height:1.16}
+.wb-n span{font-size:11px;color:rgba(255,255,255,.82)}
+.warn-tiers{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:16px}
+.tw{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:15px 17px;position:relative;overflow:hidden}
+.tw::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--c)}
+.tw-l{font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.05em}
+.tw-v{font-size:27px;font-weight:800;margin-top:5px;color:var(--c);line-height:1.1}
+.tw-f{font-size:11.5px;color:var(--muted-2);margin-top:3px}
+.tw-bar{height:6px;border-radius:999px;background:#eef2f8;margin-top:11px;overflow:hidden}
+.tw-bar i{display:block;height:100%;border-radius:999px;background:var(--c);width:0;transition:width .9s cubic-bezier(.22,1,.36,1)}
+/* Office rank rows */
+.rank-list{display:grid}
+.rk{display:flex;align-items:center;gap:12px;padding:9px 2px;border-bottom:1px dashed #eef2f8}
+.rk:last-child{border-bottom:none}
+.rk-no{width:22px;flex:none;text-align:center;font-size:11.5px;font-weight:800;color:var(--muted-2)}
+.rk-ofc{width:70px;flex:none;font-size:12.5px;font-weight:800;color:#2c3f57}
+.rk-bar{flex:1;height:17px;border-radius:5px;background:#f1f5fb;display:flex;overflow:hidden;min-width:80px}
+.rk-bar span{display:block;height:100%}
+.rk-num{width:56px;flex:none;text-align:right;font-size:13px;font-weight:800;color:var(--navy-700);font-variant-numeric:tabular-nums}
+.rk-warn{width:74px;flex:none;text-align:right}
+.rk-ratio{width:62px;flex:none;text-align:right;font-size:12px;font-weight:700;color:var(--muted)}
+.rk{cursor:default}
+.rk:hover{background:#f2f7fd;border-radius:8px}
+.rk-bar span{transition:filter .12s}
+.rk-bar span:hover{filter:brightness(1.13)}
+.rk-tip{
+ position:fixed;left:0;top:0;z-index:999;pointer-events:none;opacity:0;transform:translateY(-4px);
+ transition:opacity .12s,transform .12s;background:#0f2a49;color:#fff;border-radius:10px;
+ padding:10px 13px;box-shadow:0 14px 34px rgba(10,28,51,.34);border:1px solid rgba(255,255,255,.14);
+ font-size:12px;line-height:1.55;min-width:186px;
+}
+.rk-tip.on{opacity:1;transform:translateY(0)}
+.rk-tip .tt-h{font-weight:800;font-size:12.5px;margin-bottom:7px;color:var(--accent);letter-spacing:.02em}
+.rk-tip .tt-r{display:flex;align-items:center;justify-content:space-between;gap:18px}
+.rk-tip .tt-r span{color:#c3d3e6}
+.rk-tip .tt-r b{font-variant-numeric:tabular-nums;font-weight:800}
+.rk-tip .tt-d{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.rk-tip .tt-sep{height:1px;background:rgba(255,255,255,.16);margin:7px 0}
+.rk-tip .tt-tot b{color:#fff}
+.rk-tip .tt-warn b{color:#ffb4b4}
+.lg{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:12px;color:var(--muted)}
+.lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+/* aging columns */
+.age-cols{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;align-items:end;height:150px;margin-bottom:6px}
+.ac{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%}
+.ac-v{font-size:15px;font-weight:800;color:var(--navy-800);margin-bottom:5px;font-variant-numeric:tabular-nums}
+.ac-b{width:100%;border-radius:7px 7px 3px 3px;background:var(--c);min-height:4px}
+.ac-l{font-size:11.5px;color:var(--muted);margin-top:7px;text-align:center;font-weight:600}
+.ac-l em{display:block;font-style:normal;font-size:10.5px;color:var(--muted-2)}
+/* aging: two rows: top = all statuses / bottom = open warnings */
+.age-rowlbl{font-size:11.5px;font-weight:800;color:var(--navy-700);letter-spacing:.02em;margin:0 0 6px}
+.age-rowlbl.warn{color:#b3261e;margin:16px 0 6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.age-rowlbl.warn b{font-variant-numeric:tabular-nums}
+.age-rowlbl .pl{font-weight:700;color:var(--muted);font-size:11px}
+.age-cols.warn{height:138px}
+.ac-w{font-size:13px;font-weight:800;color:#b3261e;margin-bottom:5px;font-variant-numeric:tabular-nums}
+.ac-w.off{color:var(--muted-2);font-weight:700}
+.ac-b.off{background:repeating-linear-gradient(45deg,#eef2f7,#eef2f7 5px,#e5ebf3 5px,#e5ebf3 10px)}
+/* table */
+.table-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.table-tools{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.table-tools .tt-title{font-size:13px;color:var(--muted)}
+.table-tools .tt-title b{color:var(--navy-700)}
+.search{position:relative}
+.search input{font-family:inherit;font-size:13px;padding:8px 12px 8px 32px;border:1px solid var(--line);border-radius:9px;width:220px;outline:none;color:var(--text);background:#fbfcfe}
+.search input:focus{border-color:var(--navy-600);background:#fff;box-shadow:0 0 0 3px rgba(34,85,140,.1)}
+.search::before{content:"\2315";position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted-2);font-size:15px}
+.scroll{max-height:640px;overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:12.6px}
+thead th{
+ position:sticky;top:0;z-index:3;background:var(--navy-800);color:#fff;font-weight:700;
+ text-align:center;padding:9px 10px;white-space:nowrap;font-size:11.8px;letter-spacing:.02em;
+ border-right:1px solid rgba(255,255,255,.09);background-clip:padding-box;
+}
+.scroll{position:relative}
+.scroll thead th{top:0}
+.scroll thead tr.gh th{top:0}
+.scroll thead tr.sh th{top:30px}
+thead tr.gh th{top:0;height:30px}
+thead tr.sh th{top:30px;background:var(--navy-700);font-size:11.2px;font-weight:600;height:28px}
+thead th.lft{text-align:left}
+thead th.grp-box{background:#123a2f}
+thead th.grp-box2{background:#1a5344}
+thead th.office-col{z-index:5}
+tbody td{padding:8px 10px;border-bottom:1px solid #eef2f8;border-right:1px solid #f4f7fb;text-align:center;white-space:nowrap;color:#2c3f57}
+tbody td.lft{text-align:left}
+tbody tr:nth-child(even){background:#fafbfe}
+tbody tr:hover{background:#eff5fd}
+tbody tr.total-row{background:var(--accent-soft)!important;font-weight:800;color:var(--navy-900)}
+tbody tr.total-row td{border-top:2px solid var(--accent)}
+td.num{font-variant-numeric:tabular-nums;font-weight:600}
+td.tbd{color:#c3cedd;font-style:italic}
+.ccy{font-size:11.4px;line-height:1.45;white-space:nowrap;font-variant-numeric:tabular-nums}
+.ccy+.ccy{margin-top:1px}
+td.hi{background:#fdecea;color:#b3261e;font-weight:800}
+td.mid{background:#fef5e3;color:#a9700f;font-weight:800}
+td.good{color:#137a52;font-weight:700}
+.pill{display:inline-block;font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px}
+.pill.warn{background:#fdecea;color:#b3261e}
+.pill.risk{background:#fdeee0;color:#b45309}
+.pill.watch{background:#fdf4e0;color:#a9700f}
+.pill.ok{background:#e8f6f0;color:#1f8a5f}
+/* notice */
+.notice{
+ display:flex;gap:13px;align-items:flex-start;border-radius:var(--radius);padding:15px 18px;
+ background:linear-gradient(180deg,#fffaf0,#fff6e4);border:1px solid #f2dcae;
+ border-left:4px solid var(--accent);font-size:12.8px;color:#7a5a13;
+}
+.notice b{color:#8a5a06}
+.notice code{background:#fff3d8;border:1px solid #f0dcae;border-radius:5px;padding:1px 5px;font-size:11.8px;color:#7a4d05}
+.notice .ni{font-size:17px;line-height:1.25}
+/* calc panel */
+.calc{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fld{display:flex;flex-direction:column;gap:7px}
+.fld label{font-size:12.2px;font-weight:800;color:var(--navy-800)}
+.fld .hint{font-size:11.5px;color:var(--muted-2);font-weight:400}
+.fld textarea{
+ font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;font-size:11.6px;
+ border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-height:128px;resize:vertical;
+ color:var(--text);background:#fbfcfe;outline:none;line-height:1.5;
+}
+.fld textarea:focus{border-color:var(--navy-600);background:#fff;box-shadow:0 0 0 3px rgba(34,85,140,.1)}
+.calc-foot{display:flex;align-items:center;gap:14px;margin-top:14px;flex-wrap:wrap}
+.btn{
+ font-family:inherit;font-size:13px;font-weight:800;border-radius:10px;padding:10px 20px;cursor:pointer;
+ border:1px solid var(--navy-700);background:var(--navy-700);color:#fff;transition:.15s;
+}
+.btn:hover{background:var(--navy-600)}
+.btn.ghost{background:#fff;color:var(--navy-700);border-color:var(--line)}
+.btn.ghost:hover{background:#f5f8fc}
+.msg{font-size:12.5px;color:var(--muted)}
+.msg.ok{color:#137a52;font-weight:700}
+.msg.err{color:#b3261e;font-weight:700}
+footer{margin-top:40px;padding-top:22px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted-2)}
+footer b{color:var(--muted)}
+.hidden{display:none!important}
+/* ---- module visibility controls ---- */
+.sec-hidden{display:none!important}
+.mod-bar{
+ position:sticky;top:0;z-index:60;background:rgba(255,255,255,.93);
+ -webkit-backdrop-filter:blur(9px);backdrop-filter:blur(9px);
+ border-bottom:1px solid var(--line);box-shadow:0 6px 18px rgba(16,42,73,.07);
+ margin-bottom:26px;
+}
+.mod-bar-in{max-width:1440px;margin:0 auto;padding:10px 24px;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.mod-bar .mb-title{font-size:11.5px;font-weight:800;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-right:3px}
+.mod-chip{
+ font-family:inherit;font-size:12.5px;font-weight:700;border:1px solid var(--line);background:#fff;
+ color:var(--navy-700);border-radius:999px;padding:6px 13px;cursor:pointer;transition:.15s;
+ display:inline-flex;align-items:center;gap:7px;white-space:nowrap;
+}
+.mod-chip:hover{border-color:var(--navy-600);background:#f5f8fc}
+.mod-chip .dotm{width:8px;height:8px;border-radius:50%;background:var(--rc);box-shadow:0 0 0 3px rgba(31,158,110,.16);transition:.15s}
+.mod-chip .eye{font-size:12px;line-height:1}
+.mod-chip.off{color:var(--muted-2);background:#f4f6fa;border-style:dashed}
+.mod-chip.off .dotm{background:#c3cedd;box-shadow:0 0 0 3px rgba(195,206,221,.22)}
+.mod-chip.solid{background:var(--navy-700);border-color:var(--navy-700);color:#fff}
+.mod-chip.solid:hover{background:var(--navy-600)}
+.mod-bar .mb-all{margin-left:auto;display:flex;gap:8px}
+.mod-btn{
+ font-family:inherit;font-size:12px;font-weight:700;color:var(--navy-700);background:#fff;
+ border:1px solid var(--line);border-radius:999px;padding:5px 12px;cursor:pointer;transition:.15s;
+ display:inline-flex;align-items:center;gap:6px;flex:none;
+}
+.mod-btn:hover{border-color:var(--navy-600);background:#f5f8fc}
+.mod-btn .chev{font-size:11px;line-height:1}
+.mod-btn.is-off{color:var(--muted-2);background:#f4f6fa;border-style:dashed}
+@media(max-width:1180px){
+ .kpis{grid-template-columns:repeat(3,1fr)}
+ .grid2,.grid2b,.calc{grid-template-columns:1fr}
+}
+@media(max-width:720px){
+ .wrap{padding:0 14px 40px}
+ .hero-in{padding:24px 14px}
+ .kpis{grid-template-columns:repeat(2,1fr);margin-top:-18px}
+ .warn-tiers{grid-template-columns:1fr}
+ .age-cols{gap:7px}
+ .rk-ofc{width:56px}
+ .rk-warn{display:none}
+}
+@media print{
+ body{background:#fff}
+ .hero{color:#000;background:#fff!important;border-bottom:2px solid #000}
+ .hero h1 span,.eyebrow{color:#000}
+ .hero p.sub,.chip{color:#333}
+ .kpi,.card,.table-card,.tw{box-shadow:none;border:1px solid #ccc;break-inside:avoid}
+ .scroll{max-height:none;overflow:visible}
+ .search,.calc,.btn,.mod-bar,.mod-btn{display:none!important}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+ <div class="hero-in">
+ <div class="eyebrow"><span class="dot"></span>CONTAINER REPAIR · LOCATION ANALYSIS</div>
+ <h1>Repair Location Analysis <span>Office × box type</span></h1>
+ <p class="sub">Repair status, aging and import volume are aligned at estimate-Office level. Import volume comes from CIN_M1051 Movement Performance by Location, mapped from SMD to estimate Office. The box-type dimension is still pending and blanks are never treated as 0.</p>
+ <div class="hero-meta">
+ <span class="chip"><span class="ic">◈</span>Data as of <b>2026-10-26</b></span>
+ <span class="chip"><span class="ic">◈</span>Offices covered <b>21</b></span>
+ <span class="chip chip-warn"><span class="ic">⚠</span>Warnings >7d <b id="chip-warn">500 units</b></span>
+ <span class="chip"><span class="ic">◈</span>Repair detail <b id="chip-repair">9,356 records</b></span>
+ <span class="chip"><span class="ic">◈</span>Total import <b>53,208</b></span>
+ <span class="chip"><span class="ic">◈</span>Period <b>2026-09-26 ～ 2026-10-26</b></span>
+ <span class="chip"><span class="ic">◈</span>Source <b>NAW Manage Repair + CIN_M1051</b></span>
+ </div>
+ </div>
+</header>
+
+<div class="wrap">
+ <section class="kpis">
+ <div class="kpi" style="--c:#22558c"><div class="k-label">Total repair</div><div class="k-val" id="k-total">9,356</div><div class="k-foot">21 Offices / locations</div></div>
+ <div class="kpi" style="--c:var(--ur)"><div class="k-label">Under Repair</div><div class="k-val" id="k-ur">1,080</div><div class="k-foot">of total <b>11.5%</b></div></div>
+ <div class="kpi" style="--c:var(--rj)"><div class="k-label">Rejected</div><div class="k-val" id="k-rj">195</div><div class="k-foot">of total <b>2.1%</b></div></div>
+ <div class="kpi" style="--c:var(--rc)"><div class="k-label">Repair Complete</div><div class="k-val" id="k-rc">8,081</div><div class="k-foot">Completion <b>86.4%</b></div></div>
+ <div class="kpi" style="--c:#d92b2b"><div class="k-label">Open</div><div class="k-val" id="k-open">1,275</div><div class="k-foot">Under Repair + Rejected</div></div>
+ <div class="kpi" style="--c:#b3261e"><div class="k-label">Warnings >7d</div><div class="k-val" id="k-warn">500</div><div class="k-foot">of open <b>39.2%</b></div></div>
+ <div class="kpi" style="--c:#1f9e6e"><div class="k-label">Total import</div><div class="k-val" id="k-import">53,208</div><div class="k-foot">VD(MTY) 28,965 + ID-MT 24,243</div></div>
+ <div class="kpi" style="--c:#8b5cf6"><div class="k-label">Repair / Import</div><div class="k-val" id="k-ri">17.6%</div><div class="k-foot">Open / Import <b>2.4%</b></div></div>
+ </section>
+
+ <section class="sec">
+ <div class="sec-head"><h2>Warnings over 7 Days</h2><div class="note">Scope: Under repair + Rejected · aging &gt; 7 days</div></div>
+ <div class="warn-banner">
+ <div class="wb-left"><div class="wb-ic">!</div><div><div class="wb-t">Open work orders over 7 days</div><div class="wb-s">Under Repair and Rejected work orders aged over 7 days must be followed up case by case. Currently Warning share of open work orders 39.2%. </div></div></div>
+ <div class="wb-nums"><div class="wb-n"><b id="wb-total">500</b><span>Total warnings</span></div><div class="wb-n"><b id="wb-ur">359</b><span>Under Repair</span></div><div class="wb-n"><b id="wb-rj">141</b><span>Rejected</span></div><div class="wb-n"><b id="wb-pct">39.2%</b><span>of open</span></div></div>
+ </div>
+ <div class="warn-tiers" id="warn-tiers"></div>
+ </section>
+
+ <section class="sec">
+ <div class="sec-head"><h2>Repair by Location</h2><div class="note">Sorted by total repair volume · search the detail table</div></div>
+ <div class="grid2">
+ <div class="card"><h3>Repair Volume by Office <span class="tag">BY OFFICE</span></h3><div class="desc">Status mix: Under Repair / Rejected / Repair Complete; right side shows warnings and warning share of open.<b>Hover any row to see the exact numbers for that Office</b></div><div class="rank-list" id="rank-list"></div><div class="lg"><span><i style="background:var(--ur)"></i>Under Repair</span><span><i style="background:var(--rj)"></i>Rejected</span><span><i style="background:var(--rc)"></i>Repair Complete</span><span><i style="background:#d92b2b"></i>Warnings >7d</span></div></div>
+ <div class="card"><h3>Aging Distribution <span class="tag">AGING</span></h3><div class="desc">Two bases: top row = aging of all work orders (including Repair Complete); bottom row = the open subset (Under Repair + Rejected, aging &gt; 7 days).<b>the two rows are not the same total</b></div><div class="age-rowlbl" id="age-lbl-all">All work orders by aging</div><div class="age-cols" id="age-cols"></div><div class="age-rowlbl warn" id="age-lbl-warn">Of which: open warnings (Under Repair + Rejected)</div><div class="age-cols warn" id="age-warn-cols"></div><div class="notice" id="age-note"><span class="ni">!</span><span></span></div></div>
+ </div>
+ <div class="card" style="margin-top:16px"><h3>Worst 10 Offices <span class="tag">WORST 10</span></h3><div class="desc">Top 10 Offices by warnings over 7 days (ties broken by warning share of open). All four buckets count open units only; their sum must equal total warnings. Severity: any 30+ = Overdue; any 21-30 = High risk; any 14-21 = Watch; 7-14 only = Monitor.</div><div class="table-card"><div class="scroll"><table><thead><tr><th>#</th><th class="lft">Office</th><th>Total repair</th><th>Open</th><th>Warnings >7d</th><th>Warning share of open</th><th>Warn 7-14d</th><th>Warn 14-21d</th><th>Warn 21-30d</th><th>Warn 30+d</th><th>Severity</th></tr></thead><tbody id="worst-tbody"></tbody></table></div></div></div>
+ </section>
+
+ <section class="sec">
+ <div class="sec-head"><h2>Estimate Office × Import Volume</h2><div class="note">Completed: Aligned by estimate Office · box-type detail pending</div></div>
+ <div class="notice"><span class="ni">✓</span><span><b>Import volume integrated. </b>Total import 53,208 (VD(MTY) 28,965 + ID-MT 24,243) , merged by the SMD → Estimate Office mapping you provided.Total repair 9,356, overall Repair / Import 17.6%; Open / Import 2.4%. Import is currently aggregated by SMD and not split by box type, so the box type column still shows — (not 0).</span></div>
+ <div class="card" style="margin-top:16px"><h3>Import vs Repair by Office <span class="tag">ESTIMATE OFFICE</span></h3><div class="desc">Import volume is counted at estimate-Office level; Offices without repair records keep their import volume, while repair Offices without import volume show —.</div><div class="table-card"><div class="scroll"><table><thead><tr><th class="office-col lft">Estimate Office</th><th>Import</th><th>VD(MTY)</th><th>ID-MT</th><th>Total repair</th><th>Open</th><th>Repair / Import</th><th>Open / Import</th><th>SMD Locations</th></tr></thead><tbody id="office-import-tbody"></tbody></table></div></div></div>
+ <div class="card" style="margin-top:16px"><h3>Box Type <span class="tag">Type/Size pending</span></h3><div class="desc">Manage Repair only provides EQ No., with no reliable Type/Size. Once the container-to-type mapping is filled in, repair volume by Office × box type can be produced. Import volume has no box-type split yet, so those columns are left blank rather than invented.</div><div class="table-card"><div class="scroll"><table><thead><tr><th rowspan="2" class="office-col">Office / Location</th><th colspan="3" class="grp-box">Repair volume (type map pending)</th><th colspan="5" class="grp-box">Import volume (no type split)</th><th rowspan="2">Repair / Import</th></tr><tr class="sh"><th>20GP</th><th>20HC</th><th>40GP</th><th>20GP</th><th>20HC</th><th>40GP</th><th>40HC</th><th>Import Total</th></tr></thead><tbody id="box-tbody"></tbody></table></div></div></div>
+ </section>
+
+ <section class="sec"><div class="sec-head"><h2>Repair Detail Summary</h2><div class="note">Verified data · Office search supported</div></div><div class="table-card"><div class="table-tools"><div class="tt-title"> <b>21</b> Offices · total <b>9,356</b> repair records</div><div class="search"><input id="q" type="text" placeholder="Search Office…"></div></div><div class="scroll"><table id="detail-table"><thead><tr><th class="lft">Office</th><th>Under repair</th><th>Rejected</th><th>Repair Complete</th><th>Total</th><th>Open</th><th>Completion</th><th>Warnings >7d</th><th>Warning share of open</th><th>1-7d</th><th>7-14d</th><th>14-21d</th><th>21-30d</th><th>30+d</th></tr></thead><tbody id="detail-tbody"></tbody></table></div></div></section> <section class="sec">
+ <div class="sec-head"><h2>Prefix-filtered fleet × prefix change (by Location)</h2><div class="note">Lease Term = SBI + WeCom doc "Change container's cost" · aligned by Location in one table</div></div>
+ <div class="notice"><span class="ni">✓</span><span><b>Prefix-filtered fleet (SBI) volume.</b> Of the full SBI fleet of <b>28,344</b> units, <b>6,830</b> remain after filtering by container-number prefix (BXAU / SLVU / VOTU / VOLU / BAXU); this table lists only <b>MT / ID / IC</b>, totalling <b>4,606</b> units, across <b>68</b> locations (Location = the first 5 characters of Movement Yard, counted on all movements; locations with no MT / ID / IC units are not listed). Data as of 2026-10-26.</span></div>
+ <div class="notice" id="chg-notice"></div>
+ <div class="table-card">
+ <div class="table-tools"><div class="tt-title">Locations: <b>67</b> (prefix fleet <b>4,606</b> units · prefix change <b>4,483</b> units)</div><div class="search"><input id="ql" type="text" placeholder="Search Location…"></div></div>
+ <div class="scroll"><table id="lc-table"><thead><tr id="lc-head-g" class="gh"></tr><tr id="lc-head" class="sh"></tr></thead><tbody id="lc-tbody"></tbody><tfoot id="lc-tfoot"></tfoot></table></div>
+ </div>
+ <div class="card" style="margin-top:16px">
+ <h3>Scope of the two lists <span class="tag">not interchangeable</span></h3>
+ <div class="desc">The left half (columns <b>MT / ID / IC</b> + total) = <b>prefix-filtered fleet units on hand</b> (Lease Term = SBI, filtered by container-number prefix; other movements are no longer listed, so the total is smaller than the full filtered fleet); the right half = <b>prefix changes completed</b> (from the WeCom doc "Change container's cost"; <b>Date of Change is a date = completed</b>; text such as "in progress" or blank = not done, excluded). The two are independent: prefix-change units are not a subset of the prefix fleet, so "Change / units" is only an order-of-magnitude reference. Cost follows the sheet's <b>column K (Currency)</b>; <b>anything unlabeled is treated as USD</b>. Rows show the local-currency amounts per currency and <b>cannot be added across currencies</b>; a separate <b>Cost (USD)</b> column converts them at the day's FX rate, and the total row is given in USD.</div>
+ </div>
+ </section> <footer><div>Source: <b>C.U.LINES PTE</b> · ops.culines.com (NAW Manage Repair + CIN_M1051 Movement Performance by Location) </div><div>Basis of calculation: Under repair = query date − Job Order Send Date; Rejected = query date − Estimate Request Date; Repair Complete = Repair Complete Date − Estimate Request Date; Import = VD(MTY) + ID-MT (SMD location, SOC=Exclude, 2026-09-26 ～ 2026-10-26) </div></footer>
+</div>
+
+<script>
+(function(){
+'use strict';
+var ROWS = [{"Office":"CUPKG","Under repair":89,"Rejected":5,"Repair Complete":1500,"Total":1594,"Open (UR+RJ)":94,"Completion":0.941,"Warnings >7d":58,"Warning share of open":0.617,"1-7 days":1439,"7-14 days":118,"14-21 days":27,"21-30 days":9,"30+ days":1,"Warn 7-14d":37,"Warn 14-21d":12,"Warn 21-30d":9,"Warn 30+d":0,"Warn - Under Repair":56,"Warn - Rejected":2},{"Office":"CUSHA","Under repair":456,"Rejected":22,"Repair Complete":673,"Total":1151,"Open (UR+RJ)":478,"Completion":0.5847,"Warnings >7d":87,"Warning share of open":0.182,"1-7 days":1013,"7-14 days":116,"14-21 days":11,"21-30 days":11,"30+ days":0,"Warn 7-14d":78,"Warn 14-21d":5,"Warn 21-30d":4,"Warn 30+d":0,"Warn - Under Repair":82,"Warn - Rejected":5},{"Office":"CUGGZ","Under repair":30,"Rejected":80,"Repair Complete":955,"Total":1065,"Open (UR+RJ)":110,"Completion":0.8967,"Warnings >7d":76,"Warning share of open":0.6909,"1-7 days":972,"7-14 days":18,"14-21 days":30,"21-30 days":17,"30+ days":28,"Warn 7-14d":6,"Warn 14-21d":26,"Warn 21-30d":16,"Warn 30+d":28,"Warn - Under Repair":0,"Warn - Rejected":76},{"Office":"CUTPE","Under repair":40,"Rejected":1,"Repair Complete":983,"Total":1024,"Open (UR+RJ)":41,"Completion":0.96,"Warnings >7d":8,"Warning share of open":0.1951,"1-7 days":966,"7-14 days":37,"14-21 days":20,"21-30 days":0,"30+ days":1,"Warn 7-14d":3,"Warn 14-21d":5,"Warn 21-30d":0,"Warn 30+d":0,"Warn - Under Repair":7,"Warn - Rejected":1},{"Office":"CUSNZ","Under repair":25,"Rejected":0,"Repair Complete":637,"Total":662,"Open (UR+RJ)":25,"Completion":0.9622,"Warnings >7d":0,"Warning share of open":0.0,"1-7 days":655,"7-14 days":7,"14-21 days":0,"21-30 days":0,"30+ days":0,"Warn 7-14d":0,"Warn 14-21d":0,"Warn 21-30d":0,"Warn 30+d":0,"Warn - Under Repair":0,"Warn - Rejected":0},{"Office":"CUNGB","Under repair":111,"Rejected":15,"Repair Complete":536,"Total":662,"Open (UR+RJ)":126,"Completion":0.8097,"Warnings >7d":35,"Warning share of open":0.2778,"1-7 days":590,"7-14 days":44,"14-21 days":22,"21-30 days":6,"30+ days":0,"Warn 7-14d":13,"Warn 14-21d":16,"Warn 21-30d":6,"Warn 30+d":0,"Warn - Under Repair":25,"Warn - Rejected":10},{"Office":"CUMUM","Under repair":59,"Rejected":22,"Repair Complete":552,"Total":633,"Open (UR+RJ)":81,"Completion":0.872,"Warnings >7d":24,"Warning share of open":0.2963,"1-7 days":546,"7-14 days":68,"14-21 days":17,"21-30 days":1,"30+ days":1,"Warn 7-14d":16,"Warn 14-21d":7,"Warn 21-30d":1,"Warn 30+d":0,"Warn - Under Repair":19,"Warn - Rejected":5},{"Office":"CUTAO","Under repair":64,"Rejected":8,"Repair Complete":547,"Total":619,"Open (UR+RJ)":72,"Completion":0.8837,"Warnings >7d":21,"Warning share of open":0.2917,"1-7 days":515,"7-14 days":90,"14-21 days":12,"21-30 days":1,"30+ days":1,"Warn 7-14d":15,"Warn 14-21d":4,"Warn 21-30d":1,"Warn 30+d":1,"Warn - Under Repair":14,"Warn - Rejected":7},{"Office":"CUMUN","Under repair":45,"Rejected":2,"Repair Complete":553,"Total":600,"Open (UR+RJ)":47,"Completion":0.9217,"Warnings >7d":38,"Warning share of open":0.8085,"1-7 days":433,"7-14 days":95,"14-21 days":28,"21-30 days":43,"30+ days":1,"Warn 7-14d":14,"Warn 14-21d":5,"Warn 21-30d":19,"Warn 30+d":0,"Warn - Under Repair":36,"Warn - Rejected":2},{"Office":"SAIID","Under repair":26,"Rejected":3,"Repair Complete":379,"Total":408,"Open (UR+RJ)":29,"Completion":0.9289,"Warnings >7d":17,"Warning share of open":0.5862,"1-7 days":386,"7-14 days":9,"14-21 days":13,"21-30 days":0,"30+ days":0,"Warn 7-14d":4,"Warn 14-21d":13,"Warn 21-30d":0,"Warn 30+d":0,"Warn - Under Repair":14,"Warn - Rejected":3},{"Office":"BENKR","Under repair":28,"Rejected":0,"Repair Complete":142,"Total":170,"Open (UR+RJ)":28,"Completion":0.8353,"Warnings >7d":28,"Warning share of open":1.0,"1-7 days":133,"7-14 days":32,"14-21 days":5,"21-30 days":0,"30+ days":0,"Warn 7-14d":28,"Warn 14-21d":0,"Warn 21-30d":0,"Warn 30+d":0,"Warn - Under Repair":28,"Warn - Rejected":0},{"Office":"CUDEL","Under repair":0,"Rejected":11,"Repair Complete":155,"Total":166,"Open (UR+RJ)":11,"Completion":0.9337,"Warnings >7d":8,"Warning share of open":0.7273,"1-7 days":143,"7-14 days":21,"14-21 days":2,"21-30 days":0,"30+ days":0,"Warn 7-14d":7,"Warn 14-21d":1,"Warn 21-30d":0,"Warn 30+d":0,"Warn - Under Repair":0,"Warn - Rejected":8},{"Office":"CUHPH","Under repair":0,"Rejected":2,"Repair Complete":138,"Total":140,"Open (UR+RJ)":2,"Completion":0.9857,"Warnings >7d":2,"Warning share of open":1.0,"1-7 days":138,"7-14 days":1,"14-21 days":0,"21-30 days":1,"30+ days":0,"Warn 7-14d":1,"Warn 14-21d":0,"Warn 21-30d":1,"Warn 30+d":0,"Warn - Under Repair":0,"Warn - Rejected":2},{"Office":"CUHCM","Under repair":1,"Rejected":1,"Repair Complete":137,"Total":139,"Open (UR+RJ)":2,"Completion":0.9856,"Warnings >7d":0,"Warning share of open":0.0,"1-7 days":138,"7-14 days":1,"14-21 days":0,"21-30 days":0,"30+ days":0,"Warn 7-14d":0,"Warn 14-21d":0,"Warn 21-30d":0,"Warn 30+d":0,"Warn - Under Repair":0,"Warn - Rejected":0},{"Office":"SBLPH","Under repair":35,"Rejected":7,"Repair Complete":58,"Total":100,"Open (UR+RJ)":42,"Completion":0.58,"Warnings >7d":23,"Warning share of open":0.5476,"1-7 days":71,"7-14 days":16,"14-21 days":1,"21-30 days":12,"30+ days":0,"Warn 7-14d":11,"Warn 14-21d":0,"Warn 21-30d":12,"Warn 30+d":0,"Warn - Under Repair":19,"Warn - Rejected":4},{"Office":"CUKWA","Under repair":57,"Rejected":12,"Repair Complete":30,"Total":99,"Open (UR+RJ)":69,"Completion":0.303,"Warnings >7d":68,"Warning share of open":0.9855,"1-7 days":22,"7-14 days":13,"14-21 days":60,"21-30 days":4,"30+ days":0,"Warn 7-14d":11,"Warn 14-21d":53,"Warn 21-30d":4,"Warn 30+d":0,"Warn - Under Repair":56,"Warn - Rejected":12},{"Office":"CUXMN","Under repair":0,"Rejected":0,"Repair Complete":51,"Total":51,"Open (UR+RJ)":0,"Completion":1.0,"Warnings >7d":0,"Warning share of open":0.0,"1-7 days":34,"7-14 days":2,"14-21 days":14,"21-30 days":1,"30+ days":0,"Warn 7-14d":0,"Warn 14-21d":0,"Warn 21-30d":0,"Warn 30+d":0,"Warn - Under Repair":0,"Warn - Rejected":0},{"Office":"SASRG","Under repair":8,"Rejected":2,"Repair Complete":32,"Total":42,"Open (UR+RJ)":10,"Completion":0.7619,"Warnings >7d":2,"Warning share of open":0.2,"1-7 days":40,"7-14 days":2,"14-21 days":0,"21-30 days":0,"30+ days":0,"Warn 7-14d":2,"Warn 14-21d":0,"Warn 21-30d":0,"Warn 30+d":0,"Warn - Under Repair":0,"Warn - Rejected":2},{"Office":"CUDAL","Under repair":1,"Rejected":0,"Repair Complete":16,"Total":17,"Open (UR+RJ)":1,"Completion":0.9412,"Warnings >7d":0,"Warning share of open":0.0,"1-7 days":17,"7-14 days":0,"14-21 days":0,"21-30 days":0,"30+ days":0,"Warn 7-14d":0,"Warn 14-21d":0,"Warn 21-30d":0,"Warn 30+d":0,"Warn - Under Repair":0,"Warn - Rejected":0},{"Office":"SASUB","Under repair":3,"Rejected":2,"Repair Complete":7,"Total":12,"Open (UR+RJ)":5,"Completion":0.5833,"Warnings >7d":5,"Warning share of open":1.0,"1-7 days":5,"7-14 days":1,"14-21 days":6,"21-30 days":0,"30+ days":0,"Warn 7-14d":0,"Warn 14-21d":5,"Warn 21-30d":0,"Warn 30+d":0,"Warn - Under Repair":3,"Warn - Rejected":2},{"Office":"CUTNJ","Under repair":2,"Rejected":0,"Repair Complete":0,"Total":2,"Open (UR+RJ)":2,"Completion":0.0,"Warnings >7d":0,"Warning share of open":0.0,"1-7 days":2,"7-14 days":0,"14-21 days":0,"21-30 days":0,"30+ days":0,"Warn 7-14d":0,"Warn 14-21d":0,"Warn 21-30d":0,"Warn 30+d":0,"Warn - Under Repair":0,"Warn - Rejected":0},{"Office":"TOTAL","Under repair":1080,"Rejected":195,"Repair Complete":8081,"Total":9356,"Open (UR+RJ)":1275,"Completion":0.8637,"Warnings >7d":500,"Warning share of open":0.3922,"1-7 days":8258,"7-14 days":691,"14-21 days":268,"21-30 days":106,"30+ days":33,"Warn 7-14d":246,"Warn 14-21d":152,"Warn 21-30d":73,"Warn 30+d":29,"Warn - Under Repair":359,"Warn - Rejected":141}];
+var OFFICE_ROWS = [{"Office":"SHRJE","Import":9964.0,"VD(MTY)":0.0,"ID-MT":9964.0,"Total repair":null,"Under repair":null,"Rejected":null,"Repair Complete":null,"Open repair volume":null,"Repair / Import":null,"Open / Import":null,"SMD Locations":"SAJED"},{"Office":"CUPKG","Import":5987.0,"VD(MTY)":5649.0,"ID-MT":338.0,"Total repair":1594.0,"Under repair":89.0,"Rejected":5.0,"Repair Complete":1500.0,"Open repair volume":94.0,"Repair / Import":0.266243527643227,"Open / Import":0.01570068481710372,"SMD Locations":"MYPEN, MYPGU, MYPKG"},{"Office":"EGEGL","Import":5066.0,"VD(MTY)":3647.0,"ID-MT":1419.0,"Total repair":null,"Under repair":null,"Rejected":null,"Repair Complete":null,"Open repair volume":null,"Repair / Import":null,"Open / Import":null,"SMD Locations":"EGSOK"},{"Office":"CUSNZ","Import":4593.0,"VD(MTY)":3975.0,"ID-MT":618.0,"Total repair":662.0,"Under repair":25.0,"Rejected":0.0,"Repair Complete":637.0,"Open repair volume":25.0,"Repair / Import":0.1441323753537992,"Open / Import":0.005443065534509036,"SMD Locations":"CNSHK"},{"Office":"CUGGZ","Import":3747.0,"VD(MTY)":3092.0,"ID-MT":655.0,"Total repair":1065.0,"Under repair":30.0,"Rejected":80.0,"Repair Complete":955.0,"Open repair volume":110.0,"Repair / Import":0.2842273819055244,"Open / Import":0.02935681878836402,"SMD Locations":"CNNAS"},{"Office":"CUSHA","Import":3666.0,"VD(MTY)":3124.0,"ID-MT":542.0,"Total repair":1151.0,"Under repair":456.0,"Rejected":22.0,"Repair Complete":673.0,"Open repair volume":478.0,"Repair / Import":0.3139661756683033,"Open / Import":0.1303873431533006,"SMD Locations":"CNSHA"},{"Office":"CUNGB","Import":3612.0,"VD(MTY)":3193.0,"ID-MT":419.0,"Total repair":662.0,"Under repair":111.0,"Rejected":15.0,"Repair Complete":536.0,"Open repair volume":126.0,"Repair / Import":0.1832779623477298,"Open / Import":0.03488372093023256,"SMD Locations":"CNNGB"},{"Office":"CUTAO","Import":2710.0,"VD(MTY)":1894.0,"ID-MT":816.0,"Total repair":619.0,"Under repair":64.0,"Rejected":8.0,"Repair Complete":547.0,"Open repair volume":72.0,"Repair / Import":0.2284132841328413,"Open / Import":0.02656826568265683,"SMD Locations":"CNTAO"},{"Office":"CUTPE","Import":2261.0,"VD(MTY)":0.0,"ID-MT":2261.0,"Total repair":1024.0,"Under repair":40.0,"Rejected":1.0,"Repair Complete":983.0,"Open repair volume":41.0,"Repair / Import":0.4528969482529854,"Open / Import":0.01813356921716055,"SMD Locations":"TWKEL, TWKHH, TWNTC, TWTXG, TWTYN"},{"Office":"SDGTH","Import":2232.0,"VD(MTY)":651.0,"ID-MT":1581.0,"Total repair":null,"Under repair":null,"Rejected":null,"Repair Complete":null,"Open repair volume":null,"Repair / Import":null,"Open / Import":null,"SMD Locations":"THBKK, THLCH"},{"Office":"CUMUN","Import":1523.0,"VD(MTY)":823.0,"ID-MT":700.0,"Total repair":600.0,"Under repair":45.0,"Rejected":2.0,"Repair Complete":553.0,"Open repair volume":47.0,"Repair / Import":0.3939592908732764,"Open / Import":0.03086014445173999,"SMD Locations":"INMUN, INPAT, INSON, INSSA, INTKD"},{"Office":"CUMUM","Import":1470.0,"VD(MTY)":498.0,"ID-MT":972.0,"Total repair":633.0,"Under repair":59.0,"Rejected":22.0,"Repair Complete":552.0,"Open repair volume":81.0,"Repair / Import":0.4306122448979592,"Open / Import":0.05510204081632653,"SMD Locations":"INNSA"},{"Office":"CUIZM","Import":868.0,"VD(MTY)":758.0,"ID-MT":110.0,"Total repair":null,"Under repair":null,"Rejected":null,"Repair Complete":null,"Open repair volume":null,"Repair / Import":null,"Open / Import":null,"SMD Locations":"TRALI"},{"Office":"SBLPH","Import":805.0,"VD(MTY)":0.0,"ID-MT":805.0,"Total repair":100.0,"Under repair":35.0,"Rejected":7.0,"Repair Complete":58.0,"Open repair volume":42.0,"Repair / Import":0.124223602484472,"Open / Import":0.05217391304347826,"SMD Locations":"PHMNL"},{"Office":"RMSPK","Import":801.0,"VD(MTY)":151.0,"ID-MT":650.0,"Total repair":null,"Under repair":null,"Rejected":null,"Repair Complete":null,"Open repair volume":null,"Repair / Import":null,"Open / Import":null,"SMD Locations":"PKKHI"},{"Office":"CUMER","Import":621.0,"VD(MTY)":430.0,"ID-MT":191.0,"Total repair":null,"Under repair":null,"Rejected":null,"Repair Complete":null,"Open repair volume":null,"Repair / Import":null,"Open / Import":null,"SMD Locations":"TRMER"},{"Office":"CUHPH","Import":532.0,"VD(MTY)":0.0,"ID-MT":532.0,"Total repair":140.0,"Under repair":0.0,"Rejected":2.0,"Repair Complete":138.0,"Open repair volume":2.0,"Repair / Import":0.2631578947368421,"Open / Import":0.003759398496240601,"SMD Locations":"VNHPH"},{"Office":"CUXMN","Import":390.0,"VD(MTY)":204.0,"ID-MT":186.0,"Total repair":51.0,"Under repair":0.0,"Rejected":0.0,"Repair Complete":51.0,"Open repair volume":0.0,"Repair / Import":0.1307692307692308,"Open / Import":0.0,"SMD Locations":"CNXMN"},{"Office":"CUHCM","Import":383.0,"VD(MTY)":257.0,"ID-MT":126.0,"Total repair":139.0,"Under repair":1.0,"Rejected":1.0,"Repair Complete":137.0,"Open repair volume":2.0,"Repair / Import":0.3629242819843342,"Open / Import":0.005221932114882507,"SMD Locations":"VNSGN"},{"Office":"SHRSA","Import":358.0,"VD(MTY)":0.0,"ID-MT":358.0,"Total repair":null,"Under repair":null,"Rejected":null,"Repair Complete":null,"Open repair volume":null,"Repair / Import":null,"Open / Import":null,"SMD Locations":"SADMM"},{"Office":"CUKWA","Import":340.0,"VD(MTY)":110.0,"ID-MT":230.0,"Total repair":99.0,"Under repair":57.0,"Rejected":12.0,"Repair Complete":30.0,"Open repair volume":69.0,"Repair / Import":0.2911764705882353,"Open / Import":0.2029411764705882,"SMD Locations":"JPNGO, JPOSA, JPTYO, JPUKB, JPYOK"},{"Office":"CUSAA","Import":336.0,"VD(MTY)":290.0,"ID-MT":46.0,"Total repair":null,"Under repair":null,"Rejected":null,"Repair Complete":null,"Open repair volume":null,"Repair / Import":null,"Open / Import":null,"SMD Locations":"CNSWA"},{"Office":"BENKR","Import":309.0,"VD(MTY)":99.0,"ID-MT":210.0,"Total repair":170.0,"Under repair":28.0,"Rejected":0.0,"Repair Complete":142.0,"Open repair volume":28.0,"Repair / Import":0.5501618122977346,"Open / Import":0.09061488673139159,"SMD Locations":"KRINC, KRKAN, KRPUS"},{"Office":"SAIID","Import":294.0,"VD(MTY)":0.0,"ID-MT":294.0,"Total repair":408.0,"Under repair":26.0,"Rejected":3.0,"Repair Complete":379.0,"Open repair volume":29.0,"Repair / Import":1.387755102040816,"Open / Import":0.09863945578231292,"SMD Locations":"IDJKT"},{"Office":"CUDEL","Import":150.0,"VD(MTY)":0.0,"ID-MT":150.0,"Total repair":166.0,"Under repair":0.0,"Rejected":11.0,"Repair Complete":155.0,"Open repair volume":11.0,"Repair / Import":1.106666666666667,"Open / Import":0.07333333333333333,"SMD Locations":"INDDL, INDER, INHAR, INKHO"},{"Office":"SABLW","Import":127.0,"VD(MTY)":100.0,"ID-MT":27.0,"Total repair":null,"Under repair":null,"Rejected":null,"Repair Complete":null,"Open repair volume":null,"Repair / Import":null,"Open / Import":null,"SMD Locations":"IDBLW"},{"Office":"SASUB","Import":34.0,"VD(MTY)":0.0,"ID-MT":34.0,"Total repair":12.0,"Under repair":3.0,"Rejected":2.0,"Repair Complete":7.0,"Open repair volume":5.0,"Repair / Import":0.3529411764705883,"Open / Import":0.1470588235294118,"SMD Locations":"IDSUB"},{"Office":"CUDAL","Import":20.0,"VD(MTY)":20.0,"ID-MT":0.0,"Total repair":17.0,"Under repair":1.0,"Rejected":0.0,"Repair Complete":16.0,"Open repair volume":1.0,"Repair / Import":0.85,"Open / Import":0.05,"SMD Locations":"CNDAL"},{"Office":"SASRG","Import":9.0,"VD(MTY)":0.0,"ID-MT":9.0,"Total repair":42.0,"Under repair":8.0,"Rejected":2.0,"Repair Complete":32.0,"Open repair volume":10.0,"Repair / Import":4.666666666666667,"Open / Import":1.111111111111111,"SMD Locations":"IDSRG"},{"Office":"CUTNJ","Import":null,"VD(MTY)":null,"ID-MT":null,"Total repair":2.0,"Under repair":2.0,"Rejected":0.0,"Repair Complete":0.0,"Open repair volume":2.0,"Repair / Import":null,"Open / Import":null,"SMD Locations":null},{"Office":"TOTAL","Import":53208.0,"VD(MTY)":28965.0,"ID-MT":24243.0,"Total repair":9356.0,"Under repair":1080.0,"Rejected":195.0,"Repair Complete":8081.0,"Open repair volume":1275.0,"Repair / Import":0.1758382198165689,"Open / Import":0.02396256202074876,"SMD Locations":null}];
+var BOXES = ['20GP','20HC','40GP','40HC'];
+var AGING = {"all":[{"label":"1-7d","key":"1-7 days","value":8258,"color":"#6e9ac7"},{"label":"7-14d","key":"7-14 days","value":691,"color":"#e0b352"},{"label":"14-21d","key":"14-21 days","value":268,"color":"#e39a1c"},{"label":"21-30d","key":"21-30 days","value":106,"color":"#e0564f"},{"label":"30+d","key":"30+ days","value":33,"color":"#a51f2a"}],"warn":[{"label":"7-14d","value":246,"color":"#e0b352"},{"label":"14-21d","value":152,"color":"#e39a1c"},{"label":"21-30d","value":73,"color":"#e0564f"},{"label":"30+d","value":29,"color":"#a51f2a"}],"warnTotal":500,"allOver7":1098,"warnUR":359,"warnRJ":141,"total":9356,"open":1275};
+var LC = {"cols":["MT","ID","IC"],"rows":[{"loc":"CNNGB","v":{"MT":720,"IC":1},"t":721,"c":[{"cur":"CNY","n":295,"s":135860.0,"a":460.54,"u":20346.1024},{"cur":"USD","n":1,"s":380.0,"a":380.0,"u":380.0}],"n":296,"u":20726.1024},{"loc":"CNSHA","v":{"MT":528,"ID":7,"IC":26},"t":561,"c":[{"cur":"CNY","n":845,"s":302512.0,"a":358.0,"u":45303.5487},{"cur":"USD","n":12,"s":1866.69,"a":155.56,"u":1866.69}],"n":857,"u":47170.2387},{"loc":"SAJED","v":{"MT":229,"ID":202,"IC":57},"t":488,"c":[],"n":0,"u":0},{"loc":"CNSHK","v":{"MT":317,"ID":3,"IC":2},"t":322,"c":[{"cur":"CNY","n":516,"s":186226.0,"a":360.9,"u":27888.8066},{"cur":"USD","n":19,"s":7700.0,"a":405.26,"u":7700.0}],"n":535,"u":35588.8066},{"loc":"CNNAS","v":{"MT":263,"ID":14,"IC":8},"t":285,"c":[{"cur":"CNY","n":1146,"s":649744.0,"a":566.97,"u":97304.2687}],"n":1146,"u":97304.2687},{"loc":"YEADE","v":{"MT":9,"ID":16,"IC":167},"t":192,"c":[],"n":0,"u":0},{"loc":"CNTAO","v":{"MT":184,"IC":3},"t":187,"c":[{"cur":"CNY","n":847,"s":331765.0,"a":391.69,"u":49684.4153}],"n":847,"u":49684.4153},{"loc":"MYPKG","v":{"MT":168,"ID":4,"IC":3},"t":175,"c":[{"cur":"USD","n":8,"s":820.0,"a":102.5,"u":820.0},{"cur":"CNY","n":1,"s":560.0,"a":560.0,"u":83.8644}],"n":9,"u":903.8644},{"loc":"THLCH","v":{"MT":156},"t":156,"c":[{"cur":"USD","n":68,"s":5175.26,"a":76.11,"u":5175.26}],"n":68,"u":5175.26},{"loc":"TRALI","v":{"MT":142},"t":142,"c":[],"n":0,"u":0},{"loc":"AESCT","v":{"MT":117},"t":117,"c":[],"n":0,"u":0},{"loc":"AEJEA","v":{"MT":115,"ID":1},"t":116,"c":[{"cur":"USD","n":207,"s":67005.79,"a":323.7,"u":67005.79}],"n":207,"u":67005.79},{"loc":"INNSA","v":{"MT":71,"ID":25,"IC":1},"t":97,"c":[],"n":0,"u":0},{"loc":"EGSOK","v":{"MT":84,"ID":1,"IC":3},"t":88,"c":[],"n":0,"u":0},{"loc":"TRIST","v":{"MT":74},"t":74,"c":[],"n":0,"u":0},{"loc":"TRMER","v":{"MT":71,"IC":3},"t":74,"c":[],"n":0,"u":0},{"loc":"DZALG","v":{"MT":32,"ID":4,"IC":20},"t":56,"c":[],"n":0,"u":0},{"loc":"DJJIB","v":{"MT":38,"ID":4,"IC":8},"t":50,"c":[],"n":0,"u":0},{"loc":"TRISK","v":{"MT":50},"t":50,"c":[],"n":0,"u":0},{"loc":"INMUN","v":{"MT":42,"ID":3,"IC":1},"t":46,"c":[],"n":0,"u":0},{"loc":"SDPZU","v":{"MT":14,"ID":21,"IC":11},"t":46,"c":[],"n":0,"u":0},{"loc":"CNZPU","v":{"MT":44},"t":44,"c":[{"cur":"CNY","n":13,"s":5100.0,"a":392.31,"u":763.7651}],"n":13,"u":763.7651},{"loc":"CNSWA","v":{"MT":42,"IC":2},"t":44,"c":[],"n":0,"u":0},{"loc":"PKKHI","v":{"MT":31,"IC":12},"t":43,"c":[],"n":0,"u":0},{"loc":"TWKHH","v":{"MT":25,"ID":3,"IC":14},"t":42,"c":[],"n":0,"u":0},{"loc":"OMSOH","v":{"MT":41},"t":41,"c":[],"n":0,"u":0},{"loc":"CNHUA","v":{"MT":29,"IC":7},"t":36,"c":[{"cur":"CNY","n":47,"s":16573.56,"a":352.63,"u":2482.0208}],"n":47,"u":2482.0208},{"loc":"TWKEL","v":{"MT":20,"ID":3,"IC":12},"t":35,"c":[],"n":0,"u":0},{"loc":"JPNGO","v":{"MT":34},"t":34,"c":[],"n":0,"u":0},{"loc":"CNXMN","v":{"MT":33},"t":33,"c":[{"cur":"CNY","n":3,"s":1050.0,"a":350.0,"u":157.2457}],"n":3,"u":157.2457},{"loc":"THBKK","v":{"MT":19,"ID":4,"IC":6},"t":29,"c":[{"cur":"USD","n":67,"s":4665.02,"a":69.63,"u":4665.02}],"n":67,"u":4665.02},{"loc":"TWTPE","v":{"MT":11,"ID":3,"IC":11},"t":25,"c":[],"n":0,"u":0},{"loc":"IDJKT","v":{"MT":18},"t":18,"c":[{"cur":"USD","n":10,"s":1180.0,"a":118.0,"u":1180.0}],"n":10,"u":1180.0},{"loc":"EGALY","v":{"MT":17,"IC":1},"t":18,"c":[],"n":0,"u":0},{"loc":"TRIZT","v":{"MT":16},"t":16,"c":[],"n":0,"u":0},{"loc":"TWTXG","v":{"MT":2,"ID":5,"IC":6},"t":13,"c":[],"n":0,"u":0},{"loc":"JOAQJ","v":{"MT":7,"IC":4},"t":11,"c":[],"n":0,"u":0},{"loc":"PHMNL","v":{"MT":7},"t":7,"c":[],"n":0,"u":0},{"loc":"THSCS","v":{"MT":7},"t":7,"c":[],"n":0,"u":0},{"loc":"TWNTC","v":{"MT":6,"ID":1},"t":7,"c":[],"n":0,"u":0},{"loc":"JPTYO","v":{"MT":6},"t":6,"c":[],"n":0,"u":0},{"loc":"JPYOK","v":{"MT":6},"t":6,"c":[],"n":0,"u":0},{"loc":"CNHMN","v":{"MT":4,"IC":1},"t":5,"c":[],"n":0,"u":0},{"loc":"KRPUS","v":{"MT":4},"t":4,"c":[{"cur":"KRW","n":81,"s":17520125.0,"a":216297.84,"u":13233.6813},{"cur":"USD","n":40,"s":6548.0,"a":163.7,"u":6548.0}],"n":121,"u":19781.6813},{"loc":"KEMBA","v":{"MT":4},"t":4,"c":[{"cur":"USD","n":6,"s":3010.0,"a":501.67,"u":3010.0}],"n":6,"u":3010.0},{"loc":"AEQIW","v":{"MT":4},"t":4,"c":[],"n":0,"u":0},{"loc":"JPUKB","v":{"MT":4},"t":4,"c":[],"n":0,"u":0},{"loc":"KRKAN","v":{"MT":4},"t":4,"c":[],"n":0,"u":0},{"loc":"IDBLW","v":{"MT":2,"ID":1},"t":3,"c":[{"cur":"USD","n":8,"s":898.0,"a":112.25,"u":898.0}],"n":8,"u":898.0},{"loc":"IDSUB","v":{"MT":3},"t":3,"c":[{"cur":"USD","n":7,"s":758.0,"a":108.29,"u":758.0}],"n":7,"u":758.0},{"loc":"AEASJ","v":{"MT":2},"t":2,"c":[],"n":0,"u":0},{"loc":"INHAR","v":{"MT":2},"t":2,"c":[],"n":0,"u":0},{"loc":"PHMNN","v":{"ID":1,"IC":1},"t":2,"c":[],"n":0,"u":0},{"loc":"VNHPH","v":{"IC":2},"t":2,"c":[],"n":0,"u":0},{"loc":"IDSRG","v":{"MT":1},"t":1,"c":[{"cur":"USD","n":56,"s":3413.0,"a":60.95,"u":3413.0}],"n":56,"u":3413.0},{"loc":"VNSGN","v":{"MT":1},"t":1,"c":[{"cur":"USD","n":37,"s":4925.09,"a":133.11,"u":4925.09}],"n":37,"u":4925.09},{"loc":"AEKLF","v":{"MT":1},"t":1,"c":[],"n":0,"u":0},{"loc":"CNFOS","v":{"MT":1},"t":1,"c":[],"n":0,"u":0},{"loc":"ETADD","v":{"MT":1},"t":1,"c":[],"n":0,"u":0},{"loc":"HKHKG","v":{"MT":1},"t":1,"c":[],"n":0,"u":0},{"loc":"INLUD","v":{"MT":1},"t":1,"c":[],"n":0,"u":0},{"loc":"JOAMM","v":{"MT":1},"t":1,"c":[],"n":0,"u":0},{"loc":"JPOSA","v":{"MT":1},"t":1,"c":[],"n":0,"u":0},{"loc":"CNDAL","v":{},"t":0,"c":[{"cur":"CNY","n":129,"s":65145.0,"a":505.0,"u":9755.9756}],"n":129,"u":9755.9756},{"loc":"MYPGU","v":{},"t":0,"c":[{"cur":"MYR","n":6,"s":2760.0,"a":460.0,"u":675.5968}],"n":6,"u":675.5968},{"loc":"CNTNJ","v":{},"t":0,"c":[{"cur":"CNY","n":4,"s":540.0,"a":135.0,"u":80.8692}],"n":4,"u":80.8692},{"loc":"MYPEN","v":{},"t":0,"c":[{"cur":"MYR","n":3,"s":1233.0,"a":411.0,"u":301.8155},{"cur":"USD","n":1,"s":72.0,"a":72.0,"u":72.0}],"n":4,"u":373.8155}],"sel":6830,"sub":4606,"all":28344,"locNAll":68,"date":"2026-10-26","src":"lease_SBI_summary_20261026.xlsx","chg":{"done":4483,"skip":463,"rowsTotal":4946,"locN":29,"curs":[{"cur":"KRW","n":81,"costSum":17520125.0,"costAvg":216297.84,"costUsd":13233.6813},{"cur":"CNY","n":3846,"costSum":1695075.56,"costAvg":440.74,"costUsd":253850.8825},{"cur":"USD","n":547,"costSum":108416.85,"costAvg":198.2,"costUsd":108416.85},{"cur":"MYR","n":9,"costSum":3993.0,"costAvg":443.67,"costUsd":977.4123}],"noCostN":102,"nWithCost":4381,"usdTotal":376478.83,"usdAvg":85.93,"fx":{"src":"open.er-api.com (mid-market)","date":"2026-10-26","perUsd":{"CNY":6.677446,"KRW":1323.904108,"MYR":4.085277,"USD":1.0}}},"both":19,"leaseOnly":44,"chgOnly":4,"leaseLocN":63};
+function $(id){return document.getElementById(id)}
+function fmt(v){return Number(v||0).toLocaleString('en-US')}
+function pct(v){return (Number(v||0)*100).toFixed(1)+'%'}
+function esc(v){return String(v==null?'':v).replace(/[&<>\"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]})}
+function rowByOffice(){return ROWS.filter(function(r){return r.Office!=='TOTAL'}).slice().sort(function(a,b){return b.Total-a.Total})}
+function renderTiers(){var arr=AGING.warn;var mx=arr.reduce(function(a,x){return Math.max(a,x.value)},1);$('warn-tiers').innerHTML=arr.map(function(x){return '<div class="tw" style="--c:'+x.color+'"><div class="tw-l">'+x.label+'</div><div class="tw-v">'+fmt(x.value)+'</div><div class="tw-f">Warning orders</div><div class="tw-bar"><i style="width:'+Math.round(x.value/mx*100)+'%"></i></div></div>'}).join('')}
+function renderRanks(){var rows=rowByOffice(),max=rows[0].Total;$('rank-list').innerHTML=rows.map(function(r,i){var warn=Number(r['Warnings >7d']||0),ratio=Number(r['Warning share of open']||0);return '<div class="rk" data-ofc="'+esc(r.Office)+'" data-ur="'+(r['Under repair']||0)+'" data-rj="'+(r.Rejected||0)+'" data-rc="'+(r['Repair Complete']||0)+'" data-tot="'+(r.Total||0)+'" data-warn="'+warn+'" data-ratio="'+ratio+'" title="'+esc(r.Office)+' · Under Repair '+fmt(r['Under repair'])+' / Rejected '+fmt(r.Rejected)+' / Complete '+fmt(r['Repair Complete'])+' / Of '+fmt(r.Total)+'"><div class="rk-no">'+(i+1)+'</div><div class="rk-ofc">'+esc(r.Office)+'</div><div class="rk-bar"><span style="width:'+(r['Under repair']/r.Total*100)+'%;background:var(--ur)"></span><span style="width:'+(r.Rejected/r.Total*100)+'%;background:var(--rj)"></span><span style="width:'+(r['Repair Complete']/r.Total*100)+'%;background:var(--rc)"></span></div><div class="rk-num">'+fmt(r.Total)+'</div><div class="rk-warn"><span class="pill '+(ratio>=.5?'warn':ratio>=.25?'risk':ratio>0?'watch':'ok')+'">'+fmt(warn)+'</span></div><div class="rk-ratio">'+pct(ratio)+'</div></div>'}).join('')}
+function renderAging(){var mxA=AGING.all.reduce(function(a,x){return Math.max(a,x.value)},0)||1;$('age-cols').innerHTML=AGING.all.map(function(x){return '<div class="ac"><div class="ac-v">'+fmt(x.value)+'</div><div class="ac-b" style="height:'+Math.max(4,Math.round(x.value/mxA*118))+'px;background:'+x.color+'"></div></div>'}).join('');var wm={};AGING.warn.forEach(function(x){wm[x.label]=x});var mxW=AGING.warn.reduce(function(a,x){return Math.max(a,x.value)},0)||1;$('age-warn-cols').innerHTML=AGING.all.map(function(x){var w=wm[x.label];if(!w){return '<div class="ac"><div class="ac-w off">&mdash;</div><div class="ac-b off" style="height:8px"></div><div class="ac-l">'+x.label+'<em>no warning</em></div></div>'}return '<div class="ac"><div class="ac-w">'+fmt(w.value)+'</div><div class="ac-b" style="height:'+Math.max(8,Math.round(w.value/mxW*72))+'px;background:'+w.color+'"></div><div class="ac-l">'+x.label+'<em>Warning zone</em></div></div>'}).join('');$('age-lbl-all').innerHTML='All work orders by aging <span class="pl">Total '+fmt(AGING.total)+' cases · over 7 days: '+fmt(AGING.allOver7)+' cases</span>';$('age-lbl-warn').innerHTML='Of which open warnings (Under Repair + Rejected) <b>'+fmt(AGING.warnTotal)+' cases</b><span class="pl">Under Repair '+fmt(AGING.warnUR)+' · Rejected '+fmt(AGING.warnRJ)+' · share of open '+pct(AGING.open?AGING.warnTotal/AGING.open:0)+'</span>';var parts=AGING.warn.map(function(x){return x.label+' '+fmt(x.value)}).join(', ');$('age-note').innerHTML='<span class="ni">!</span><span>Top row = aging of <b>all statuses</b> (repair complete included), over 7 days: <b>'+fmt(AGING.allOver7)+' cases</b>; bottom row = the <b>open warning</b> subset (Under Repair + Rejected), total <b>'+fmt(AGING.warnTotal)+' cases</b>: '+parts+', i.e. Under Repair '+fmt(AGING.warnUR)+' + Rejected '+fmt(AGING.warnRJ)+'. The bottom row is a subset of the ">7 days" part of the top row; the two bases differ.</span>'}
+function renderBanner(){$('chip-warn').textContent=fmt(AGING.warnTotal)+' units';$('chip-repair').textContent=fmt(AGING.total)+' records';$('wb-total').textContent=fmt(AGING.warnTotal);$('wb-ur').textContent=fmt(AGING.warnUR);$('wb-rj').textContent=fmt(AGING.warnRJ);$('wb-pct').textContent=pct(AGING.open?AGING.warnTotal/AGING.open:0)}
+function boxRow(office, rep, imp){return '<tr><td class="lft"><b>'+esc(office)+'</b></td>'+BOXES.map(function(b){return '<td class="tbd">'+(rep[office]&&rep[office][b]!=null?fmt(rep[office][b]):'—')+'</td>'}).join('')+BOXES.map(function(b){return '<td class="tbd">'+(imp[office]&&imp[office][b]!=null?fmt(imp[office][b]):'—')+'</td>'}).join('')+'<td class="tbd">—</td></tr>'}
+function renderBox(rep,imp){$('box-tbody').innerHTML=rowByOffice().map(function(r){return boxRow(r.Office,rep||{},imp||{})}).join('')}
+function renderDetails(filter){var rows=rowByOffice().filter(function(r){return !filter||String(r.Office).toLowerCase().indexOf(filter.toLowerCase())>=0});$('detail-tbody').innerHTML=rows.map(function(r){var ratio=Number(r['Warning share of open']||0);return '<tr><td class="lft"><b>'+esc(r.Office)+'</b></td><td class="num">'+fmt(r['Under repair'])+'</td><td class="num">'+fmt(r.Rejected)+'</td><td class="num good">'+fmt(r['Repair Complete'])+'</td><td class="num">'+fmt(r.Total)+'</td><td class="num">'+fmt(r['Open (UR+RJ)'])+'</td><td class="num">'+pct(r['Completion'])+'</td><td class="num '+(Number(r['Warnings >7d'])>=20?'hi':'')+'">'+fmt(r['Warnings >7d'])+'</td><td class="num '+(ratio>=.5?'hi':ratio>=.25?'mid':'')+'">'+pct(ratio)+'</td><td>'+fmt(r['1-7 days'])+'</td><td>'+fmt(r['7-14 days'])+'</td><td>'+fmt(r['14-21 days'])+'</td><td>'+fmt(r['21-30 days'])+'</td><td>'+fmt(r['30+ days'])+'</td></tr>'}).join('')}
+function renderOfficeImport(){var rows=OFFICE_ROWS.filter(function(r){return r.Office&&r.Office!=='TOTAL'});function has(v){return v!==null&&v!==undefined&&v!==''&&String(v).toLowerCase()!=='nan'}var mx=Math.max.apply(null,rows.map(function(r){return has(r['Import'])?Number(r['Import']):0}))||1;$('office-import-tbody').innerHTML=rows.map(function(r){var hasImp=has(r['Import']),hasRep=has(r['Total repair']),hasOpen=has(r['Open repair volume']);var imp=hasImp?Number(r['Import']):0,rep=hasRep?Number(r['Total repair']):0,op=hasOpen?Number(r['Open repair volume']):0;var ri=(hasRep&&hasImp&&imp)?rep/imp:null,oi=(hasOpen&&hasImp&&imp)?op/imp:null;return '<tr><td class="lft"><b>'+esc(r.Office)+'</b></td><td class="num" style="position:relative">'+(hasImp?'<span style="position:absolute;left:0;top:0;bottom:0;background:rgba(31,158,110,.16);width:'+Math.round(imp/mx*100)+'%"></span><span style="position:relative">'+fmt(imp)+'</span>':'<span class="tbd">—</span>')+'</td><td class="num">'+(hasImp?fmt(r['VD(MTY)']):'<span class="tbd">—</span>')+'</td><td class="num">'+(hasImp?fmt(r['ID-MT']):'<span class="tbd">—</span>')+'</td><td class="num">'+(hasRep?fmt(rep):'<span class="tbd">—</span>')+'</td><td class="num">'+(hasOpen?fmt(op):'<span class="tbd">—</span>')+'</td><td class="num '+(ri==null?'':ri>=.5?'hi':ri>=.25?'mid':'good')+'">'+(ri==null?'<span class="tbd">—</span>':pct(ri))+'</td><td class="num '+(oi==null?'':oi>=.2?'hi':'')+'">'+(oi==null?'<span class="tbd">—</span>':pct(oi))+'</td><td class="lft" style="white-space:normal;max-width:360px;font-size:11.5px;color:var(--muted)">'+esc(r['SMD Locations']||'')+'</td></tr>'}).join('')+'<tr class="total-row"><td class="lft">TOTAL</td><td class="num">'+fmt(sumOf(rows,'Import'))+'</td><td class="num">'+fmt(sumOf(rows,'VD(MTY)'))+'</td><td class="num">'+fmt(sumOf(rows,'ID-MT'))+'</td><td class="num">'+fmt(sumOf(rows,'Total repair'))+'</td><td class="num">'+fmt(sumOf(rows,'Open repair volume'))+'</td><td class="num">'+pct(sumOf(rows,'Total repair')/sumOf(rows,'Import'))+'</td><td class="num">'+pct(sumOf(rows,'Open repair volume')/sumOf(rows,'Import'))+'</td><td class="lft"></td></tr>'}
+function sumOf(rows,key){var t=0;rows.forEach(function(r){var v=r[key];if(v!==null&&v!==undefined&&v!==''&&String(v).toLowerCase()!=='nan')t+=Number(v)});return t}
+function sevOf(r){if(Number(r['Warn 30+d']||0)>0)return{t:'Overdue',c:'warn'};if(Number(r['Warn 21-30d']||0)>0)return{t:'High risk',c:'risk'};if(Number(r['Warn 14-21d']||0)>0)return{t:'Watch',c:'watch'};return{t:'Monitor',c:'ok'}}
+function renderWorst(){var el=$('worst-tbody');if(!el)return;var rows=rowByOffice().filter(function(r){return Number(r['Warnings >7d']||0)>0}).sort(function(a,b){var d=Number(b['Warnings >7d']||0)-Number(a['Warnings >7d']||0);if(d!==0)return d;return Number(b['Warning share of open']||0)-Number(a['Warning share of open']||0)}).slice(0,10);el.innerHTML=rows.map(function(r,i){var sv=sevOf(r),warn=Number(r['Warnings >7d']||0),ratio=Number(r['Warning share of open']||0);return '<tr><td class="num">'+(i+1)+'</td><td class="lft"><b>'+esc(r.Office)+'</b></td><td class="num">'+fmt(r.Total)+'</td><td class="num">'+fmt(r['Open (UR+RJ)'])+'</td><td class="num '+(warn>=50?'hi':'')+'">'+fmt(warn)+'</td><td class="num '+(ratio>=.5?'hi':ratio>=.25?'mid':'')+'">'+pct(ratio)+'</td><td>'+fmt(r['Warn 7-14d'])+'</td><td>'+fmt(r['Warn 14-21d'])+'</td><td>'+fmt(r['Warn 21-30d'])+'</td><td>'+fmt(r['Warn 30+d'])+'</td><td><span class="pill '+sv.c+'">'+sv.t+'</span></td></tr>'}).join('')}
+/* ---- module show / hide ---- */
+function initModuleBar(){
+ var secs=[].slice.call(document.querySelectorAll('.wrap > section'));
+ if(secs.length<6)return;
+ var defs=[['kpis','Key metrics'],['warn','Warnings >7d'],['rank','Repair by Location'],['import','Estimate Office × Import Volume'],['detail','Repair Detail Summary'],['lease','Prefix fleet × prefix change']];
+ var mods=secs.slice(0,6).map(function(s,i){s.id='mod-'+defs[i][0];return {key:defs[i][0],label:defs[i][1],el:s,ctrls:[]}});
+ function setState(m,hide,save){
+ m.el.classList.toggle('sec-hidden',hide);
+ m.ctrls.forEach(function(f){f(hide)});
+ if(save!==false){try{localStorage.setItem('mod_'+m.key,hide?'1':'0')}catch(e){}}
+ }
+ var bar=document.createElement('div');bar.className='mod-bar';
+ var inner=document.createElement('div');inner.className='mod-bar-in';
+ inner.insertAdjacentHTML('beforeend','<span class="mb-title">Modules</span>');
+ mods.forEach(function(m){
+ var b=document.createElement('button');b.type='button';b.className='mod-chip';
+ b.innerHTML='<span class="dotm"></span><span class="eye">&#9673;</span><span>'+m.label+'</span>';
+ b.title='Show / hide "'+m.label+'"';
+ b.addEventListener('click',function(){setState(m,!m.el.classList.contains('sec-hidden'))});
+ m.ctrls.push(function(hide){b.classList.toggle('off',hide);b.querySelector('.eye').innerHTML=hide?'&#9678;':'&#9673;'});
+ inner.appendChild(b);
+ var head=m.el.querySelector('.sec-head');
+ if(head){
+ var cb=document.createElement('button');cb.type='button';cb.className='mod-btn';
+ cb.innerHTML='<span class="chev">&#9662;</span><span class="lbl">Collapse</span>';
+ cb.title='Collapse / expand this module';
+ cb.addEventListener('click',function(){setState(m,!m.el.classList.contains('sec-hidden'))});
+ m.ctrls.push(function(hide){cb.querySelector('.chev').innerHTML=hide?'&#9656;':'&#9662;';cb.querySelector('.lbl').textContent=hide?'Expand':'Collapse';cb.classList.toggle('is-off',hide)});
+ head.appendChild(cb);
+ }
+ });
+ var all=document.createElement('div');all.className='mb-all';
+ var bS=document.createElement('button');bS.type='button';bS.className='mod-chip solid';bS.textContent='Expand all';
+ var bH=document.createElement('button');bH.type='button';bH.className='mod-chip';bH.textContent='Collapse all';
+ bS.addEventListener('click',function(){mods.forEach(function(m){setState(m,false)})});
+ bH.addEventListener('click',function(){mods.forEach(function(m){setState(m,true)})});
+ all.appendChild(bS);all.appendChild(bH);inner.appendChild(all);
+ bar.appendChild(inner);
+ var hero=document.querySelector('header.hero');
+ if(hero&&hero.parentNode){hero.parentNode.insertBefore(bar,hero.nextSibling)}else{document.body.insertBefore(bar,document.body.firstChild)}
+ mods.forEach(function(m){try{if(localStorage.getItem('mod_'+m.key)==='1')setState(m,true,false)}catch(e){}});
+}
+/* ---- card-level collapse (e.g. Box Type) ---- */
+function initCardToggles(){
+ [].slice.call(document.querySelectorAll('.wrap .card')).forEach(function(card){
+ var h3=card.querySelector('h3');
+ if(!h3||h3.querySelector('.mod-btn'))return;
+ var body=document.createElement('div');body.className='card-body';
+ var n=h3.nextSibling;
+ while(n){var nx=n.nextSibling;body.appendChild(n);n=nx;}
+ card.appendChild(body);
+ var cb=document.createElement('button');cb.type='button';cb.className='mod-btn';
+ cb.style.marginLeft='auto';
+ cb.innerHTML='<span class="chev">&#9662;</span><span class="lbl">Collapse</span>';
+ cb.title='Collapse / expand this module';
+ cb.addEventListener('click',function(){
+ var hide=!body.classList.contains('hidden');
+ body.classList.toggle('hidden',hide);
+ cb.querySelector('.chev').innerHTML=hide?'&#9656;':'&#9662;';
+ cb.querySelector('.lbl').textContent=hide?'Expand':'Collapse';
+ cb.classList.toggle('is-off',hide);
+ });
+ h3.appendChild(cb);
+ });
+}
+/* ---- hover tooltip: Repair Volume by Officeexact figures ---- */
+var RK_TIP=null;
+function initRankTip(){
+ var list=$('rank-list');if(!list)return;
+ if(!RK_TIP){RK_TIP=document.createElement('div');RK_TIP.className='rk-tip';document.body.appendChild(RK_TIP)}
+ var tip=RK_TIP;
+ function hide(){tip.classList.remove('on')}
+ function show(e){
+ var rk=e.target&&e.target.closest?e.target.closest('.rk'):null;
+ if(!rk||!rk.dataset||!rk.dataset.ofc){hide();return}
+ var d=rk.dataset;
+ tip.innerHTML='<div class="tt-h">'+esc(d.ofc)+'</div>'
+ +'<div class="tt-r"><span><i class="tt-d" style="background:var(--ur)"></i>Under Repair</span><b>'+fmt(d.ur)+'</b></div>'
+ +'<div class="tt-r"><span><i class="tt-d" style="background:var(--rj)"></i>Rejected</span><b>'+fmt(d.rj)+'</b></div>'
+ +'<div class="tt-r"><span><i class="tt-d" style="background:var(--rc)"></i>Repair Complete</span><b>'+fmt(d.rc)+'</b></div>'
+ +'<div class="tt-sep"></div>'
+ +'<div class="tt-r tt-tot"><span>Total repair</span><b>'+fmt(d.tot)+'</b></div>'
+ +'<div class="tt-r tt-warn"><span>Warnings >7d</span><b>'+fmt(d.warn)+' · '+pct(d.ratio)+'</b></div>';
+ tip.classList.add('on');
+ var x=e.clientX+15,y=e.clientY+15,w=tip.offsetWidth,h=tip.offsetHeight;
+ if(x+w>window.innerWidth-10)x=Math.max(8,e.clientX-w-15);
+ if(y+h>window.innerHeight-10)y=Math.max(8,e.clientY-h-15);
+ tip.style.left=x+'px';tip.style.top=y+'px';
+ }
+ list.addEventListener('mousemove',show);
+ list.addEventListener('mouseleave',hide);
+ window.addEventListener('scroll',hide,true);
+}
+
+function fmt4(v){return Number(v||0).toLocaleString('en-US',{minimumFractionDigits:4,maximumFractionDigits:4})}
+function fmt2(v){return Number(v||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function ccyLines(list,key){
+ if(!list||!list.length)return '<span class="tbd">\u2014</span>';
+ return list.map(function(x){return '<div class="ccy"><b>'+esc(x.cur)+'</b> '+fmt2(key==='a'?x.a:x.s)+'</div>'}).join('');
+}
+/* merged report: lease (Movement columns) + prefix change (completed, cost per currency); rows = union of locations */
+function renderLC(filter){
+ if(!LC||!LC.rows)return;
+ var cols=LC.cols||[], rows=LC.rows||[], C=LC.chg;
+ var f=(filter||'').trim().toLowerCase();
+ var mx=1;rows.forEach(function(r){if(Number(r.t)>mx)mx=Number(r.t)});
+ var nC=C?5:0;
+ $('lc-head-g').innerHTML='<th class="lft grp-box" rowspan="2">Location</th>'
+ +'<th class="grp-box" colspan="'+(cols.length+1)+'">Prefix-filtered fleet (MT / ID / IC)</th>'
+ +(C?'<th class="grp-box2" colspan="5">Prefix change (completed · Date of Change is a date)</th>':'');
+ $('lc-head').innerHTML=cols.map(function(k){return '<th class="sh">'+esc(k)+'</th>'}).join('')
+ +'<th class="sh tot">Total</th>'
+ +(C?'<th class="sh">Changed</th><th class="sh">Change / units</th><th class="sh">Cost (local ccy)</th><th class="sh">Cost (USD)</th><th class="sh">Avg cost (USD)</th>':'');
+ var shown=rows.filter(function(r){return !f||String(r.loc).toLowerCase().indexOf(f)>=0});
+ $('lc-tbody').innerHTML=shown.map(function(r){
+ var w=Math.round(Number(r.t)/mx*100), t=Number(r.t)||0, nn=Number(r.n)||0;
+ return '<tr><td class="lft"><b>'+esc(r.loc)+'</b><span class="bar" style="width:'+w+'%"></span></td>'
+ +cols.map(function(k){var v=Number(r.v[k]||0);
+ return '<td class="num'+(v?'':' z')+'">'+(v?fmt(v):'\u2014')+'</td>'}).join('')
+ +'<td class="num tot"><b>'+fmt(t)+'</b></td>'
+ +(C?'<td class="num'+(nn?'':' z')+'">'+(nn?fmt(nn):'\u2014')+'</td>'
+ +'<td class="num'+(t?'':' z')+'">'+(t&&nn?pct(nn/t):'\u2014')+'</td>'
+ +'<td class="num">'+ccyLines(r.c,'s')+'</td>'
+ +'<td class="num'+(Number(r.u)?'':' z')+'">'+(Number(r.u)?fmt2(r.u):'\u2014')+'</td>'
+ +'<td class="num'+(nn?'':' z')+'">'+(nn?fmt2(Number(r.u||0)/nn):'\u2014')+'</td>':'');
+ }).join('')||'<tr><td class="lft" colspan="'+(cols.length+2+nC)+'">No matching Location</td></tr>';
+ var tot={};cols.forEach(function(k){tot[k]=0});
+ var g=0,gn=0,gu=0,agg=[],idx={};
+ shown.forEach(function(r){
+ cols.forEach(function(k){tot[k]+=Number(r.v[k]||0)});
+ g+=Number(r.t)||0;gn+=Number(r.n)||0;gu+=Number(r.u)||0;
+ (r.c||[]).forEach(function(x){
+ if(idx[x.cur]===undefined){idx[x.cur]=agg.length;agg.push({cur:x.cur,n:0,s:0})}
+ agg[idx[x.cur]].n+=Number(x.n)||0;agg[idx[x.cur]].s+=Number(x.s)||0;
+ });
+ });
+ var gpct=(C&&g)?pct(gn/g):'\u2014';
+ $('lc-tfoot').innerHTML='<tr><td class="lft">Total ('+(f?'matching '+shown.length:'all '+shown.length)+' locations)</td>'
+ +cols.map(function(k){return '<td class="num">'+fmt(tot[k])+'</td>'}).join('')
+ +'<td class="num tot"><b>'+fmt(g)+'</b></td>'
+ +(C?'<td class="num"><b>'+fmt(gn)+'</b></td><td class="num">'+gpct+'</td>'
+ +'<td class="num tbd">not addable across currencies</td>'
+ +'<td class="num tot"><b>'+fmt2(gu)+'</b></td>'
+ +'<td class="num"><b>'+(gn?fmt2(gu/gn):'\u2014')+'</b></td>':'');
+}
+
+function renderChgNotice(){
+ var nEl=$('chg-notice');if(!nEl)return;
+ if(!LC||!LC.chg){nEl.innerHTML='<span class="ni">✓</span><span>(prefix change list not available; the merged table shows the lease part only)</span>';return;}
+ var C=LC.chg;
+ var curTxt=(C.curs||[]).map(function(c){
+ return '<b>'+esc(c.cur)+'</b> '+fmt2(c.costSum)+' → <b>'+fmt2(c.costUsd)+'</b> USD ('+fmt(c.n)+' units · local-currency avg '+fmt2(c.costAvg)+')';
+ }).join('; ');
+ var fx=C.fx||{}, per=fx.perUsd||{};
+ var fxTxt=Object.keys(per).filter(function(k){return k!=='USD'}).map(function(k){
+ return '1 USD = '+fmt4(per[k])+' '+esc(k);
+ }).join(' · ');
+ nEl.innerHTML='<span class="ni">✓</span><span><b>Prefix change progress.</b> The sheet has <b>'+fmt(C.rowsTotal)+'</b> rows; completed (Date of Change is a date) <b>'+fmt(C.done)+'</b> units; pending <b>'+fmt(C.skip)+'</b> units (date cell is text or blank, excluded)'
+ +(C.noCostN?('; <b>'+fmt(C.noCostN)+'</b> units have no Cost filled (counted for volume, excluded from amount)'):'')
+ +'. <b>Currency follows column K; anything unlabeled is treated as USD</b>. Cost by local currency: '+curTxt+'. '
+ +'The total row is converted to USD: <b>'+fmt2(C.usdTotal)+'</b> USD</b> (FX '+fxTxt+'; source '+esc(fx.src||'')+' '+esc(fx.date||'')+'). Average <b>'+fmt2(C.usdTotal/C.done)+'</b> USD/unit (over '+fmt(C.done)+' changed units); counting only the '+fmt(C.nWithCost)+' units with a Cost filled in, it is <b>'+fmt2(C.usdAvg)+'</b> USD/unit. '
+ +'The two lists are aligned by Location: <b>'+fmt(LC.both)+'</b> with both, <b>'+fmt(LC.leaseOnly)+'</b> prefix fleet only, <b>'+fmt(LC.chgOnly)+'</b> prefix change only.</span>';
+}
+
+$('ql').addEventListener('input',function(){renderLC(this.value.trim())})
+$('q').addEventListener('input',function(){renderDetails(this.value.trim())})
+renderTiers();renderRanks();renderAging();renderBox({},{});renderOfficeImport();renderDetails('');renderWorst();renderBanner();renderLC('');renderChgNotice();
+initModuleBar();
+initCardToggles();
+initRankTip();
+})();
+</script>
+</body>
+</html>
